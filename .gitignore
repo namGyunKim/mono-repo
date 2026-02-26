@@ -1,5 +1,8 @@
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# Backend docs
+HELP.md
+
 # compiled output
 dist
 tmp
@@ -12,10 +15,17 @@ node_modules
 .idea/
 .project
 .classpath
+.apt_generated
+.factorypath
 .c9/
 *.launch
 .settings/
+.springBeans
+.sts4-cache
 *.sublime-workspace
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
 # IDE - VSCode
 .vscode/*
@@ -50,9 +60,32 @@ out
 # Java / Gradle
 build/
 .gradle/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+**/src/main/generated/
+
+# IntelliJ
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
 # Claude Code local settings
 .claude/settings.local.json
 
 # Environment
 .env*
+
+# Local Spring config
+**/src/main/resources/application*.yml
+**/src/main/resources/application*.yaml
