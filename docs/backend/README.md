@@ -37,6 +37,10 @@ mono-repo/
 
 각 API 앱은 루트 `build.gradle.kts`의 공통 설정을 상속받고, 앱별 `build.gradle.kts`에서 전용 의존성을 추가합니다.
 
+### 스크립트 보호 규칙
+
+- `scripts/` 경로 및 `.sh` 파일은 절대 수정하지 않습니다.
+
 ---
 
 ## 빠르게 확인할 URL (user-api 기준)
@@ -117,6 +121,10 @@ mono-repo/
 - 버전/좌표 관리는 `gradle/libs.versions.toml`(Version Catalog) 사용 예정
 - 의존성 잠금은 `gradle.lockfile`, `settings-gradle.lockfile`로 관리
 - 의존성 추가/버전 변경 후에는 잠금 파일 갱신:
+- 샌드박스/권한 차단 시 도구 escalation을 즉시 수행
+- 실행 실패 시 `--no-daemon`으로 1회 재시도 후, 계속 차단되면 escalation 수행
+- 캐시는 기본 사용, 결과 불일치 의심 시에만 `--refresh-dependencies` 1회 허용
+- 결과 보고 시 캐시 기준인지 refresh 기준인지 명시
 
 ```bash
 ./gradlew dependencies --write-locks
@@ -181,6 +189,11 @@ mono-repo/
 - TDD는 선택적 적용 (도메인 복잡도/회귀 위험에 따라)
 - 테스트 대상 우선순위: 핵심 도메인 규칙 > 보안 > 데이터 무결성
 - 단순 매핑/보일러플레이트는 최소 범위
+- 설정 변경이 필요하면 `/sample-application/**` 하위 샘플 설정 파일만 수정 대상으로 사용
+
+## 로깅/관측성 메모
+
+- 예외 로그 템플릿 변경은 `ExceptionLogTemplates`에서만 관리합니다.
 
 ---
 
@@ -223,6 +236,7 @@ Spring Boot 4 / Spring Framework 7의 **API Versioning(헤더 기반)** 사용:
 - 프론트엔드는 반드시 `1.0`을 명시적으로 전송
 - `/api/**` 요청은 `API-Version` 헤더 필수 (예외: `/api/health`, `/api/social/**`)
 - URL 경로 버전 세그먼트(`/v1`, `/api/v1`) 사용 금지
+- Swagger 문서에서도 `/api/health`, `/api/social/**` 제외 API는 `API-Version`을 `required=true`로 표기
 
 ### 예제 엔드포인트
 
@@ -241,3 +255,4 @@ Spring Boot 4 / Spring Framework 7의 **API Versioning(헤더 기반)** 사용:
 보안상 Swagger UI와 OpenAPI JSON은 기본 비활성화:
 - `springdoc.swagger-ui.enabled=false`
 - `springdoc.api-docs.enabled=false`
+- 문서 활성화 시 `/api/health`, `/api/social/**`를 제외한 API는 `API-Version` 헤더를 필수(required=true)로 표시
