@@ -297,6 +297,51 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 - DTO 네이밍: `CreateRequest`, `UpdateCommand`, `DetailResponse`, `ListQuery`
 - DTO는 검증/매핑 외 비즈니스 로직 불포함
 
+#### DTO 생성 규칙 가이드 (상세)
+
+목적: DTO 생성 시점과 역할을 고정해, DTO 구조 변경 시 수정 범위를 DTO 내부로 한정한다.
+
+핵심 규칙:
+
+1. DTO는 `record`로 작성한다.
+2. 외부에서는 생성자를 직접 호출하지 않는다.
+3. `of(...)`는 원시값/직접 값 생성에만 사용한다.
+4. `from(...)`은 다른 객체를 DTO로 변환할 때만 사용한다.
+5. 변환 로직은 DTO 내부로 모은다.
+
+예시:
+
+```java
+public record MemberSummaryResponse(Long id, String name) {
+    public static MemberSummaryResponse of(Long id, String name) {
+        return new MemberSummaryResponse(id, name);
+    }
+
+    public static MemberSummaryResponse from(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException("member는 필수입니다.");
+        }
+        return new MemberSummaryResponse(member.getId(), member.getName());
+    }
+}
+```
+
+적용 팁:
+
+1. 호출부에서는 `DTO.of(...)` 또는 `DTO.from(...)`만 사용한다.
+2. DTO 구조 변경 시 DTO 내부에서만 수정되도록 유지한다.
+
+계정 도메인 예시:
+
+1. 직접 값 생성은 `of(...)`로 통일한다.
+2. 엔티티/프로젝션 변환은 `from(...)`만 사용한다.
+
+```java
+AccountLoginIdQuery query = AccountLoginIdQuery.of(loginId);
+LoginMemberResponse response = LoginMemberResponse.from(member);
+LoginMemberResponse projectionResponse = LoginMemberResponse.from(view);
+```
+
 ### 파라미터 전달 원칙 (DTO 우선) — CRITICAL
 
 - 계층 경계에서 값을 개별 전달하지 말고 **DTO로 묶어 전달**
