@@ -1,106 +1,121 @@
-# New Nx Repository
+# mono-repo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Nx + Gradle 기반 모노레포입니다.  
+현재 구조는 `모노레포 + MSA 확장형`을 기준으로 정리되어 있으며, 백엔드 공통 코드는 `libs/backend`에 집중하고 앱(`apps/*`)은 API/유스케이스 조합 책임에 집중합니다.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## 프로젝트 현황
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-## Finish your Nx platform setup
+- 형태: 모노레포 + 서비스 분리(MSA) 확장형
+- 백엔드 기준: Java 25, Spring Boot 4.0.3, Spring Framework 7
+- 프론트엔드 기준: Next.js 16, React 19
+- 워크스페이스 툴링: Nx 22, pnpm 10, Gradle 9.3.1(Wrapper)
 
-🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/DOjaNlJUbi) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
-## Generate a library
+## 워크스페이스 구조
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+```text
+mono-repo/
+├── apps/
+│   ├── user-api/               # Spring Boot 사용자 API (port: 8081)
+│   ├── admin-api/              # Spring Boot 관리자 API (port: 8082)
+│   └── web/                    # Next.js 프론트엔드
+├── libs/
+│   ├── backend/
+│   │   ├── global-core/        # 전역 공통(도메인 비의존)
+│   │   ├── domain-core/        # 도메인 핵심(account/member/log/social 등)
+│   │   ├── security-web/       # Spring Security 웹 계층 어댑터
+│   │   └── web-support/        # MVC/AOP/예외 처리/웹 공통 지원
+│   └── shared/
+│       └── types/              # 프론트/백엔드 공유 TS 타입
+├── docs/
+│   └── backend/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── nx.json
 ```
 
-## Run tasks
+## 모듈 책임과 의존 방향
 
-To build the library use:
+### apps
 
-```sh
-npx nx build pkg1
+- `apps/user-api`, `apps/admin-api`: 앱 전용 API, 앱 유스케이스 조합, 앱별 엔드포인트(예: health)
+- `apps/web`: 프론트엔드 애플리케이션
+
+### libs/backend
+
+- `global-core`: 여러 앱에서 공통으로 재사용되는 최소 전역 컴포넌트
+- `domain-core`: 도메인 모델/서비스/도메인 규칙
+- `security-web`: 인증/인가 웹 어댑터(필터, 핸들러, 보안 설정)
+- `web-support`: 웹 계층 공통 지원(MVC/AOP/예외/버전 헤더 처리 등)
+
+### libs/shared
+
+- `types`: 프론트/백엔드가 함께 쓰는 TypeScript 타입
+
+### 백엔드 의존 흐름(개념)
+
+`global-core <- domain-core <- security-web <- web-support <- apps/*-api`
+
+## 시작하기
+
+### 요구사항
+
+- JDK 25
+- Node.js 23.x
+- pnpm 10.x
+
+### 설치
+
+```bash
+pnpm install
 ```
 
-To run any task with Nx use:
+### 프로젝트 목록 확인
 
-```sh
-npx nx <target> <project-name>
+```bash
+pnpm nx show projects
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 실행/빌드 명령
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 백엔드 (Nx 경유)
 
-## Versioning and releasing
+```bash
+pnpm nx serve user-api
+pnpm nx serve admin-api
 
-To version and release the library use
+pnpm nx build user-api
+pnpm nx build admin-api
 
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+pnpm nx test user-api
+pnpm nx test admin-api
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### 백엔드 (Gradle 직접)
 
-```sh
-npx nx sync:check
+```bash
+./gradlew :apps:user-api:bootRun
+./gradlew :apps:admin-api:bootRun
+
+./gradlew :apps:user-api:build
+./gradlew :apps:admin-api:build
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### 프론트엔드
 
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+pnpm nx dev @mono-repo/web
+pnpm nx build @mono-repo/web
+pnpm nx start @mono-repo/web
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 개발 운영 원칙
 
-## Install Nx Console
+- 재사용 가능한 백엔드 코드는 `libs/backend/*`에 우선 배치합니다.
+- 앱(`apps/*-api`)은 앱 고유 정책, API 조합, 배포 단위 책임에 집중합니다.
+- 도메인 전용 모델/Enum/응답 타입은 전역(`global`)이 아닌 해당 도메인 경계에 둡니다.
+- 서비스 분리(MSA) 시 `apps/*-api`를 기준으로 점진 분리 가능한 구조를 유지합니다.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## 문서
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- 백엔드 개요: `docs/backend/README.md`
+- 백엔드 규칙: `docs/backend/RULES.md`
