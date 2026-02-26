@@ -1,7 +1,6 @@
 package com.example.global.exception;
 
 import com.example.global.exception.enums.ErrorCode;
-
 // 전역 예외 처리 클래스
 public class GlobalException extends BaseAppException {
 

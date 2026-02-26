@@ -48,8 +48,8 @@ public class SwaggerConfig {
      * <p>
      * - API 버저닝은 URL 경로(/v1 등)가 아니라, 요청 헤더(API-Version)로만 처리합니다.
      * - 예외:
-     * - 헬스체크(/api/health)
-     * - 소셜 로그인(/api/social/**) : 외부 OAuth Provider가 API-Version 헤더를 전달할 수 없음
+     *   - 헬스체크(/api/health)
+     *   - 소셜 로그인(/api/social/**) : 외부 OAuth Provider가 API-Version 헤더를 전달할 수 없음
      * </p>
      */
     @Bean

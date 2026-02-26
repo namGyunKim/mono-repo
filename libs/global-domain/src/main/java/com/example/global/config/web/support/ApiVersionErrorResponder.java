@@ -1,11 +1,16 @@
 package com.example.global.config.web.support;
 
+import com.example.domain.account.payload.dto.CurrentAccountDTO;
 import com.example.global.config.web.RequestLoggingAttributes;
+import com.example.global.event.ExceptionEvent;
 import com.example.global.exception.enums.ErrorCode;
+import com.example.global.exception.support.ExceptionLogWriter;
 import com.example.global.payload.response.ApiErrorResponse;
+import com.example.global.security.guard.MemberGuard;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,17 +24,18 @@ import java.nio.charset.StandardCharsets;
 public class ApiVersionErrorResponder {
 
     private final ObjectMapper objectMapper;
+    private final ExceptionLogWriter exceptionLogWriter;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final MemberGuard memberGuard;
 
-    public void writeErrorResponse(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            ErrorCode errorCode
-    ) throws IOException {
-        if (response == null || response.isCommitted() || errorCode == null) {
+    public void writeErrorResponse(HttpServletRequest request, HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        if (response == null || response.isCommitted()) {
             return;
         }
 
         markFilterLogged(request);
+        logVersionError(request, errorCode);
+        publishExceptionEvent(request, errorCode);
 
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -37,6 +43,35 @@ public class ApiVersionErrorResponder {
 
         ApiErrorResponse body = ApiErrorResponse.from(errorCode);
         response.getWriter().write(objectMapper.writeValueAsString(body));
+    }
+
+    private void logVersionError(HttpServletRequest request, ErrorCode errorCode) {
+        if (request == null || errorCode == null) {
+            return;
+        }
+
+        exceptionLogWriter.logMessageOnly(
+                exceptionLogWriter.resolveRequestMeta(request),
+                errorCode,
+                errorCode.getErrorMessage()
+        );
+    }
+
+    private void publishExceptionEvent(HttpServletRequest request, ErrorCode errorCode) {
+        if (request == null || errorCode == null) {
+            return;
+        }
+
+        CurrentAccountDTO account = memberGuard.getCurrentAccountOrGuest();
+        String detailMessage = errorCode.getErrorMessage();
+
+        applicationEventPublisher.publishEvent(ExceptionEvent.from(
+                new IllegalArgumentException(detailMessage),
+                errorCode,
+                detailMessage,
+                account,
+                request
+        ));
     }
 
     private void markFilterLogged(HttpServletRequest request) {

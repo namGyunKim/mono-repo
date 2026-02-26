@@ -22,19 +22,22 @@ import java.time.LocalDateTime;
 @EntityListeners(value = {AuditingEntityListener.class}) // [중요] 이 리스너가 있어야 Auditing이 동작합니다.
 public abstract class BaseTimeEntity implements Serializable {
 
+    protected BaseTimeEntity() {
+    }
+
     @CreatedDate
     @Column(updatable = false, comment = "생성일")
     private LocalDateTime createdAt;            // 생성일
+
     @CreatedBy
     @Column(updatable = false, comment = "생성자")
     private String createdBy;                   // 생성자 (로그인 ID 또는 SYSTEM)
+
     @LastModifiedDate
     @Column(comment = "수정일")
     private LocalDateTime modifiedAt;           // 수정일
+
     @LastModifiedBy
     @Column(comment = "수정자")
     private String lastModifiedBy;              // 수정자 (로그인 ID 또는 SYSTEM)
-
-    protected BaseTimeEntity() {
-    }
 }
