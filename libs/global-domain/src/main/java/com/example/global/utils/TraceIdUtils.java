@@ -1,0 +1,48 @@
+package com.example.global.utils;
+
+import org.slf4j.MDC;
+
+import java.util.UUID;
+
+/**
+ * TraceId 조회 유틸리티
+ * - MDC에 저장된 traceId를 안전하게 반환합니다.
+ */
+public final class TraceIdUtils {
+
+    public static final String TRACE_ID_KEY = "traceId";
+    public static final String TRACE_HEADER_NAME = "X-Trace-Id";
+
+    private TraceIdUtils() {
+    }
+
+    public static String resolveTraceId() {
+        String traceId = MDC.get(TRACE_ID_KEY);
+        if (traceId == null || traceId.isBlank()) {
+            traceId = createTraceId();
+            MDC.put(TRACE_ID_KEY, traceId);
+        }
+        return traceId;
+    }
+
+    public static String createTraceId() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    public static String resolveTraceIdFromRequest(jakarta.servlet.http.HttpServletRequest request) {
+        if (request == null) {
+            return createTraceId();
+        }
+
+        String headerTraceId = request.getHeader(resolveTraceHeaderName());
+        if (headerTraceId != null && !headerTraceId.isBlank()) {
+            return headerTraceId.trim();
+        }
+
+        return createTraceId();
+    }
+
+    public static String resolveTraceHeaderName() {
+        return TRACE_HEADER_NAME;
+    }
+}
