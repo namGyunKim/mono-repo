@@ -1,9 +1,9 @@
 # 백엔드 REST API 개발 규칙
 
 이 문서는 AI가 이 모노레포의 **REST API 전용 백엔드**(Spring Boot) 코드를 생성하거나 수정할 때 반드시 따라야 할 규칙입니다.
-본 프로젝트는 "새로운 프로젝트에서 재사용 가능한 범용 베이스 프로젝트"를 지향합니다.
+본 프로젝트는 `apps/*-api`와 `libs/backend/*`를 분리한 모노레포 구조를 기준으로 운영합니다.
 
-> 모노레포 경로: `apps/user-api/`, `apps/{domain}-api/` 등
+> 모노레포 경로: `apps/user-api/`, `apps/admin-api/`, `libs/backend/*`
 
 ---
 
@@ -12,9 +12,16 @@
 ```
 mono-repo/
 ├── apps/
-│   ├── web/                    # Next.js 16 (App Router)
-│   └── user-api/               # Spring Boot 4.0.3 (Java 25)
-├── libs/shared/types/          # 공유 TS 타입
+│   ├── user-api/               # Spring Boot 4.0.3 (Java 25)
+│   ├── admin-api/              # Spring Boot 4.0.3 (Java 25)
+│   └── web/                    # Next.js 16 (App Router)
+├── libs/
+│   ├── backend/
+│   │   ├── global-core/
+│   │   ├── domain-core/
+│   │   ├── security-web/
+│   │   └── web-support/
+│   └── shared/types/           # 공유 TS 타입
 ├── gradle/wrapper/             # Gradle 9.3.1 Wrapper
 ├── build.gradle.kts            # Gradle 루트 (백엔드 공통)
 ├── settings.gradle.kts         # Gradle 서브프로젝트 include
@@ -27,40 +34,43 @@ mono-repo/
 
 ## 기술 스택 하한 (CRITICAL)
 
-| 영역 | 기준 |
-|------|------|
-| Java | **25** (Gradle Toolchain) |
-| Spring Boot | **4.0.3** |
-| Spring Framework | **7.x** |
-| Gradle | **9.3.1** (Wrapper) |
-| Node.js | **23.x** |
-| Next.js | **16.x** |
-| NX | **22.x** |
+| 영역               | 기준                                       |
+|------------------|------------------------------------------|
+| Java             | **25** (Gradle Toolchain)                |
+| Spring Boot      | **4.0.3**                                |
+| Spring Framework | **7.x**                                  |
+| Gradle           | **9.3.1** (Wrapper)                      |
+| Node.js          | **23.x**                                 |
+| Next.js          | **16.x**                                 |
+| NX               | **22.x**                                 |
+| QueryDSL         | **7.1** (`io.github.openfeign.querydsl`) |
 
 ## 빌드 명령
 
 ```bash
-# 프론트엔드
-pnpm nx build @mono-repo/web
-pnpm nx dev @mono-repo/web
-
 # 백엔드
 pnpm nx build user-api
 pnpm nx serve user-api
 pnpm nx test user-api
+pnpm nx build admin-api
+pnpm nx serve admin-api
+pnpm nx test admin-api
 
 # Gradle 직접 실행
 ./gradlew :apps:user-api:build
 ./gradlew :apps:user-api:bootRun
 ./gradlew :apps:user-api:test
+./gradlew :apps:admin-api:build
+./gradlew :apps:admin-api:bootRun
+./gradlew :apps:admin-api:test
 ```
 
 ## 새 백엔드 API 추가 절차
 
-1. `apps/{name}/` 디렉토리를 `user-api`와 동일 구조로 생성
-2. `settings.gradle.kts`에 `include("apps:{name}")` 추가
-3. `apps/{name}/project.json` 생성 (NX 연동)
-4. `apps/{name}/build.gradle.kts` 생성
+1. `apps/{name}-api/` 디렉토리를 `user-api`와 동일 구조로 생성
+2. `settings.gradle.kts`에 `include("apps:{name}-api")` 추가
+3. `apps/{name}-api/project.json` 생성 (NX 연동)
+4. `apps/{name}-api/build.gradle.kts` 생성
 5. 포트 번호 변경 (`8082`, `8083`, ...)
 
 ## 커밋 메시지 규칙 (Conventional Commits)
@@ -129,25 +139,26 @@ pnpm nx test user-api
 - 기본값 `0.0`은 유효하지 않으며, 프론트는 `1.0` 명시 전송 필수
 - Swagger 문서에서도 `/api/health`, `/api/social/**` 제외 API는 `API-Version`을 `required=true`로 표기
 
-### member_log 파티션 운영 주의 (CRITICAL)
+### 경로/문서 참조 정합성 (CRITICAL)
 
-- `member_log` 관련 정책 변경 시 `docs/db/member_log_partitioning.sql`, `docs/db/member_log_partitions.sql` 실행 필요성 확인
-- 로컬/샘플 환경(JPA `create-drop`)은 파티션 SQL 적용 대상이 아님
+- 문서에는 **현재 저장소에 실제 존재하는 경로/파일만** 참조한다.
+- 경로를 문서에 추가할 때는 `rg --files` 등으로 존재 여부를 먼저 확인한다.
 
 ### 파일 경로 표기 규칙
 
 - `src/main/resources/**` 하위 파일은 **전체 상대경로를 함께 명시**
 - Java 파일은 패키지 선언으로 위치 확인 가능하므로 파일명만 명시 가능
-- `sample-application/**` 변경 시도 전체 상대경로 명시
+- 앱 전용 코드는 `apps/*-api/**`, 공통 코드는 `libs/backend/**` 경계를 명시
 
 ### 스크립트 보호 규칙
 
-- `scripts/` 경로 및 `.sh` 파일은 절대 수정하지 않는다.
+- 현재 저장소에는 전용 `scripts/` 디렉토리가 없다.
+- `gradlew`, `gradlew.bat` 외 shell 스크립트 추가/수정은 사용자 요청이 있을 때만 진행한다.
 
 ### 모노레포 Gradle 경로 규칙
 
-- Gradle 명령 시 서브프로젝트 경로 명시: `./gradlew :apps:user-api:build`
-- NX 경유: `pnpm nx build user-api`
+- Gradle 명령 시 서브프로젝트 경로 명시: `./gradlew :apps:user-api:build`, `./gradlew :apps:admin-api:build`
+- NX 경유: `pnpm nx build user-api`, `pnpm nx build admin-api`
 
 ### 설정파일 관련 의도사항
 
@@ -159,7 +170,6 @@ pnpm nx test user-api
 - TDD는 선택 전략, 전체 강제 아님
 - 코드 변경 시 위험도 기준으로 필요하면 사전 요청 없이 테스트 추가/수정/실행 가능
 - 사용자가 명시 요청하지 않는 한 **설정 파일 임의 수정 금지**
-- 설정 변경이 필요하면 `/sample-application/**` 하위 샘플 설정 파일만 수정 대상으로 사용
 - 설정 변경 필요 시 사유/영향 범위를 먼저 설명하고 확인 후 진행
 
 ### Gradle 의존성 점검 실행 규칙 (CRITICAL)
@@ -207,7 +217,7 @@ pnpm nx test user-api
 - 계층 경계는 DTO 전달 원칙 준수
 - 인증/인가 판단은 MemberGuard로 통일
 - 멀티라인 문자열은 Text Block 사용
-- `scripts/` 및 `.sh` 파일 수정 금지
+- 임의 shell 스크립트 추가/수정은 사용자 요청 시에만 진행
 
 ### 클린 코드 & SRP
 
@@ -402,30 +412,35 @@ where(MemberSpec.isActive(active), MemberSpec.hasRole(role), ...)
 ### 패키지 구조 (REST API 전용)
 
 ```
-src/main/java/com/example/{api-name}
-├── global
-│   ├── config
-│   ├── exception
-│   ├── security
-│   └── utils
+apps/{app}-api/src/main/java/com/example/{app}/
 └── domain
-    └── {domain}
-        ├── api              # 🚨 /controller 경로 사용 금지
-        ├── entity
-        ├── enums
-        ├── payload
-        │   ├── request
-        │   ├── response
-        │   └── dto
-        ├── repository
-        ├── service
-        │   ├── command
-        │   └── query
-        ├── validator
-        ├── client
-        │   └── payload
-        ├── config
-        └── support
+    └── {app-specific-domain}
+        └── api               # 앱 진입점/앱 전용 조합
+
+libs/backend/global-core/src/main/java/com/example/global/
+├── config
+├── exception
+├── security
+└── utils
+
+libs/backend/domain-core/src/main/java/com/example/domain/
+└── {domain}
+    ├── api                   # 🚨 /controller 경로 사용 금지
+    ├── entity
+    ├── enums
+    ├── payload
+    │   ├── request
+    │   ├── response
+    │   └── dto
+    ├── repository
+    ├── service
+    │   ├── command
+    │   └── query
+    ├── validator
+    ├── client
+    │   └── payload
+    ├── config
+    └── support
 ```
 
 ### 멀티라인 문자열 (Text Block) — CRITICAL
@@ -564,8 +579,8 @@ src/main/java/com/example/{api-name}
 
 ### 설정/운영 규칙
 
-- [ ] 설정 변경 시 `/sample-application/**`만 수정 대상으로 사용했는가?
-- [ ] `scripts/` 및 `.sh` 파일을 수정하지 않았는가?
+- [ ] 설정 변경 사유/영향 범위를 먼저 설명하고 확인받았는가?
+- [ ] 문서/코드에서 실제 존재하지 않는 경로를 참조하지 않았는가?
 
 ### DTO 규칙
 
@@ -612,13 +627,13 @@ src/main/java/com/example/{api-name}
 | DTO           | record + `from/of`, 외부 `new` 금지                                                |
 | 계층 경계         | 값 나열 금지, DTO 1개로 전달                                                            |
 | 도메인 경계        | `id`/DTO/Port/Event 우선, 직접 참조 지양                                               |
-| 스크립트          | `scripts/` 및 `.sh` 수정 금지                                                       |
+| 스크립트          | `gradlew`/`gradlew.bat` 외 shell 스크립트 추가/수정은 사용자 요청 시만 진행                       |
 | CQRS          | 물리 분리, Command=`@Transactional`, Query=`readOnly=true`                         |
 | 조회 최적화        | QueryDSL + fetch join, DTO Projection                                          |
 | 로깅            | traceId 포함, 민감정보 금지                                                            |
 | API 버전        | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true` |
 | 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                              |
-| 설정 변경         | `/sample-application/**`만 수정 대상으로 사용                                           |
+| 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                |
 | 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                  |
 | 보안            | `@PreAuthorize`만, 누락=공개                                                        |
 | 리프레시 토큰       | 암호화 저장 + 복호화 검증 + 재발급 시 폐기                                                     |
