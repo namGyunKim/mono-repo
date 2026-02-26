@@ -73,14 +73,14 @@ pnpm nx test admin-api
 4. `apps/{name}-api/build.gradle.kts` 생성
 5. 포트 번호 변경 (`8082`, `8083`, ...)
 
-## 커밋 메시지 규칙 (Conventional Commits)
+## 커밋 메시지 규칙 (Conventional Commits, CRITICAL)
 
-- `feat:` 기능 추가
-- `fix:` 버그 수정
-- `refactor:` 리팩터링
-- `docs:` 문서 수정
-- `chore:` 설정/빌드/의존성
-- Prefix 뒤 설명은 **한국어**로 작성
+- 기본 형식: **`type(scope): 변경 요약`**
+- 예시: `docs(backend): 백엔드 지침서 구조·경로 정합성 정리`
+- `type` 허용값: `feat`, `fix`, `refactor`, `docs`, `chore`
+- 변경 영역이 명확하면 `scope`를 반드시 포함한다
+- 권장 `scope`: `backend`, `user-api`, `admin-api`, `domain-core`, `global-core`, `security-web`, `web-support`, `web`
+- `:` 뒤 설명은 **한국어**로 작성
 - 커밋 메시지는 변경사항을 요약한 **제목 한 줄 1개만** 제공 (여러 후보/여러 줄 금지)
 
 ---
@@ -202,9 +202,9 @@ pnpm nx test admin-api
 - 호환성 목적의 레거시 코드를 남기지 않는다
 - 변경 시 기존 방식을 제거하고 최신 규칙으로 통일
 
-### 커밋 메시지 규칙 (Conventional Commits)
+### 커밋 메시지 규칙 (CRITICAL)
 
-- Prefix: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`
+- 형식은 상단 규칙과 동일하게 `type(scope): 변경 요약`을 사용
 - 설명은 **한국어**, 제목 한 줄 1개만 제공
 - 코드 제공 시 커밋 메시지를 함께 제공
 - 커밋 메시지 제공 시 macOS `pbcopy`로 한 줄 메시지를 클립보드에 자동 복사
