@@ -21,3 +21,26 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+---
+
+# NX 워크스페이스 사용 가이드 (한국어)
+
+- 워크스페이스 탐색 시 `nx-workspace` 스킬을 먼저 사용한다
+- 빌드/린트/테스트 등 태스크는 반드시 `nx`를 경유해서 실행한다 (`nx run`, `nx run-many`, `nx affected`)
+- nx 명령에는 패키지 매니저 접두사를 붙인다 (예: `pnpm nx build`) — 전역 CLI 사용 금지
+- NX 플러그인 모범 사례는 `node_modules/@nx/<plugin>/PLUGIN.md` 확인 (없으면 무시)
+- CLI 플래그를 추측하지 않는다 — 확실하지 않으면 `--help` 먼저 확인
+- 스캐폴딩(앱/라이브러리 생성) 작업 시 `nx-generate` 스킬을 먼저 호출한다
+
+---
+
+# 영역별 개발 지침 (CRITICAL)
+
+각 영역의 코드를 생성/수정할 때는 해당 영역의 지침 문서를 **반드시 읽고 준수**한다.
+
+| 영역 | 지침 문서 |
+|------|-----------|
+| 백엔드 (Spring Boot) | `docs/backend/README.md`, `docs/backend/RULES.md` |
+
+> **백엔드 코드를 생성/수정할 때는 반드시 `docs/backend/RULES.md`를 먼저 읽고 모든 규칙을 준수한다.**
