@@ -6,8 +6,8 @@ import com.example.domain.account.payload.dto.AccountLoginValidationQuery;
 import com.example.domain.account.payload.request.AccountAdminLoginRequest;
 import com.example.domain.account.payload.request.AccountUserLoginRequest;
 import com.example.domain.account.service.query.AccountQueryService;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.enums.MemberType;
-import com.example.global.enums.GlobalActiveEnums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -93,7 +93,7 @@ public class LoginAccountValidator implements Validator {
         AccountLoginCandidateView candidate = candidateOptional.get();
 
         // 활성화 상태 체크
-        if (candidate.active() != GlobalActiveEnums.ACTIVE) {
+        if (candidate.active() != MemberActiveStatus.ACTIVE) {
             errors.rejectValue("loginId", "login.fail", "비활성화된 계정입니다. 관리자에게 문의하세요.");
             return;
         }

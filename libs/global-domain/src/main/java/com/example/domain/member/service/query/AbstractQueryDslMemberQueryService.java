@@ -2,6 +2,7 @@ package com.example.domain.member.service.query;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.member.entity.Member;
+import com.example.domain.member.enums.MemberOrderType;
 import com.example.domain.member.payload.dto.MemberDetailQuery;
 import com.example.domain.member.payload.dto.MemberListQuery;
 import com.example.domain.member.payload.dto.MemberRoleExistsQuery;
@@ -9,7 +10,6 @@ import com.example.domain.member.payload.response.DetailMemberResponse;
 import com.example.domain.member.payload.response.MemberListResponse;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.repository.MemberSpecification;
-import com.example.global.enums.GlobalOrderEnums;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.utils.PaginationUtils;
@@ -50,7 +50,7 @@ public abstract class AbstractQueryDslMemberQueryService extends AbstractMemberQ
         }
 
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        if (request.order() == GlobalOrderEnums.CREATE_ASC) {
+        if (request.order() == MemberOrderType.CREATE_ASC) {
             sort = Sort.by(Sort.Direction.ASC, "createdAt");
         }
 

@@ -2,7 +2,7 @@ package com.example.global.security.guard;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
-import com.example.global.enums.GlobalActiveEnums;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.global.security.guard.support.CurrentAccountProvider;
 import com.example.global.security.guard.support.MemberAccessTargetResolver;
 import com.example.global.security.guard.support.MemberStatusChecker;
@@ -122,7 +122,7 @@ public class MemberGuard {
         return memberStatusChecker.isActiveMember(currentAccount.id(), currentAccount.role());
     }
 
-    private boolean canAccessMemberInternal(AccountRole targetRole, Long targetId, GlobalActiveEnums targetActive) {
+    private boolean canAccessMemberInternal(AccountRole targetRole, Long targetId, MemberActiveStatus targetActive) {
         if (!isValidAccessTarget(targetRole, targetId)) {
             return false;
         }
@@ -145,7 +145,7 @@ public class MemberGuard {
             CurrentAccountDTO currentAccount,
             AccountRole targetRole,
             Long targetId,
-            GlobalActiveEnums targetActive
+            MemberActiveStatus targetActive
     ) {
         AccountRole currentRole = currentAccount.role();
         if (currentRole == null) {
@@ -176,13 +176,13 @@ public class MemberGuard {
             AccountRole currentRole,
             Long targetId,
             AccountRole targetRole,
-            GlobalActiveEnums targetActive
+            MemberActiveStatus targetActive
     ) {
         if (isAdminRole(currentRole)) {
             return true;
         }
         if (targetActive != null) {
-            return targetActive == GlobalActiveEnums.ACTIVE;
+            return targetActive == MemberActiveStatus.ACTIVE;
         }
         return memberStatusChecker.isActiveMember(targetId, targetRole);
     }

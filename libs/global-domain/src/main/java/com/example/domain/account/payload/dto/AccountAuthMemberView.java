@@ -1,8 +1,8 @@
 package com.example.domain.account.payload.dto;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.enums.MemberType;
-import com.example.global.enums.GlobalActiveEnums;
 
 /**
  * 인증/인가 처리 전용 회원 조회 DTO
@@ -14,7 +14,7 @@ public record AccountAuthMemberView(
         String nickName,
         AccountRole role,
         MemberType memberType,
-        GlobalActiveEnums active,
+        MemberActiveStatus active,
         long tokenVersion
 ) {
     public static AccountAuthMemberView of(
@@ -24,7 +24,7 @@ public record AccountAuthMemberView(
             String nickName,
             AccountRole role,
             MemberType memberType,
-            GlobalActiveEnums active,
+            MemberActiveStatus active,
             long tokenVersion
     ) {
         return new AccountAuthMemberView(

@@ -2,9 +2,9 @@ package com.example.domain.social.google.support;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.member.entity.Member;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.social.entity.SocialAccount;
 import com.example.domain.social.google.payload.response.GoogleUserInfoResponse;
-import com.example.global.enums.GlobalActiveEnums;
 import com.example.global.exception.SocialException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public class GoogleSocialMemberRegistrar {
     private Optional<Member> resolveActiveUserMember(Optional<SocialAccount> socialAccount) {
         return socialAccount
                 .map(SocialAccount::getMember)
-                .filter(member -> member.getActive() == GlobalActiveEnums.ACTIVE)
+                .filter(member -> member.getActive() == MemberActiveStatus.ACTIVE)
                 .filter(member -> member.getRole() == AccountRole.USER);
     }
 }

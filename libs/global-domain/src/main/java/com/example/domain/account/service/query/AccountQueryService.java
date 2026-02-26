@@ -2,7 +2,7 @@ package com.example.domain.account.service.query;
 
 import com.example.domain.account.payload.dto.*;
 import com.example.domain.account.support.AccountMemberQueryPort;
-import com.example.global.enums.GlobalActiveEnums;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AccountQueryService {
                         AccountLoginIdRoleQuery.of(request.loginId(), request.role())
                 )
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
-        if (view.active() != GlobalActiveEnums.ACTIVE) {
+        if (view.active() != MemberActiveStatus.ACTIVE) {
             throw new GlobalException(ErrorCode.MEMBER_INACTIVE);
         }
 
@@ -47,7 +47,7 @@ public class AccountQueryService {
         AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
-        if (view.active() != GlobalActiveEnums.ACTIVE) {
+        if (view.active() != MemberActiveStatus.ACTIVE) {
             throw new GlobalException(ErrorCode.MEMBER_INACTIVE);
         }
         return view;
@@ -67,7 +67,7 @@ public class AccountQueryService {
         AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
-        if (view.active() != GlobalActiveEnums.ACTIVE) {
+        if (view.active() != MemberActiveStatus.ACTIVE) {
             throw new GlobalException(ErrorCode.MEMBER_INACTIVE);
         }
         return view;

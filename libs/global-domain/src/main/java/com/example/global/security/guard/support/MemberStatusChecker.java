@@ -1,8 +1,8 @@
 package com.example.global.security.guard.support;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.repository.MemberRepository;
-import com.example.global.enums.GlobalActiveEnums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ public class MemberStatusChecker {
         }
 
         return memberRepository.findByIdAndRoleIn(memberId, List.of(role))
-                .map(member -> member.getActive() == GlobalActiveEnums.ACTIVE)
+                .map(member -> member.getActive() == MemberActiveStatus.ACTIVE)
                 .orElse(false);
     }
 }

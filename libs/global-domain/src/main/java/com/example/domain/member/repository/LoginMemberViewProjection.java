@@ -1,8 +1,8 @@
 package com.example.domain.member.repository;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.enums.MemberType;
-import com.example.global.enums.GlobalActiveEnums;
 
 /**
  * 로그인/프로필 조회용 Projection
@@ -19,5 +19,5 @@ public interface LoginMemberViewProjection {
 
     MemberType getMemberType();
 
-    GlobalActiveEnums getActive();
+    MemberActiveStatus getActive();
 }

@@ -1,9 +1,9 @@
 package com.example.domain.member.payload.dto;
 
+import com.example.domain.member.enums.MemberActiveStatus;
+import com.example.domain.member.enums.MemberFilterType;
+import com.example.domain.member.enums.MemberOrderType;
 import com.example.domain.member.payload.request.MemberListRequest;
-import com.example.global.enums.GlobalActiveEnums;
-import com.example.global.enums.GlobalFilterEnums;
-import com.example.global.enums.GlobalOrderEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -22,13 +22,13 @@ public record MemberListQuery(
         @Positive(message = "페이지 사이즈는 1 이상이어야 합니다.")
         int size,
         @NotNull(message = "정렬 기준을 선택해주세요.")
-        GlobalOrderEnums order,
+        MemberOrderType order,
         @Schema(description = "검색어", example = "관리자")
         String searchWord,
         @NotNull(message = "필터 기준을 선택해주세요.")
-        GlobalFilterEnums filter,
+        MemberFilterType filter,
         @NotNull(message = "활성화 여부를 선택해주세요.")
-        GlobalActiveEnums active
+        MemberActiveStatus active
 ) {
 
     private MemberListQuery(MemberListRequest request) {

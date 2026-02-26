@@ -1,9 +1,9 @@
 package com.example.domain.member.repository;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
+import com.example.domain.member.enums.MemberFilterType;
 import com.example.domain.member.payload.dto.MemberListQuery;
-import com.example.global.enums.GlobalActiveEnums;
-import com.example.global.enums.GlobalFilterEnums;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import org.springframework.util.StringUtils;
@@ -21,10 +21,10 @@ import static com.example.domain.member.entity.QMember.member;
  */
 public final class MemberSpecification {
 
-    private static final Map<GlobalFilterEnums, Function<String, Predicate>> FILTER_PREDICATE_RESOLVERS = Map.of(
-            GlobalFilterEnums.LOGIN_ID, member.loginId::containsIgnoreCase,
-            GlobalFilterEnums.NICK_NAME, member.nickName::containsIgnoreCase,
-            GlobalFilterEnums.ALL, keyword -> member.loginId.containsIgnoreCase(keyword)
+    private static final Map<MemberFilterType, Function<String, Predicate>> FILTER_PREDICATE_RESOLVERS = Map.of(
+            MemberFilterType.LOGIN_ID, member.loginId::containsIgnoreCase,
+            MemberFilterType.NICK_NAME, member.nickName::containsIgnoreCase,
+            MemberFilterType.ALL, keyword -> member.loginId.containsIgnoreCase(keyword)
                     .or(member.nickName.containsIgnoreCase(keyword))
     );
 
@@ -40,7 +40,7 @@ public final class MemberSpecification {
         }
 
         // 2. 활성화 상태(Active) 필터링
-        if (request.active() != null && request.active() != GlobalActiveEnums.ALL) {
+        if (request.active() != null && request.active() != MemberActiveStatus.ALL) {
             builder.and(member.active.eq(request.active()));
         }
 
@@ -51,15 +51,15 @@ public final class MemberSpecification {
         return builder;
     }
 
-    private static Optional<Predicate> resolveSearchPredicate(GlobalFilterEnums filter, String keyword) {
+    private static Optional<Predicate> resolveSearchPredicate(MemberFilterType filter, String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return Optional.empty();
         }
 
-        GlobalFilterEnums resolvedFilter = filter != null ? filter : GlobalFilterEnums.ALL;
+        MemberFilterType resolvedFilter = filter != null ? filter : MemberFilterType.ALL;
         Function<String, Predicate> resolver = FILTER_PREDICATE_RESOLVERS.getOrDefault(
                 resolvedFilter,
-                FILTER_PREDICATE_RESOLVERS.get(GlobalFilterEnums.ALL)
+                FILTER_PREDICATE_RESOLVERS.get(MemberFilterType.ALL)
         );
 
         return Optional.ofNullable(resolver)

@@ -1,9 +1,9 @@
 package com.example.domain.member.payload.request;
 
 import com.example.domain.account.enums.AccountRole;
-import com.example.global.enums.GlobalActiveEnums;
-import com.example.global.enums.GlobalFilterEnums;
-import com.example.global.enums.GlobalOrderEnums;
+import com.example.domain.member.enums.MemberActiveStatus;
+import com.example.domain.member.enums.MemberFilterType;
+import com.example.domain.member.enums.MemberOrderType;
 import com.example.global.utils.PaginationUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -20,36 +20,36 @@ public record MemberListRequest(
         Integer size,
 
         @Schema(description = "정렬 기준")
-        GlobalOrderEnums order,
+        MemberOrderType order,
 
         @Schema(description = "검색어", example = "검색어")
         String searchWord,
 
         @Schema(description = "필터 기준")
-        GlobalFilterEnums filter,
+        MemberFilterType filter,
 
         @Schema(description = "활성화 여부")
-        GlobalActiveEnums active
+        MemberActiveStatus active
 ) {
 
     // 생성자에서 null 또는 유효하지 않은 값에 대한 기본값 설정
     public MemberListRequest {
         page = PaginationUtils.normalizePage(page);
         size = PaginationUtils.normalizeSize(size, PaginationUtils.DEFAULT_SIZE);
-        if (order == null) order = GlobalOrderEnums.CREATE_DESC; // 기본 정렬: 최신순
+        if (order == null) order = MemberOrderType.CREATE_DESC; // 기본 정렬: 최신순
         if (searchWord == null) searchWord = "";
-        if (filter == null) filter = GlobalFilterEnums.ALL;
-        if (active == null) active = GlobalActiveEnums.ALL;
+        if (filter == null) filter = MemberFilterType.ALL;
+        if (active == null) active = MemberActiveStatus.ALL;
     }
 
     public static MemberListRequest of(
             AccountRole role,
             Integer page,
             Integer size,
-            GlobalOrderEnums order,
+            MemberOrderType order,
             String searchWord,
-            GlobalFilterEnums filter,
-            GlobalActiveEnums active
+            MemberFilterType filter,
+            MemberActiveStatus active
     ) {
         return new MemberListRequest(role, page, size, order, searchWord, filter, active);
     }

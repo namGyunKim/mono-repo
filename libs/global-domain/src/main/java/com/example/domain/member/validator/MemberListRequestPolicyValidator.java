@@ -1,10 +1,10 @@
 package com.example.domain.member.validator;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
+import com.example.domain.member.enums.MemberFilterType;
+import com.example.domain.member.enums.MemberOrderType;
 import com.example.domain.member.payload.request.MemberListRequest;
-import com.example.global.enums.GlobalActiveEnums;
-import com.example.global.enums.GlobalFilterEnums;
-import com.example.global.enums.GlobalOrderEnums;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -37,18 +37,18 @@ public class MemberListRequestPolicyValidator implements Validator {
             return;
         }
 
-        GlobalOrderEnums order = request.order();
-        if (order != null && !GlobalOrderEnums.checkAdminMember(order)) {
+        MemberOrderType order = request.order();
+        if (order != null && !MemberOrderType.checkAdminMember(order)) {
             errors.rejectValue("order", "order.invalid", "관리자 정렬 기준이 아닙니다.");
         }
 
-        GlobalFilterEnums filter = request.filter();
-        if (filter != null && !GlobalFilterEnums.checkAdminMember(filter)) {
+        MemberFilterType filter = request.filter();
+        if (filter != null && !MemberFilterType.checkAdminMember(filter)) {
             errors.rejectValue("filter", "filter.invalid", "관리자 필터 기준이 아닙니다.");
         }
 
-        GlobalActiveEnums active = request.active();
-        if (active != null && !GlobalActiveEnums.checkMember(active)) {
+        MemberActiveStatus active = request.active();
+        if (active != null && !MemberActiveStatus.checkMember(active)) {
             errors.rejectValue("active", "active.invalid", "회원 상태가 아닙니다.");
         }
     }

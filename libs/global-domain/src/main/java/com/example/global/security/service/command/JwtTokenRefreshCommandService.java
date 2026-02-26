@@ -2,8 +2,8 @@ package com.example.global.security.service.command;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
 import com.example.domain.member.entity.Member;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.repository.MemberRepository;
-import com.example.global.enums.GlobalActiveEnums;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
@@ -67,7 +67,7 @@ public class JwtTokenRefreshCommandService {
         Member member = memberRepository.findByLoginId(payload.subject())
                 .orElseThrow(() -> new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다."));
 
-        if (member.getActive() != GlobalActiveEnums.ACTIVE) {
+        if (member.getActive() != MemberActiveStatus.ACTIVE) {
             throw new GlobalException(ErrorCode.MEMBER_INACTIVE, "비활성화된 계정입니다.");
         }
 

@@ -1,10 +1,10 @@
 package com.example.domain.member.entity;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.enums.MemberType;
 import com.example.domain.member.payload.dto.MemberCreateCommand;
 import com.example.global.entity.BaseTimeEntity;
-import com.example.global.enums.GlobalActiveEnums;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,7 +41,7 @@ public class Member extends BaseTimeEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)", comment = "유저 활성 상태")
-    private GlobalActiveEnums active;
+    private MemberActiveStatus active;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)", comment = "유저 권한")
@@ -69,7 +69,7 @@ public class Member extends BaseTimeEntity implements Serializable {
         this.loginId = loginId;
         this.nickName = nickName;
         this.role = AccountRole.USER;
-        this.active = GlobalActiveEnums.ACTIVE;
+        this.active = MemberActiveStatus.ACTIVE;
         this.memberType = memberType;
     }
 
@@ -88,7 +88,7 @@ public class Member extends BaseTimeEntity implements Serializable {
         member.nickName = command.nickName();
         member.password = encodedPassword;
         member.role = command.role() != null ? command.role() : AccountRole.USER;
-        member.active = GlobalActiveEnums.ACTIVE;
+        member.active = MemberActiveStatus.ACTIVE;
         member.memberType = command.memberType();
         return member;
     }
@@ -129,7 +129,7 @@ public class Member extends BaseTimeEntity implements Serializable {
     // 회원 탈퇴 처리 (Soft Delete + Unique Key 회피)
     public void withdraw() {
         String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        this.active = GlobalActiveEnums.INACTIVE;
+        this.active = MemberActiveStatus.INACTIVE;
         this.loginId = this.loginId + "_LEAVE_" + nowStr;
         this.nickName = this.nickName + "_LEAVE_" + nowStr;
         this.refreshTokenEncrypted = null;
@@ -149,7 +149,7 @@ public class Member extends BaseTimeEntity implements Serializable {
     }
 
     // Active 상태 변경
-    public void changeActive(GlobalActiveEnums active) {
+    public void changeActive(MemberActiveStatus active) {
         this.active = active;
     }
 

@@ -10,7 +10,7 @@ import com.example.domain.account.service.command.AccountCommandService;
 import com.example.domain.account.service.query.AccountQueryService;
 import com.example.global.annotation.CurrentAccount;
 import com.example.global.api.RestApiController;
-import com.example.global.payload.response.GlobalUpdateResponse;
+import com.example.global.payload.response.IdResponse;
 import com.example.global.payload.response.RestApiResponse;
 import com.example.global.security.jwt.AccessTokenResolver;
 import com.example.global.version.ApiVersioning;
@@ -48,14 +48,14 @@ public class AccountApiController {
     @Operation(summary = "내 프로필 수정")
     @PutMapping(value = "/me", version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.isAuthenticated() and @memberGuard.canAccessSelf(#currentAccount)")
-    public ResponseEntity<RestApiResponse<GlobalUpdateResponse>> profileUpdate(
+    public ResponseEntity<RestApiResponse<IdResponse>> profileUpdate(
             @CurrentAccount CurrentAccountDTO currentAccount,
             @Valid @RequestBody AccountProfileUpdateRequest accountProfileUpdateRequest
     ) {
         Long updatedId = accountCommandService.updateProfile(
                 AccountProfileUpdateCommand.from(currentAccount, accountProfileUpdateRequest)
         );
-        GlobalUpdateResponse updateResponse = GlobalUpdateResponse.of(updatedId);
+        IdResponse updateResponse = IdResponse.of(updatedId);
 
         return restApiController.ok(updateResponse);
     }

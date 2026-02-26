@@ -16,8 +16,7 @@ import com.example.domain.member.validator.MemberCreateValidator;
 import com.example.domain.member.validator.MemberListRequestPolicyValidator;
 import com.example.global.annotation.CurrentAccount;
 import com.example.global.api.RestApiController;
-import com.example.global.payload.response.GlobalCreateResponse;
-import com.example.global.payload.response.GlobalUpdateResponse;
+import com.example.global.payload.response.IdResponse;
 import com.example.global.payload.response.RestApiResponse;
 import com.example.global.security.jwt.AccessTokenResolver;
 import com.example.global.security.payload.SecurityLogoutCommand;
@@ -66,12 +65,12 @@ public class AdminMemberApiController {
     @Operation(summary = "회원 생성")
     @PostMapping(version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canManageRole(#memberCreateRequest.role())")
-    public ResponseEntity<RestApiResponse<GlobalCreateResponse>> createMember(
+    public ResponseEntity<RestApiResponse<IdResponse>> createMember(
             @Valid @RequestBody MemberCreateRequest memberCreateRequest
     ) {
         MemberCommandService service = memberStrategyFactory.getCommandService(memberCreateRequest.role());
         Long createdId = service.createMember(MemberCreateCommand.from(memberCreateRequest));
-        GlobalCreateResponse createResponse = GlobalCreateResponse.of(createdId);
+        IdResponse createResponse = IdResponse.of(createdId);
 
         return restApiController.created(
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -109,7 +108,7 @@ public class AdminMemberApiController {
     @Operation(summary = "회원 정보 수정")
     @PutMapping(value = "/{id}", version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canAccessMember(#id)")
-    public ResponseEntity<RestApiResponse<GlobalUpdateResponse>> updateMember(
+    public ResponseEntity<RestApiResponse<IdResponse>> updateMember(
             @PathVariable Long id,
             @Valid @RequestBody MemberUpdateRequest memberUpdateRequest
     ) {
@@ -117,7 +116,7 @@ public class AdminMemberApiController {
         Long updatedId = commandService.updateMember(
                 MemberUpdateCommand.from(memberUpdateRequest, id)
         );
-        GlobalUpdateResponse updateResponse = GlobalUpdateResponse.of(updatedId);
+        IdResponse updateResponse = IdResponse.of(updatedId);
 
         return restApiController.ok(updateResponse);
     }
@@ -145,14 +144,14 @@ public class AdminMemberApiController {
     @Operation(summary = "회원 등급 변경")
     @PatchMapping(value = "/{id}", version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.isSuperAdmin()")
-    public ResponseEntity<RestApiResponse<GlobalUpdateResponse>> updateMemberRole(
+    public ResponseEntity<RestApiResponse<IdResponse>> updateMemberRole(
             @PathVariable Long id,
             @Valid @RequestBody MemberRoleUpdateRequest memberRoleUpdateRequest
     ) {
         MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
         commandService.updateMemberRole(MemberRoleUpdateCommand.from(id, memberRoleUpdateRequest));
 
-        return restApiController.ok(GlobalUpdateResponse.of(id));
+        return restApiController.ok(IdResponse.of(id));
     }
 
 }
