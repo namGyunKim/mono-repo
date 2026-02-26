@@ -7,6 +7,7 @@ import com.example.domain.social.google.service.command.GoogleSocialLoginStartCo
 import com.example.domain.social.google.service.command.GoogleSocialRedirectCommandService;
 import com.example.domain.social.google.service.query.GoogleSocialLoginStartQueryService;
 import com.example.domain.social.google.validator.GoogleRedirectRequestValidator;
+import com.example.domain.social.payload.response.SocialLoginSuccessResponse;
 import com.example.domain.social.payload.response.SocialRedirectResponse;
 import com.example.global.api.RestApiController;
 import com.example.global.payload.response.ApiErrorResponse;
@@ -62,15 +63,16 @@ public class SocialApiController {
     @Operation(
             summary = "구글 로그인 콜백",
             description = """
-                    응답 바디 없이 토큰은 응답 헤더로만 반환합니다.
+                    토큰은 응답 헤더로 반환하고, 바디에는 성공 상태를 함께 반환합니다.
                     - Authorization: Bearer {accessToken}
                     - X-Refresh-Token: {refreshToken}
                     """
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "200",
                     description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = SocialLoginSuccessResponse.class)),
                     headers = {
                             @Header(
                                     name = SecurityHeaders.AUTHORIZATION,
@@ -96,7 +98,7 @@ public class SocialApiController {
             )
     })
     @GetMapping(value = "/v1/google/redirect")
-    public ResponseEntity<Void> googleRedirect(
+    public ResponseEntity<RestApiResponse<SocialLoginSuccessResponse>> googleRedirect(
             @Valid @ModelAttribute("googleRedirectRequest") GoogleRedirectRequest googleRedirectRequest
     ) {
         GoogleSocialRedirectCommand command = GoogleSocialRedirectCommand.from(googleRedirectRequest);
@@ -107,6 +109,6 @@ public class SocialApiController {
                 response.refreshToken()
         );
         HttpHeaders headers = TokenResponseHeaders.of(response.accessToken(), response.refreshToken());
-        return restApiController.noContentWithHeaders(headers);
+        return restApiController.okWithHeaders(SocialLoginSuccessResponse.ok(), headers);
     }
 }
