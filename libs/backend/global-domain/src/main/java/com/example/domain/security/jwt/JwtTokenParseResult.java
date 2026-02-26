@@ -1,4 +1,6 @@
-package com.example.global.security.jwt;
+package com.example.domain.security.jwt;
+
+import com.example.global.security.jwt.JwtTokenParseStatus;
 
 import java.util.Optional;
 

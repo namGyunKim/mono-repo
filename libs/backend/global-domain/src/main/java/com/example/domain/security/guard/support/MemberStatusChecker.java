@@ -1,4 +1,4 @@
-package com.example.global.security.guard.support;
+package com.example.domain.security.guard.support;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.member.enums.MemberActiveStatus;

@@ -1,5 +1,6 @@
-package com.example.global.event;
+package com.example.domain.log.event;
 
+import com.example.global.event.ErrorMeta;
 import com.example.global.exception.BaseAppException;
 import com.example.global.exception.enums.ErrorCode;
 import org.springframework.security.access.AccessDeniedException;

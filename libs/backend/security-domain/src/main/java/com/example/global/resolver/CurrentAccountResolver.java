@@ -1,7 +1,7 @@
 package com.example.global.resolver;
 
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.annotation.CurrentAccount;
-import com.example.global.security.guard.MemberGuard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

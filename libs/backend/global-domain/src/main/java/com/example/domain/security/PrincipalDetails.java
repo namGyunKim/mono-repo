@@ -1,4 +1,4 @@
-package com.example.global.security;
+package com.example.domain.security;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.account.payload.dto.AccountAuthMemberView;

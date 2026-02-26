@@ -1,8 +1,8 @@
 package com.example.global.aop;
 
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.aop.support.ControllerLoggingSupport;
 import com.example.global.config.web.RequestLoggingAttributes;
-import com.example.global.security.guard.MemberGuard;
 import com.example.global.utils.ClientIpExtractor;
 import com.example.global.utils.TraceIdUtils;
 import jakarta.servlet.http.HttpServletRequest;

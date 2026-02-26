@@ -1,16 +1,20 @@
-package com.example.global.security.service.command;
+package com.example.domain.security.service.command;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.repository.MemberRepository;
+import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
+import com.example.domain.security.jwt.JwtTokenParseResult;
+import com.example.domain.security.jwt.JwtTokenParser;
+import com.example.domain.security.jwt.JwtTokenPayload;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
-import com.example.global.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.global.security.blacklist.support.BlacklistedTokenChecker;
-import com.example.global.security.jwt.*;
+import com.example.global.security.jwt.JwtTokenParseStatus;
+import com.example.global.security.jwt.JwtTokenType;
 import com.example.global.security.payload.RefreshTokenIssueCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

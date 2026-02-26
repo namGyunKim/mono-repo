@@ -1,9 +1,9 @@
-package com.example.global.security.service.command;
+package com.example.domain.security.service.command;
 
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.repository.MemberRepository;
+import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
-import com.example.global.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

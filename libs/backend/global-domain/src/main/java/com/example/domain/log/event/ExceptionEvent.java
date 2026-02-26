@@ -1,6 +1,7 @@
-package com.example.global.event;
+package com.example.domain.log.event;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
+import com.example.global.event.ErrorMeta;
 import com.example.global.exception.BaseAppException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.utils.ClientIpExtractor;

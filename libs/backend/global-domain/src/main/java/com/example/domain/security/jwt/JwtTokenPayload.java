@@ -1,6 +1,7 @@
-package com.example.global.security.jwt;
+package com.example.domain.security.jwt;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.global.security.jwt.JwtTokenType;
 
 import java.time.Instant;
 

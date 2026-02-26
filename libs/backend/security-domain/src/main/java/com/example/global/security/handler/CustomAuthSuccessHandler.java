@@ -1,12 +1,12 @@
 package com.example.global.security.handler;
 
 import com.example.domain.account.payload.response.LoginTokenResponse;
-import com.example.global.security.PrincipalDetails;
+import com.example.domain.security.PrincipalDetails;
+import com.example.domain.security.service.command.LoginTokenCommandService;
 import com.example.global.security.handler.support.LoginSuccessEventPublisher;
 import com.example.global.security.handler.support.LoginSuccessMessageResolver;
 import com.example.global.security.handler.support.LoginSuccessResponseWriter;
 import com.example.global.security.payload.LoginTokenIssueCommand;
-import com.example.global.security.service.command.LoginTokenCommandService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

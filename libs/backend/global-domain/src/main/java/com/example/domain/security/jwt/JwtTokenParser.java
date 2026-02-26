@@ -1,6 +1,10 @@
-package com.example.global.security.jwt;
+package com.example.domain.security.jwt;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.global.security.jwt.JwtTokenClaimKeys;
+import com.example.global.security.jwt.JwtTokenKeyProvider;
+import com.example.global.security.jwt.JwtTokenParseStatus;
+import com.example.global.security.jwt.JwtTokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;

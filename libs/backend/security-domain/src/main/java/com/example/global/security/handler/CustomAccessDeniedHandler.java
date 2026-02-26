@@ -1,11 +1,11 @@
 package com.example.global.security.handler;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
+import com.example.domain.log.event.ExceptionEvent;
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.config.web.RequestLoggingAttributes;
-import com.example.global.event.ExceptionEvent;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.payload.response.ApiErrorResponse;
-import com.example.global.security.guard.MemberGuard;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

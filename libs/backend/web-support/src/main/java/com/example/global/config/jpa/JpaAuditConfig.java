@@ -1,6 +1,6 @@
 package com.example.global.config.jpa;
 
-import com.example.global.security.guard.MemberGuard;
+import com.example.domain.security.guard.MemberGuard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

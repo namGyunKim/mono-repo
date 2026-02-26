@@ -1,5 +1,6 @@
 package com.example.global.event;
 
+import com.example.domain.log.event.ExceptionEvent;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.exception.support.ExceptionLogTemplates;
 import com.example.global.utils.TraceIdUtils;

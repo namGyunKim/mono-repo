@@ -3,7 +3,7 @@ package com.example.global.security.handler.support;
 import com.example.domain.log.enums.LogType;
 import com.example.domain.log.payload.dto.MemberActivityCommand;
 import com.example.domain.log.service.command.ActivityEventPublisher;
-import com.example.global.security.PrincipalDetails;
+import com.example.domain.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

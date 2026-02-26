@@ -1,4 +1,4 @@
-package com.example.global.security.guard.payload;
+package com.example.domain.security.guard.payload;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;

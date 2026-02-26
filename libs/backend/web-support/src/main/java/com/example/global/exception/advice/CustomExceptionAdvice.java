@@ -1,8 +1,8 @@
 package com.example.global.exception.advice;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
+import com.example.domain.log.event.ExceptionEvent;
 import com.example.global.annotation.CurrentAccount;
-import com.example.global.event.ExceptionEvent;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.JWTInterceptorException;
 import com.example.global.exception.SocialException;

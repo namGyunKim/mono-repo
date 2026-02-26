@@ -1,11 +1,11 @@
 package com.example.domain.log.service.command.event;
 
 import com.example.domain.log.enums.LogType;
+import com.example.domain.log.event.ExceptionEvent;
 import com.example.domain.log.event.MemberActivityEvent;
 import com.example.domain.log.payload.dto.MemberActivityPayload;
 import com.example.domain.log.support.LogDetailsFormatter;
-import com.example.global.event.ExceptionEvent;
-import com.example.global.security.guard.MemberGuard;
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.utils.SensitiveLogMessageSanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

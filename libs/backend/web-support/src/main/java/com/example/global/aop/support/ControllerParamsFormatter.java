@@ -1,6 +1,6 @@
 package com.example.global.aop.support;
 
-import com.example.global.security.PrincipalDetails;
+import com.example.domain.security.PrincipalDetails;
 import com.example.global.utils.LoggingSanitizerPolicy;
 import com.example.global.utils.TraceIdUtils;
 import jakarta.servlet.http.HttpServletRequest;

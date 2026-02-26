@@ -1,4 +1,4 @@
-package com.example.global.config.social;
+package com.example.domain.social.google.client;
 
 import com.example.domain.social.google.payload.response.GoogleTokenResponse;
 import com.example.domain.social.google.payload.response.GoogleUserInfoResponse;

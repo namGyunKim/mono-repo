@@ -1,12 +1,12 @@
 package com.example.domain.social.google.service.command;
 
 import com.example.domain.account.payload.response.LoginTokenResponse;
+import com.example.domain.security.service.command.LoginTokenCommandService;
 import com.example.domain.social.google.payload.dto.GoogleOauthLoginCommand;
 import com.example.domain.social.google.payload.dto.GoogleOauthSession;
 import com.example.domain.social.google.payload.dto.GoogleSocialRedirectCommand;
 import com.example.domain.social.google.support.GoogleOauthSessionResolver;
 import com.example.global.security.payload.LoginTokenIssueCommand;
-import com.example.global.security.service.command.LoginTokenCommandService;
 import com.example.global.utils.TraceIdUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,14 +1,14 @@
-package com.example.global.security.service.command;
+package com.example.domain.security.service.command;
 
 import com.example.domain.account.payload.dto.LoginMemberView;
 import com.example.domain.account.payload.response.LoginTokenResponse;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.repository.MemberRepository;
+import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
-import com.example.global.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.global.security.payload.LoginTokenIssueCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,11 +1,11 @@
 package com.example.domain.social.google.support;
 
+import com.example.domain.social.google.client.GoogleApiClient;
 import com.example.domain.social.google.payload.dto.GoogleOauthLoginCommand;
 import com.example.domain.social.google.payload.dto.GoogleOauthResult;
 import com.example.domain.social.google.payload.dto.GoogleTokenRequestCommand;
 import com.example.domain.social.google.payload.response.GoogleTokenResponse;
 import com.example.domain.social.google.payload.response.GoogleUserInfoResponse;
-import com.example.global.config.social.GoogleApiClient;
 import com.example.global.exception.SocialException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.utils.TraceIdUtils;

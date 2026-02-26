@@ -1,4 +1,4 @@
-package com.example.global.security.service.command;
+package com.example.domain.security.service.command;
 
 import com.example.domain.member.entity.Member;
 import com.example.global.security.jwt.JwtTokenClaimKeys;

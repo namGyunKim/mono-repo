@@ -1,8 +1,8 @@
-package com.example.global.security.guard.support;
+package com.example.domain.security.guard.support;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
-import com.example.global.security.PrincipalDetails;
+import com.example.domain.security.PrincipalDetails;
 import com.example.global.security.SecurityContextManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

@@ -1,7 +1,7 @@
 package com.example.global.config.web.support;
 
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.security.filter.JsonBodyLoginAuthenticationFilter;
-import com.example.global.security.guard.MemberGuard;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

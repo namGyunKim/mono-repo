@@ -1,12 +1,12 @@
-package com.example.global.security.blacklist.service.command;
+package com.example.domain.security.blacklist.service.command;
 
+import com.example.domain.security.jwt.JwtTokenParser;
+import com.example.domain.security.jwt.JwtTokenPayload;
 import com.example.global.security.TokenHashUtils;
 import com.example.global.security.blacklist.BlacklistedToken;
 import com.example.global.security.blacklist.BlacklistedTokenRepository;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
 import com.example.global.security.blacklist.support.BlacklistedTokenChecker;
-import com.example.global.security.jwt.JwtTokenParser;
-import com.example.global.security.jwt.JwtTokenPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

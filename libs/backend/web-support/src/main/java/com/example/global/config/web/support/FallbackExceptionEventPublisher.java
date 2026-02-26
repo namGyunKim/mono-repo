@@ -1,9 +1,9 @@
 package com.example.global.config.web.support;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
-import com.example.global.event.ExceptionEvent;
+import com.example.domain.log.event.ExceptionEvent;
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.security.guard.MemberGuard;
 import com.example.global.utils.SensitiveLogMessageSanitizer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

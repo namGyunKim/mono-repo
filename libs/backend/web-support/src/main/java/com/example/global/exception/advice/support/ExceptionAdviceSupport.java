@@ -1,12 +1,12 @@
 package com.example.global.exception.advice.support;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
-import com.example.global.event.ExceptionEvent;
+import com.example.domain.log.event.ExceptionEvent;
+import com.example.domain.security.guard.MemberGuard;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.exception.support.*;
 import com.example.global.payload.response.ApiErrorDetail;
 import com.example.global.payload.response.ApiErrorResponse;
-import com.example.global.security.guard.MemberGuard;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

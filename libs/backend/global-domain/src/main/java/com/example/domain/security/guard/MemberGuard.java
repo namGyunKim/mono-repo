@@ -1,11 +1,11 @@
-package com.example.global.security.guard;
+package com.example.domain.security.guard;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
 import com.example.domain.member.enums.MemberActiveStatus;
-import com.example.global.security.guard.support.CurrentAccountProvider;
-import com.example.global.security.guard.support.MemberAccessTargetResolver;
-import com.example.global.security.guard.support.MemberStatusChecker;
+import com.example.domain.security.guard.support.CurrentAccountProvider;
+import com.example.domain.security.guard.support.MemberAccessTargetResolver;
+import com.example.domain.security.guard.support.MemberStatusChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
