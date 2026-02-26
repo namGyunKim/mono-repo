@@ -83,6 +83,7 @@ pnpm nx test user-api
   - `요약`: 준수/위배/보류 여부 한 줄 요약
   - `위배 항목`: 항목별로 **우선순위(높음/중간/낮음)**, 근거 규칙, 위치(파일), 설명, 권장 조치 포함
     - 각 위배 항목에는 **`선택번호`(1부터 순번)** 부여
+  - `불확실/질문`: 범위나 의도가 불명확하면 추정하지 말고 질문
 
 | 선택번호 | 우선순위 | 규칙/근거 | 위치 | 설명 | 권장 조치 |
 |------|------|------|-----|------|--------|
@@ -108,6 +109,7 @@ pnpm nx test user-api
 - 작업 전 **`docs/backend/README.md`를 반드시 읽고** 전제/정책을 준수한다.
 - README와 본 문서/사용자 요청이 **충돌하거나 모호하면 즉시 질문**한다.
 - 정책/규칙이 변경되면 본 문서와 관련 문서에 함께 반영한다.
+- 정책/규칙 변경 시 `docs/backend/RULES.md`를 우선 갱신하고, 필요 시 관련 문서(README, docs)를 함께 갱신한다.
 
 ### 문서 파일 재확인
 
@@ -125,6 +127,7 @@ pnpm nx test user-api
 - URL 버전 세그먼트(`/v1`, `/api/v1`) 사용 금지
 - 예외: `/api/social/**` 콜백에 한해 URL 버저닝 허용
 - 기본값 `0.0`은 유효하지 않으며, 프론트는 `1.0` 명시 전송 필수
+- Swagger 문서에서도 `/api/health`, `/api/social/**` 제외 API는 `API-Version`을 `required=true`로 표기
 
 ### member_log 파티션 운영 주의 (CRITICAL)
 
@@ -136,6 +139,10 @@ pnpm nx test user-api
 - `src/main/resources/**` 하위 파일은 **전체 상대경로를 함께 명시**
 - Java 파일은 패키지 선언으로 위치 확인 가능하므로 파일명만 명시 가능
 - `sample-application/**` 변경 시도 전체 상대경로 명시
+
+### 스크립트 보호 규칙
+
+- `scripts/` 경로 및 `.sh` 파일은 절대 수정하지 않는다.
 
 ### 모노레포 Gradle 경로 규칙
 
@@ -152,6 +159,7 @@ pnpm nx test user-api
 - TDD는 선택 전략, 전체 강제 아님
 - 코드 변경 시 위험도 기준으로 필요하면 사전 요청 없이 테스트 추가/수정/실행 가능
 - 사용자가 명시 요청하지 않는 한 **설정 파일 임의 수정 금지**
+- 설정 변경이 필요하면 `/sample-application/**` 하위 샘플 설정 파일만 수정 대상으로 사용
 - 설정 변경 필요 시 사유/영향 범위를 먼저 설명하고 확인 후 진행
 
 ### Gradle 의존성 점검 실행 규칙 (CRITICAL)
@@ -163,6 +171,10 @@ pnpm nx test user-api
   - `./gradlew -q projects`
   - `./gradlew -q properties`
 - 점검 순서: `runtimeClasspath` → `dependencyInsight` → 필요 시 `compileClasspath` 비교
+- 샌드박스/권한 차단 시 도구 escalation을 즉시 수행
+- 실행 실패 시 `--no-daemon`으로 1회 재시도 후, 계속 차단되면 escalation 수행
+- 캐시는 기본 사용, 결과 불일치 의심 시에만 `--refresh-dependencies` 1회 허용
+- 결과 보고 시 캐시 기준인지 refresh 기준인지 명시
 - 의존성 점검 보고 필수 항목: `요청 명령`, `resolve 버전`, `선택 이유`, `위험도`, `권장 조치`
 
 ---
@@ -185,6 +197,9 @@ pnpm nx test user-api
 - Prefix: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`
 - 설명은 **한국어**, 제목 한 줄 1개만 제공
 - 코드 제공 시 커밋 메시지를 함께 제공
+- 커밋 메시지 제공 시 macOS `pbcopy`로 한 줄 메시지를 클립보드에 자동 복사
+- 클립보드 텍스트 마지막은 개행 없이 유지 (`printf '%s' ... | pbcopy`)
+- 클립보드 명령 사용이 불가한 환경이면 복사용 한 줄 코드블록을 제공
 
 ### 규칙 요약 (핵심)
 
@@ -192,6 +207,7 @@ pnpm nx test user-api
 - 계층 경계는 DTO 전달 원칙 준수
 - 인증/인가 판단은 MemberGuard로 통일
 - 멀티라인 문자열은 Text Block 사용
+- `scripts/` 및 `.sh` 파일 수정 금지
 
 ### 클린 코드 & SRP
 
@@ -274,6 +290,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 - 에러 응답 `requestId`에 traceId 값 포함
 - 로그/MDC/헤더 키는 **traceId** 통일, 헤더는 `X-Trace-Id`
 - 로그 템플릿은 Text Block 기반 멀티라인 우선
+- 예외 로그 템플릿 변경은 `ExceptionLogTemplates`에서만 관리
 
 ---
 
@@ -543,6 +560,12 @@ src/main/java/com/example/{api-name}
 
 - [ ] `RestApiController`로 응답 생성하는가?
 - [ ] Health 제외 API에 `version = ApiVersioning.*` 명시되는가?
+- [ ] Swagger 문서에서 `/api/health`, `/api/social/**` 제외 API의 `API-Version`이 `required=true`인가?
+
+### 설정/운영 규칙
+
+- [ ] 설정 변경 시 `/sample-application/**`만 수정 대상으로 사용했는가?
+- [ ] `scripts/` 및 `.sh` 파일을 수정하지 않았는가?
 
 ### DTO 규칙
 
@@ -584,26 +607,28 @@ src/main/java/com/example/{api-name}
 
 ## 7. 요약 (Cheatsheet)
 
-| 구분 | 규칙 |
-|------|------|
-| DTO | record + `from/of`, 외부 `new` 금지 |
-| 계층 경계 | 값 나열 금지, DTO 1개로 전달 |
-| 도메인 경계 | `id`/DTO/Port/Event 우선, 직접 참조 지양 |
-| CQRS | 물리 분리, Command=`@Transactional`, Query=`readOnly=true` |
-| 조회 최적화 | QueryDSL + fetch join, DTO Projection |
-| 로깅 | traceId 포함, 민감정보 금지 |
-| API 버전 | `version = ApiVersioning.*`, 기본 `0.0`(무효) |
-| 컨트롤러 | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지 |
-| 외부 연동 | SDK → `@HttpExchange` → `@EnableHttpServices` |
-| 보안 | `@PreAuthorize`만, 누락=공개 |
-| 리프레시 토큰 | 암호화 저장 + 복호화 검증 + 재발급 시 폐기 |
-| JPA | `LAZY` 명시, `EAGER` 금지 |
-| 멀티라인 | `"\n"` 금지, Text Block 사용 |
-| InitBinder | DTO 1:1 매칭, 공용 이름 금지, `supports()` 방어 |
-| 검증 | Bean Validation + InitBinder Validator, 서비스는 최종 보장만 |
-| Java 25 | record/pattern matching/switch 우선 + ScopedValue/Virtual Thread |
-| Spring 7 | API Versioning + `@HttpExchange` 우선 |
-| Spring Boot 4 | HTTP Service Clients/Virtual Thread/OpenTelemetry 우선 |
-| 버전 하한 | Java 25 + Boot 4 + Framework 7 미만 호환 타협 금지 |
-| Jackson 3 | `tools.jackson.*`, 어노테이션만 `com.fasterxml.jackson.annotation.*` |
-| Logback | XML 설정 파일 미사용 |
+| 구분            | 규칙                                                                             |
+|---------------|--------------------------------------------------------------------------------|
+| DTO           | record + `from/of`, 외부 `new` 금지                                                |
+| 계층 경계         | 값 나열 금지, DTO 1개로 전달                                                            |
+| 도메인 경계        | `id`/DTO/Port/Event 우선, 직접 참조 지양                                               |
+| 스크립트          | `scripts/` 및 `.sh` 수정 금지                                                       |
+| CQRS          | 물리 분리, Command=`@Transactional`, Query=`readOnly=true`                         |
+| 조회 최적화        | QueryDSL + fetch join, DTO Projection                                          |
+| 로깅            | traceId 포함, 민감정보 금지                                                            |
+| API 버전        | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true` |
+| 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                              |
+| 설정 변경         | `/sample-application/**`만 수정 대상으로 사용                                           |
+| 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                  |
+| 보안            | `@PreAuthorize`만, 누락=공개                                                        |
+| 리프레시 토큰       | 암호화 저장 + 복호화 검증 + 재발급 시 폐기                                                     |
+| JPA           | `LAZY` 명시, `EAGER` 금지                                                          |
+| 멀티라인          | `"\n"` 금지, Text Block 사용                                                       |
+| InitBinder    | DTO 1:1 매칭, 공용 이름 금지, `supports()` 방어                                          |
+| 검증            | Bean Validation + InitBinder Validator, 서비스는 최종 보장만                            |
+| Java 25       | record/pattern matching/switch 우선 + ScopedValue/Virtual Thread                 |
+| Spring 7      | API Versioning + `@HttpExchange` 우선                                            |
+| Spring Boot 4 | HTTP Service Clients/Virtual Thread/OpenTelemetry 우선                           |
+| 버전 하한         | Java 25 + Boot 4 + Framework 7 미만 호환 타협 금지                                     |
+| Jackson 3     | `tools.jackson.*`, 어노테이션만 `com.fasterxml.jackson.annotation.*`                 |
+| Logback       | XML 설정 파일 미사용                                                                  |
