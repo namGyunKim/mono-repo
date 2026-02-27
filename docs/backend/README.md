@@ -116,3 +116,35 @@ pnpm nx test admin-api
 - [RULES.md](./RULES.md): 코드 작성 및 리뷰 시 반드시 지켜야 하는 세부 규칙
 
 충돌 시 최신 정책은 `RULES.md`를 우선 기준으로 하고, 필요한 경우 두 문서를 함께 갱신합니다.
+
+---
+
+## 8. API 계약 Enum 전략
+
+백엔드는 **도메인 Enum**과 **API 계약 Enum**을 분리해서 운영합니다.
+
+- 도메인 Enum
+  - 위치: `libs/backend/domain-core/.../enums`
+  - 목적: 비즈니스 규칙/도메인 로직 표현
+- API 계약 Enum
+  - 위치: `libs/backend/domain-core/src/main/java/com/example/domain/contract/enums`
+  - 목적: 외부 API 요청/응답 스키마 고정
+- 프론트 공유 타입
+  - 위치: `libs/shared/types/src/api-contract-enums.ts`
+  - 목적: 프론트와 백엔드가 같은 계약 값 집합 사용
+
+### 매핑 원칙
+
+- 컨트롤러 경계(Request/Response DTO)에서는 API 계약 Enum을 사용한다.
+- 서비스/리포지토리/엔티티 등 도메인 내부에서는 도메인 Enum을 사용한다.
+- 변환은 `toDomain()` / `fromDomain(...)` 메서드로 수행한다.
+
+### 변경 가이드 (중요)
+
+`AccountRole` 같은 Enum 변경 시 항상 2개를 무조건 같이 바꾸는 것은 아닙니다.
+
+1. 도메인 내부 전용 변경(외부 API 계약에 영향 없음): 도메인 Enum만 변경
+2. 외부 API 입력/응답 값이 바뀌는 변경: 도메인 Enum + API 계약 Enum + `libs/shared/types`를 함께 변경
+3. 내부에서만 이름/구조 리팩터링하고 API 값은 유지: 매핑만 조정하고 API 계약 Enum 값은 유지
+
+즉, **API 계약이 변하면 2개(백엔드 계약 Enum + 프론트 공유 Enum) 이상 함께 변경**, 계약이 안 변하면 도메인 Enum만 변경하면 됩니다.

@@ -113,6 +113,7 @@ pnpm nx start @mono-repo/web
 - 재사용 가능한 백엔드 코드는 `libs/backend/*`에 우선 배치합니다.
 - 앱(`apps/*-api`)은 앱 고유 정책, API 조합, 배포 단위 책임에 집중합니다.
 - 도메인 전용 모델/Enum/응답 타입은 전역(`global`)이 아닌 해당 도메인 경계에 둡니다.
+- API 외부 계약에 노출되는 Enum은 `contract enums`로 분리하고, 도메인 Enum과 매핑해 사용합니다.
 - 서비스 분리(MSA) 시 `apps/*-api`를 기준으로 점진 분리 가능한 구조를 유지합니다.
 
 ## 문서
