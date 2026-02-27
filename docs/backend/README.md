@@ -148,3 +148,20 @@ pnpm nx test admin-api
 3. 내부에서만 이름/구조 리팩터링하고 API 값은 유지: 매핑만 조정하고 API 계약 Enum 값은 유지
 
 즉, **API 계약이 변하면 2개(백엔드 계약 Enum + 프론트 공유 Enum) 이상 함께 변경**, 계약이 안 변하면 도메인 Enum만 변경하면 됩니다.
+
+### 동기화 규칙 + 자동 테스트
+
+- 기본 규칙: 대응되는 `Api*` Enum과 도메인 Enum은 `name()` 기준으로 동일하게 유지한다.
+- 검증 위치: `libs/backend/domain-core/src/test/java/com/example/domain/contract/enums/ApiEnumSyncTest.java`
+- 실행 명령: `pnpm nx test domain-core`
+
+권장 작업 순서:
+
+1. 도메인 Enum 변경
+2. API 계약 영향이 있으면 `Api*` Enum + `libs/shared/types/src/api-contract-enums.ts`를 함께 변경
+3. 매핑(`toDomain()` / `fromDomain(...)`) 갱신
+4. `pnpm nx test domain-core`로 동기화 검증
+
+예외 정책:
+
+- 외부 레거시 계약 호환 때문에 값이 달라야 하면, 해당 Enum에 이유를 주석으로 남기고 동기화 테스트에서 의도된 예외로 명시 관리한다.

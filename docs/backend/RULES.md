@@ -592,6 +592,12 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - [ ] from/of 정적 팩토리 존재하는가?
 - [ ] 외부에서 `new DTO(...)` 호출하지 않는가?
 
+### Enum 계약 동기화
+
+- [ ] API 계약 Enum(`com.example.domain.contract.enums.*`)과 대응 도메인 Enum의 `name()`이 동기화되어 있는가?
+- [ ] Enum 변경 시 매핑(`toDomain()` / `fromDomain(...)`) 갱신이 반영되어 있는가?
+- [ ] `pnpm nx test domain-core` 동기화 테스트를 통과했는가?
+
 ### Jackson 3
 
 - [ ] import가 `tools.jackson.*`인가? (어노테이션은 `com.fasterxml.jackson.annotation.*`)
@@ -638,6 +644,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | API 버전        | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true` |
 | 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                              |
 | 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                |
+| Enum 계약 동기화   | `Api* == Domain name()` 유지 + `pnpm nx test domain-core` 통과                     |
 | 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                  |
 | 보안            | `@PreAuthorize`만, 누락=공개                                                        |
 | 리프레시 토큰       | 암호화 저장 + 복호화 검증 + 재발급 시 폐기                                                     |

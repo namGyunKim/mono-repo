@@ -1,0 +1,21 @@
+{
+  "name": "domain-core",
+  "projectType": "library",
+  "sourceRoot": "libs/backend/domain-core/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew :libs:backend:domain-core:build",
+        "cwd": "."
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew :libs:backend:domain-core:test",
+        "cwd": "."
+      }
+    }
+  }
+}
