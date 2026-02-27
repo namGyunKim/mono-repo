@@ -1,6 +1,7 @@
 # 백엔드 REST API 개발 규칙
 
 > CRITICAL: 코드 작성/수정이 끝나면 답변 전에 이 지침서(`docs/backend/RULES.md`)를 다시 확인해 규칙 누락이 없는지 최종 점검한다.
+> CRITICAL: 코드/문서 수정 작업 완료 답변에는 반드시 아래 규칙 형식의 **커밋 메시지 1줄**을 함께 제공한다.
 
 이 문서는 AI가 이 모노레포의 **REST API 전용 백엔드**(Spring Boot) 코드를 생성하거나 수정할 때 반드시 따라야 할 규칙입니다.
 본 프로젝트는 `apps/*-api`와 `libs/backend/*`를 분리한 모노레포 구조를 기준으로 운영합니다.
@@ -84,6 +85,7 @@ pnpm nx test admin-api
 - 권장 `scope`: `backend`, `user-api`, `admin-api`, `domain-core`, `global-core`, `security-web`, `web-support`, `web`
 - `:` 뒤 설명은 **한국어**로 작성
 - 커밋 메시지는 변경사항을 요약한 **제목 한 줄 1개만** 제공 (여러 후보/여러 줄 금지)
+- 코드/문서 수정 작업을 완료해 사용자에게 보고할 때, 위 형식의 커밋 메시지를 **답변에 반드시 포함**한다.
 
 ---
 
