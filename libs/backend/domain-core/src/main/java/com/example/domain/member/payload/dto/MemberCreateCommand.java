@@ -31,7 +31,13 @@ public record MemberCreateCommand(
         if (request == null) {
             throw new IllegalArgumentException("request는 필수입니다.");
         }
-        return of(request.loginId(), request.nickName(), request.password(), request.role(), request.memberType());
+        return of(
+                request.loginId(),
+                request.nickName(),
+                request.password(),
+                request.toDomainRole(),
+                request.toDomainMemberType()
+        );
     }
 
     public MemberCreateCommand withRole(AccountRole role) {

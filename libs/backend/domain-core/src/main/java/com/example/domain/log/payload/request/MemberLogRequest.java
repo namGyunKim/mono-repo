@@ -1,5 +1,6 @@
 package com.example.domain.log.payload.request;
 
+import com.example.domain.contract.enums.ApiLogType;
 import com.example.domain.log.enums.LogType;
 import com.example.global.utils.PaginationUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +33,7 @@ public record MemberLogRequest(
         Long memberId,
 
         @Schema(description = "로그 유형", example = "LOGIN")
-        LogType logType,
+        ApiLogType logType,
 
         @Schema(description = "상세 내용 (부분 검색)", example = "비밀번호")
         String details,
@@ -58,12 +59,16 @@ public record MemberLogRequest(
             Integer size,
             String loginId,
             Long memberId,
-            LogType logType,
+            ApiLogType logType,
             String details,
             LocalDateTime startAt,
             LocalDateTime endAt
     ) {
         return new MemberLogRequest(page, size, loginId, memberId, logType, details, startAt, endAt);
+    }
+
+    public LogType toDomainLogType() {
+        return logType != null ? logType.toDomain() : null;
     }
 
     private static String normalizeKeyword(String value) {

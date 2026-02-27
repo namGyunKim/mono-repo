@@ -32,7 +32,14 @@ public record MemberListQuery(
 ) {
 
     private MemberListQuery(MemberListRequest request) {
-        this(request.page(), request.size(), request.order(), request.searchWord(), request.filter(), request.active());
+        this(
+                request.page(),
+                request.size(),
+                request.toDomainOrder(),
+                request.searchWord(),
+                request.toDomainFilter(),
+                request.toDomainActive()
+        );
     }
 
     public static MemberListQuery of(MemberListRequest request) {

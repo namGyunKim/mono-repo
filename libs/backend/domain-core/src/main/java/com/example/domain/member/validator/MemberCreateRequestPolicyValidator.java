@@ -29,12 +29,13 @@ public class MemberCreateRequestPolicyValidator implements Validator {
             return;
         }
 
-        if (request.role() == null) {
+        AccountRole role = request.toDomainRole();
+        if (role == null) {
             errors.rejectValue("role", "role.required", "권한은 필수입니다.");
             return;
         }
 
-        if (request.role() == AccountRole.GUEST) {
+        if (role == AccountRole.GUEST) {
             errors.rejectValue("role", "role.unsupported", "GUEST 계정 생성은 지원하지 않습니다.");
         }
     }

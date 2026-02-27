@@ -1,6 +1,8 @@
 package com.example.domain.member.payload.request;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.contract.enums.ApiAccountRole;
+import com.example.domain.contract.enums.ApiMemberType;
 import com.example.domain.member.enums.MemberType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,14 +24,14 @@ public record MemberCreateRequest(
         String password,
 
         @Schema(description = "권한 (관리자 생성 시 필요, 사용자 생성 시 무시됨)", example = "USER")
-        AccountRole role,
+        ApiAccountRole role,
 
         @NotNull(message = "멤버 타입을 선택해주세요.")
         @Schema(description = "멤버 타입", example = "GENERAL")
-        MemberType memberType
+        ApiMemberType memberType
 ) {
 
-    public static MemberCreateRequest of(String loginId, String nickName, String password, AccountRole role, MemberType memberType) {
+    public static MemberCreateRequest of(String loginId, String nickName, String password, ApiAccountRole role, ApiMemberType memberType) {
         return new MemberCreateRequest(loginId, nickName, password, role, memberType);
     }
 
@@ -38,6 +40,14 @@ public record MemberCreateRequest(
      * - 외부에서 new 호출을 금지하기 위해, 역할 고정은 DTO 내부에서 수행한다.
      */
     public MemberCreateRequest withRole(AccountRole role) {
-        return of(loginId(), nickName(), password(), role, memberType());
+        return of(loginId(), nickName(), password(), ApiAccountRole.fromDomain(role), memberType());
+    }
+
+    public AccountRole toDomainRole() {
+        return role != null ? role.toDomain() : null;
+    }
+
+    public MemberType toDomainMemberType() {
+        return memberType != null ? memberType.toDomain() : null;
     }
 }

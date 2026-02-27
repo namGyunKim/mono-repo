@@ -1,7 +1,9 @@
 package com.example.domain.account.payload.response;
 
 import com.example.domain.account.payload.dto.LoginMemberView;
-import com.example.domain.member.enums.MemberActiveStatus;
+import com.example.domain.contract.enums.ApiAccountRole;
+import com.example.domain.contract.enums.ApiMemberActiveStatus;
+import com.example.domain.contract.enums.ApiMemberType;
 
 /**
  * 로그인/프로필 화면에서 사용하는 회원 요약 DTO
@@ -11,10 +13,10 @@ import com.example.domain.member.enums.MemberActiveStatus;
 public record LoginMemberResponse(
         Long id,
         String loginId,
-        String role,
+        ApiAccountRole role,
         String nickName,
-        String memberType,
-        MemberActiveStatus active
+        ApiMemberType memberType,
+        ApiMemberActiveStatus active
 ) {
 
     public static LoginMemberResponse from(LoginMemberView view) {
@@ -25,10 +27,10 @@ public record LoginMemberResponse(
         return new LoginMemberResponse(
                 view.id(),
                 view.loginId(),
-                view.role().getValue(),
+                ApiAccountRole.fromDomain(view.role()),
                 view.nickName(),
-                view.memberType().name(),
-                view.active()
+                ApiMemberType.fromDomain(view.memberType()),
+                ApiMemberActiveStatus.fromDomain(view.active())
         );
     }
 

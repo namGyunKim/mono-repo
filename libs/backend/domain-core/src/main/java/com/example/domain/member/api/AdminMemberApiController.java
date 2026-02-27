@@ -64,11 +64,11 @@ public class AdminMemberApiController {
 
     @Operation(summary = "회원 생성")
     @PostMapping(version = ApiVersioning.V1)
-    @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canManageRole(#memberCreateRequest.role())")
+    @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canManageRole(#memberCreateRequest.toDomainRole())")
     public ResponseEntity<RestApiResponse<IdResponse>> createMember(
             @Valid @RequestBody MemberCreateRequest memberCreateRequest
     ) {
-        MemberCommandService service = memberStrategyFactory.getCommandService(memberCreateRequest.role());
+        MemberCommandService service = memberStrategyFactory.getCommandService(memberCreateRequest.toDomainRole());
         Long createdId = service.createMember(MemberCreateCommand.from(memberCreateRequest));
         IdResponse createResponse = IdResponse.of(createdId);
 
@@ -83,11 +83,11 @@ public class AdminMemberApiController {
 
     @Operation(summary = "회원 목록 조회")
     @GetMapping(version = ApiVersioning.V1)
-    @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canManageRole(#memberListRequest.role())")
+    @PreAuthorize("@memberGuard.hasAnyAdminRole() and @memberGuard.canManageRole(#memberListRequest.toDomainRole())")
     public ResponseEntity<RestApiResponse<Page<MemberListResponse>>> getMemberList(
             @Valid @ModelAttribute("memberListRequest") MemberListRequest memberListRequest
     ) {
-        MemberQueryService service = memberStrategyFactory.getQueryService(memberListRequest.role());
+        MemberQueryService service = memberStrategyFactory.getQueryService(memberListRequest.toDomainRole());
         Page<MemberListResponse> memberPage = service.getList(MemberListQuery.from(memberListRequest));
 
         return restApiController.ok(memberPage);

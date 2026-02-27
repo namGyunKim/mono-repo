@@ -1,8 +1,8 @@
 package com.example.domain.member.payload.response;
 
-import com.example.domain.account.enums.AccountRole;
+import com.example.domain.contract.enums.ApiAccountRole;
+import com.example.domain.contract.enums.ApiMemberType;
 import com.example.domain.member.entity.Member;
-import com.example.domain.member.enums.MemberType;
 import com.example.global.utils.DateTimeFormatUtils;
 
 /**
@@ -15,8 +15,8 @@ public record MemberProfileDetailResponse(
         Long id,
         String loginId,
         String nickName,
-        AccountRole role,
-        MemberType memberType,
+        ApiAccountRole role,
+        ApiMemberType memberType,
         String createdAt,
         String createdBy,
         String modifiedAt,
@@ -28,8 +28,8 @@ public record MemberProfileDetailResponse(
                 member.getId(),
                 member.getLoginId(),
                 member.getNickName(),
-                member.getRole(),
-                member.getMemberType(),
+                ApiAccountRole.fromDomain(member.getRole()),
+                ApiMemberType.fromDomain(member.getMemberType()),
                 DateTimeFormatUtils.formatKoreanDateTime(member.getCreatedAt()),
                 member.getCreatedBy(),
                 DateTimeFormatUtils.formatKoreanDateTime(member.getModifiedAt()),

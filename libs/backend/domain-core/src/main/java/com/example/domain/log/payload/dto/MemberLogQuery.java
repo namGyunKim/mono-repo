@@ -47,7 +47,7 @@ public record MemberLogQuery(
                 request.size(),
                 request.loginId(),
                 request.memberId(),
-                request.logType(),
+                request.toDomainLogType(),
                 request.details(),
                 request.startAt(),
                 request.endAt()
