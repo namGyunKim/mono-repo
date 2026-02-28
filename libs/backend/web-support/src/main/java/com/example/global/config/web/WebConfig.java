@@ -48,9 +48,9 @@ public class WebConfig implements WebMvcConfigurer {
         // [중요] templates 디렉토리를 정적 리소스로 노출하면 서버 사이드 템플릿 원본이 외부에 그대로 노출될 수 있습니다.
         // 정적 리소스는 /static 및 webjars 만 노출합니다.
 
-        boolean cacheResources = isResourceChainCacheEnabled();
+        final boolean cacheResources = isResourceChainCacheEnabled();
 
-        CacheControl longCacheControl = cacheResources
+        final CacheControl longCacheControl = cacheResources
                 ? CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic()
                 : CacheControl.noStore();
 
@@ -62,7 +62,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .resourceChain(cacheResources)
                 .addResolver(new PathResourceResolver());
 
-        ResourceChainRegistration webJarsChain = registry.addResourceHandler("/webjars/**")
+        final ResourceChainRegistration webJarsChain = registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/")
                 .setCacheControl(longCacheControl)
                 .resourceChain(cacheResources);
@@ -88,8 +88,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     private void addWebJarsResourceResolverIfPresent(ResourceChainRegistration chain) {
         try {
-            Class<?> clazz = Class.forName(WEB_JARS_RESOLVER_CLASS_NAME);
-            Object instance = clazz.getDeclaredConstructor().newInstance();
+            final Class<?> clazz = Class.forName(WEB_JARS_RESOLVER_CLASS_NAME);
+            final Object instance = clazz.getDeclaredConstructor().newInstance();
 
             if (instance instanceof ResourceResolver resolver) {
                 chain.addResolver(resolver);

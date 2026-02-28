@@ -151,12 +151,12 @@ public class ControllerParamsFormatter {
         }
 
         if (node.isObject()) {
-            ObjectNode obj = (ObjectNode) node;
+            final ObjectNode obj = (ObjectNode) node;
 
             // Jackson 3: fieldNames() 제거 → propertyNames() 사용
             // propertyNames()는 Collection<String>을 반환하므로 snapshot을 떠서 안전하게 순회합니다.
-            for (String fieldName : List.copyOf(obj.propertyNames())) {
-                JsonNode child = obj.get(fieldName);
+            for (final String fieldName : List.copyOf(obj.propertyNames())) {
+                final JsonNode child = obj.get(fieldName);
 
                 if (isSensitiveField(fieldName)) {
                     obj.put(fieldName, "***");
@@ -169,8 +169,8 @@ public class ControllerParamsFormatter {
         }
 
         if (node.isArray()) {
-            ArrayNode arr = (ArrayNode) node;
-            for (JsonNode child : arr) {
+            final ArrayNode arr = (ArrayNode) node;
+            for (final JsonNode child : arr) {
                 maskSensitive(child);
             }
         }

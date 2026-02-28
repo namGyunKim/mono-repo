@@ -45,7 +45,7 @@ public class ApiVersionHeaderFilter extends OncePerRequestFilter {
             return true;
         }
 
-        String path = getPathWithinApplication(request);
+        final String path = getPathWithinApplication(request);
         if (!StringUtils.hasText(path) || !path.startsWith(API_PREFIX)) {
             return true;
         }
@@ -59,7 +59,7 @@ public class ApiVersionHeaderFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String rawVersion = request.getHeader(ApiVersioning.HEADER_NAME);
+        final String rawVersion = request.getHeader(ApiVersioning.HEADER_NAME);
         if (!StringUtils.hasText(rawVersion)) {
             errorResponder.writeErrorResponse(request, response, ErrorCode.API_VERSION_REQUIRED);
             return;
@@ -90,12 +90,12 @@ public class ApiVersionHeaderFilter extends OncePerRequestFilter {
     }
 
     private String getPathWithinApplication(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        final String uri = request.getRequestURI();
         if (uri == null) {
             return "";
         }
 
-        String contextPath = request.getContextPath();
+        final String contextPath = request.getContextPath();
         if (StringUtils.hasText(contextPath) && uri.startsWith(contextPath)) {
             return uri.substring(contextPath.length());
         }

@@ -108,7 +108,7 @@ public class ExceptionLogWriter {
     }
 
     private String sanitizeMessage(String message) {
-        String sanitizedMessage = SensitiveLogMessageSanitizer.sanitize(message);
+        final String sanitizedMessage = SensitiveLogMessageSanitizer.sanitize(message);
         return sanitizedMessage != null ? sanitizedMessage : "";
     }
 }

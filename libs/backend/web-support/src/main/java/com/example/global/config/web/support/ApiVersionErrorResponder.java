@@ -41,7 +41,7 @@ public class ApiVersionErrorResponder {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=" + StandardCharsets.UTF_8.name());
 
-        ApiErrorResponse body = ApiErrorResponse.from(errorCode);
+        final ApiErrorResponse body = ApiErrorResponse.from(errorCode);
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
@@ -62,8 +62,8 @@ public class ApiVersionErrorResponder {
             return;
         }
 
-        CurrentAccountDTO account = memberGuard.getCurrentAccountOrGuest();
-        String detailMessage = errorCode.getErrorMessage();
+        final CurrentAccountDTO account = memberGuard.getCurrentAccountOrGuest();
+        final String detailMessage = errorCode.getErrorMessage();
 
         applicationEventPublisher.publishEvent(ExceptionEvent.from(
                 new IllegalArgumentException(detailMessage),
