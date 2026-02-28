@@ -59,21 +59,42 @@
 
 이 워크스페이스에는 세 개의 MCP 서버가 연결되어 있다.
 
-## Serena — 시맨틱 코드 분석/편집
+## Serena (`mcp__serena__*`) — 시맨틱 코드 분석/편집
 
 - 심볼(클래스, 메서드, 필드) 단위로 코드를 탐색·편집한다
 - 파일 전체를 읽기보다 `get_symbols_overview` → `find_symbol(include_body=True)` 순서로 필요한 부분만 읽는다
-- 심볼 본문 교체(`replace_symbol_body`), 삽입(`insert_before/after_symbol`), 리네임(`rename_symbol`) 을 활용한다
-- 참조 추적이 필요하면 `find_referencing_symbols`를 사용한다
 - 프로젝트 활성화: 대화 시작 시 `activate_project`로 이 워크스페이스를 활성화한다
 - 온보딩: `check_onboarding_performed`로 확인하여 **미수행 상태일 때만 최초 1회** `onboarding`을 실행한다 (이후 대화에서는 불필요)
 
-## Context7 — 최신 라이브러리 문서 조회
+### MCP 도구 목록
 
-- `resolve-library-id`로 라이브러리 ID를 먼저 확인한 뒤 `query-docs`로 문서를 조회한다
+| 도구명 | 설명 |
+|--------|------|
+| `mcp__serena__get_symbols_overview` | 파일의 심볼(클래스, 메서드, 필드) 개요 조회 |
+| `mcp__serena__find_symbol` | 이름 패턴으로 심볼 검색 (`include_body=True`로 본문 포함) |
+| `mcp__serena__find_referencing_symbols` | 특정 심볼을 참조하는 코드 위치 추적 |
+| `mcp__serena__replace_symbol_body` | 심볼 본문(메서드, 클래스 등)을 교체 |
+| `mcp__serena__insert_before_symbol` | 심볼 정의 앞에 코드 삽입 |
+| `mcp__serena__insert_after_symbol` | 심볼 정의 뒤에 코드 삽입 |
+| `mcp__serena__rename_symbol` | 심볼 이름을 코드베이스 전체에서 변경 |
+| `mcp__serena__search_for_pattern` | 정규식 기반 코드 패턴 검색 |
+| `mcp__serena__list_dir` | 디렉토리 내용 조회 |
+| `mcp__serena__find_file` | 파일명/파일 마스크로 파일 검색 |
+| `mcp__serena__write_memory` / `read_memory` | 프로젝트 메모리 저장/읽기 |
+
+## Context7 (`mcp__context7__*`) — 최신 라이브러리 문서 조회
+
 - 학습 데이터 컷오프 이후 변경된 API나 최신 버전 문서 확인 시 사용한다
+- 반드시 `resolve-library-id` → `query-docs` 순서로 호출한다
 
-## PostgreSQL MCP — 데이터베이스 직접 조회
+### MCP 도구 목록
+
+| 도구명 | 설명 |
+|--------|------|
+| `mcp__context7__resolve-library-id` | 라이브러리 이름으로 Context7 ID를 검색 (항상 먼저 호출) |
+| `mcp__context7__query-docs` | 검색된 ID로 최신 문서/코드 예제 조회 |
+
+## PostgreSQL (`mcp__postgres__*`) — 데이터베이스 직접 조회
 
 ### 왜 사용하는가
 
@@ -113,19 +134,15 @@ GRANT pg_read_all_data TO claude_readonly;
 5. 연결된 DB의 **스키마 정보(테이블, 컬럼, 타입, FK, 인덱스)가 리소스로 자동 노출**되어 에이전트가 참조할 수 있다
 6. 에이전트는 `query` 도구를 통해 `SELECT` 쿼리를 직접 실행하고 결과를 받을 수 있다
 
-### MCP 도구 명령
+### MCP 도구 목록
 
-PostgreSQL MCP 서버는 두 가지 방식으로 DB 정보에 접근한다.
+| 도구명 | 설명 |
+|--------|------|
+| `mcp__postgres__query` | 읽기 전용 SQL 쿼리 실행 (`sql` 파라미터에 SELECT 문 전달) |
+| `ListMcpResourcesTool(server="postgres")` | DB 스키마 리소스 목록 조회 (SQL 없이 테이블/컬럼 정보) |
+| `ReadMcpResourceTool(server="postgres", uri=...)` | 특정 테이블의 스키마 리소스 상세 읽기 |
 
-#### 1. `query` — SQL 쿼리 직접 실행
-
-읽기 전용 `SELECT` 쿼리를 실행하고 결과를 받는다.
-
-```
-mcp__postgres__query(sql="SELECT ...")
-```
-
-자주 쓰는 쿼리:
+### 자주 쓰는 쿼리
 
 | 목적 | SQL |
 |------|-----|
@@ -135,15 +152,6 @@ mcp__postgres__query(sql="SELECT ...")
 | 인덱스 목록 | `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = '테이블명'` |
 | 쿼리 성능 분석 | `EXPLAIN ANALYZE SELECT ...` |
 | 데이터 샘플 조회 | `SELECT * FROM 테이블명 ORDER BY id DESC LIMIT 10` |
-
-#### 2. `ListMcpResourcesTool` / `ReadMcpResourceTool` — 스키마 리소스 조회
-
-MCP 서버가 자동 노출하는 DB 스키마 리소스를 읽는다. SQL 없이 테이블/컬럼/타입 정보를 확인할 때 유용하다.
-
-```
-ListMcpResourcesTool(server="postgres")       # 사용 가능한 리소스 목록
-ReadMcpResourceTool(server="postgres", uri=...)  # 특정 리소스 내용 읽기
-```
 
 ### 사용 예시
 
