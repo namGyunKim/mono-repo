@@ -13,8 +13,6 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.MetadataDirective;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -158,12 +156,4 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
         s3Client.copyObject(copyRequest);
     }
 
-    private String buildContentDisposition(String originalFilename) {
-        String encodedOriginalFilename = encodeFilename(originalFilename);
-        return "attachment; filename*=\"UTF-8''" + encodedOriginalFilename + "\"";
-    }
-
-    private String encodeFilename(String originalFilename) {
-        return URLEncoder.encode(originalFilename, StandardCharsets.UTF_8).replace("+", "%20");
-    }
 }

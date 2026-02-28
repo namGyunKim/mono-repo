@@ -32,7 +32,14 @@ public class MemberLogRepositoryImpl implements MemberLogQueryRepository {
                 : MemberLogSearchQuery.of("", null, null, "", null, null);
         final Predicate predicate = MemberLogSpecification.search(safeQuery);
 
-        final List<MemberLogView> content = queryFactory
+        final List<MemberLogView> content = fetchContent(predicate, pageable);
+        final long total = fetchTotalCount(predicate);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private List<MemberLogView> fetchContent(Predicate predicate, Pageable pageable) {
+        return queryFactory
                 .select(Projections.constructor(
                         MemberLogView.class,
                         memberLog.id,
@@ -49,13 +56,14 @@ public class MemberLogRepositoryImpl implements MemberLogQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
 
+    private long fetchTotalCount(Predicate predicate) {
         final Long total = queryFactory
                 .select(memberLog.count())
                 .from(memberLog)
                 .where(predicate)
                 .fetchOne();
-
-        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+        return total != null ? total : 0L;
     }
 }

@@ -6,8 +6,6 @@ import com.example.domain.member.entity.Member;
 
 /**
  * 회원 목록/요약 프로필 응답
- * <p>
- * - GEMINI 규칙: 응답은 record 사용
  */
 public record MemberProfileListResponse(
         Long id,
@@ -25,10 +23,6 @@ public record MemberProfileListResponse(
                 ApiAccountRole.fromDomain(member.getRole()),
                 ApiMemberType.fromDomain(member.getMemberType())
         );
-    }
-
-    public static MemberProfileListResponse of(Member member) {
-        return from(member);
     }
 
     public static MemberProfileListResponse from(Member member) {

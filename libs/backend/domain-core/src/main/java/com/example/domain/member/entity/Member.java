@@ -131,8 +131,8 @@ public class Member extends BaseTimeEntity implements Serializable {
     public void withdraw() {
         String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         this.active = MemberActiveStatus.INACTIVE;
-        this.loginId = this.loginId + "_LEAVE_" + nowStr;
-        this.nickName = this.nickName + "_LEAVE_" + nowStr;
+        this.loginId = "%s_LEAVE_%s".formatted(this.loginId, nowStr);
+        this.nickName = "%s_LEAVE_%s".formatted(this.nickName, nowStr);
         this.refreshTokenEncrypted = null;
         rotateTokenVersion();
     }

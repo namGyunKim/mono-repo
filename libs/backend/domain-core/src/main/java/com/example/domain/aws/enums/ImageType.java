@@ -79,7 +79,7 @@ public enum ImageType {
         }
     }
 
-    public void isExtensionAllowed(String extension) {
+    public void validateExtension(String extension) {
         if (extension == null || extension.isBlank()) {
             throw new GlobalException(ErrorCode.UNSUPPORTED_FILE_EXTENSION, "파일 확장자가 없습니다.");
         }

@@ -18,8 +18,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * 구글 OAuth 인증 플로우 처리 전용 컴포넌트
  */
@@ -53,58 +51,29 @@ public class GoogleOauthProcessor {
     private GoogleTokenResponse requestAccessToken(String code, String codeVerifier) {
         long startNanos = System.nanoTime();
         GoogleTokenRequestCommand tokenRequest = GoogleTokenRequestCommand.ofAuthorizationCode(
-                clientId,
-                clientSecret,
-                redirectUri,
-                code,
-                codeVerifier
+                clientId, clientSecret, redirectUri, code, codeVerifier
         );
         try {
             ResponseEntity<GoogleTokenResponse> response = googleApiClient.getToken(tokenRequest.toFormData());
-            long elapsedMs = elapsedMs(startNanos);
+            long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
             GoogleTokenResponse body = response.getBody();
             if (body == null) {
-                log.warn(
-                        "traceId={}, 구글 토큰 API 응답 바디가 비어있습니다: status={}, elapsedMs={}",
-                        TraceIdUtils.resolveTraceId(),
-                        response.getStatusCode().value(),
-                        elapsedMs
-                );
+                log.warn("traceId={}, 구글 토큰 API 응답 바디가 비어있습니다: status={}, elapsedMs={}",
+                        TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
                 return null;
             }
-            log.info(
-                    "traceId={}, 구글 토큰 API 호출 완료: status={}, elapsedMs={}",
-                    TraceIdUtils.resolveTraceId(),
-                    response.getStatusCode().value(),
-                    elapsedMs
-            );
+            log.info("traceId={}, 구글 토큰 API 호출 완료: status={}, elapsedMs={}",
+                    TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
             return body;
         } catch (RestClientResponseException e) {
-            long elapsedMs = elapsedMs(startNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 API 호출 실패: status={}, elapsedMs={}, codePresent={}, codeVerifierPresent={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_GET_TOKEN_ERROR,
-                    e.getClass().getSimpleName(),
-                    e.getStatusCode().value(),
-                    elapsedMs,
-                    StringUtils.hasText(code),
-                    StringUtils.hasText(codeVerifier),
-                    e
-            );
+            logApiFailure("구글 토큰 API", ErrorCode.GOOGLE_API_GET_TOKEN_ERROR,
+                    "status=" + e.getStatusCode().value(), startNanos,
+                    "codePresent=" + StringUtils.hasText(code) + ", codeVerifierPresent=" + StringUtils.hasText(codeVerifier), e);
             throw new SocialException(ErrorCode.GOOGLE_API_GET_TOKEN_ERROR, e);
         } catch (RestClientException e) {
-            long elapsedMs = elapsedMs(startNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 API 호출 실패: status=UNKNOWN, elapsedMs={}, codePresent={}, codeVerifierPresent={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_GET_TOKEN_ERROR,
-                    e.getClass().getSimpleName(),
-                    elapsedMs,
-                    StringUtils.hasText(code),
-                    StringUtils.hasText(codeVerifier),
-                    e
-            );
+            logApiFailure("구글 토큰 API", ErrorCode.GOOGLE_API_GET_TOKEN_ERROR,
+                    "status=UNKNOWN", startNanos,
+                    "codePresent=" + StringUtils.hasText(code) + ", codeVerifierPresent=" + StringUtils.hasText(codeVerifier), e);
             throw new SocialException(ErrorCode.GOOGLE_API_GET_TOKEN_ERROR, e);
         }
     }
@@ -133,57 +102,33 @@ public class GoogleOauthProcessor {
         long startNanos = System.nanoTime();
         try {
             ResponseEntity<GoogleUserInfoResponse> response = googleApiClient.getUserInfo(accessToken);
-            long elapsedMs = elapsedMs(startNanos);
+            long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
             GoogleUserInfoResponse body = response.getBody();
             if (body == null) {
-                log.warn(
-                        "traceId={}, 구글 사용자 정보 API 응답 바디가 비어있습니다: status={}, elapsedMs={}, accessTokenPresent={}",
-                        TraceIdUtils.resolveTraceId(),
-                        response.getStatusCode().value(),
-                        elapsedMs,
-                        StringUtils.hasText(accessToken)
-                );
+                log.warn("traceId={}, 구글 사용자 정보 API 응답 바디가 비어있습니다: status={}, elapsedMs={}, accessTokenPresent={}",
+                        TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs, StringUtils.hasText(accessToken));
                 throw new SocialException(ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR, "구글 사용자 정보 응답이 비어있습니다.");
             }
-            log.info(
-                    "traceId={}, 구글 사용자 정보 API 호출 완료: status={}, elapsedMs={}",
-                    TraceIdUtils.resolveTraceId(),
-                    response.getStatusCode().value(),
-                    elapsedMs
-            );
+            log.info("traceId={}, 구글 사용자 정보 API 호출 완료: status={}, elapsedMs={}",
+                    TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
             return body;
         } catch (RestClientResponseException e) {
-            long elapsedMs = elapsedMs(startNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 사용자 정보 API 호출 실패: status={}, elapsedMs={}, accessTokenPresent={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR,
-                    e.getClass().getSimpleName(),
-                    e.getStatusCode().value(),
-                    elapsedMs,
-                    StringUtils.hasText(accessToken),
-                    e
-            );
+            logApiFailure("구글 사용자 정보 API", ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR,
+                    "status=" + e.getStatusCode().value(), startNanos,
+                    "accessTokenPresent=" + StringUtils.hasText(accessToken), e);
             throw new SocialException(ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR, e);
         } catch (RestClientException e) {
-            long elapsedMs = elapsedMs(startNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 사용자 정보 API 호출 실패: status=UNKNOWN, elapsedMs={}, accessTokenPresent={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR,
-                    e.getClass().getSimpleName(),
-                    elapsedMs,
-                    StringUtils.hasText(accessToken),
-                    e
-            );
+            logApiFailure("구글 사용자 정보 API", ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR,
+                    "status=UNKNOWN", startNanos,
+                    "accessTokenPresent=" + StringUtils.hasText(accessToken), e);
             throw new SocialException(ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR, e);
         }
     }
 
-    private long elapsedMs(long startNanos) {
-        if (startNanos <= 0) {
-            return 0L;
-        }
-        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
+    private void logApiFailure(String apiName, ErrorCode errorCode, String statusInfo, long startNanos,
+                               String contextParams, Exception e) {
+        log.warn("traceId={}, errorCode={}, exceptionName={}, {} 호출 실패: {}, elapsedMs={}, {}",
+                TraceIdUtils.resolveTraceId(), errorCode, e.getClass().getSimpleName(),
+                apiName, statusInfo, GoogleOauthTimingSupport.elapsedMs(startNanos), contextParams, e);
     }
 }

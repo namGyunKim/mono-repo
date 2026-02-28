@@ -67,29 +67,18 @@ public class GoogleIdTokenNonceValidator {
             }
             return Optional.ofNullable(nonceNode.stringValue());
         } catch (SocialException e) {
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, id_token nonce 파싱 실패: reason={}, tokenPresent={}, tokenLength={}",
-                    TraceIdUtils.resolveTraceId(),
-                    e.getErrorCode(),
-                    e.getClass().getSimpleName(),
-                    e.getMessage(),
-                    StringUtils.hasText(idToken),
-                    safeTokenLength(idToken),
-                    e
-            );
+            logNonceParseFailure(e.getErrorCode(), e, idToken);
             throw e;
         } catch (Exception e) {
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, id_token nonce 파싱 실패: tokenPresent={}, tokenLength={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_OAUTH_INVALID_ID_TOKEN,
-                    e.getClass().getSimpleName(),
-                    StringUtils.hasText(idToken),
-                    safeTokenLength(idToken),
-                    e
-            );
+            logNonceParseFailure(ErrorCode.GOOGLE_OAUTH_INVALID_ID_TOKEN, e, idToken);
             throw new SocialException(ErrorCode.GOOGLE_OAUTH_INVALID_ID_TOKEN, e);
         }
+    }
+
+    private void logNonceParseFailure(ErrorCode errorCode, Exception e, String idToken) {
+        log.warn("traceId={}, errorCode={}, exceptionName={}, id_token nonce 파싱 실패: tokenPresent={}, tokenLength={}",
+                TraceIdUtils.resolveTraceId(), errorCode, e.getClass().getSimpleName(),
+                StringUtils.hasText(idToken), safeTokenLength(idToken), e);
     }
 
     private int safeTokenLength(String token) {

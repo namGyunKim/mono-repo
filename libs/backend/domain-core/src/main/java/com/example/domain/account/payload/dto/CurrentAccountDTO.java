@@ -5,18 +5,13 @@ import com.example.domain.member.enums.MemberType;
 
 /**
  * 현재 로그인 사용자 DTO
- *
- * <p>
- * - GEMINI 규칙: DTO는 record 사용
- * - 외부에서는 new 생성자 호출 대신 정적 팩토리 메서드(of/...)만 사용합니다.
- * </p>
  */
 public record CurrentAccountDTO(
-        Long id,                 // 회원 아이디
-        String loginId,          // 로그인 아이디
-        String nickName,         // 닉네임
-        AccountRole role,        // 권한
-        MemberType memberType    // 회원 타입
+        Long id,
+        String loginId,
+        String nickName,
+        AccountRole role,
+        MemberType memberType
 ) {
 
     public static CurrentAccountDTO of(Long id, String loginId, String nickName, AccountRole role, MemberType memberType) {
@@ -38,7 +33,7 @@ public record CurrentAccountDTO(
         return new CurrentAccountDTO(id, loginId, nickName, role, memberType);
     }
 
-    public static CurrentAccountDTO generatedGuest() {
+    public static CurrentAccountDTO ofGuest() {
         return of(0L, "GUEST", "GUEST", AccountRole.GUEST, MemberType.GENERAL);
     }
 }

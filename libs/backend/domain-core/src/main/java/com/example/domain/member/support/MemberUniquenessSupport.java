@@ -1,7 +1,7 @@
 package com.example.domain.member.support;
 
 import com.example.domain.member.payload.dto.MemberLoginIdDuplicateCheckQuery;
-import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckCommand;
+import com.example.domain.member.payload.dto.MemberNickNameExclusiveDuplicateCheckQuery;
 import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckQuery;
 import com.example.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class MemberUniquenessSupport {
     /**
      * 특정 회원(loginId)을 제외하고 닉네임 중복 여부를 확인합니다.
      */
-    public boolean isNickNameDuplicatedExceptLoginId(MemberNickNameDuplicateCheckCommand command) {
+    public boolean isNickNameDuplicatedExceptLoginId(MemberNickNameExclusiveDuplicateCheckQuery command) {
         if (command == null || !StringUtils.hasText(command.nickName()) || !StringUtils.hasText(command.excludedLoginId())) {
             return false;
         }

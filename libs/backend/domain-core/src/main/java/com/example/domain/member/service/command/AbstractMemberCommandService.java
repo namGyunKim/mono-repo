@@ -6,7 +6,7 @@ import com.example.domain.member.entity.Member;
 import com.example.domain.member.entity.MemberImage;
 import com.example.domain.member.enums.MemberUploadDirect;
 import com.example.domain.member.payload.dto.MemberImagesStorageDeleteCommand;
-import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckCommand;
+import com.example.domain.member.payload.dto.MemberNickNameExclusiveDuplicateCheckQuery;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberImageStoragePort;
@@ -58,7 +58,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
             MemberUniquenessSupport memberUniquenessSupport
     ) {
         if (memberUniquenessSupport.isNickNameDuplicatedExceptLoginId(
-                MemberNickNameDuplicateCheckCommand.of(command.nickName(), loginId))) {
+                MemberNickNameExclusiveDuplicateCheckQuery.of(command.nickName(), loginId))) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "이미 등록된 닉네임입니다.");
         }
     }

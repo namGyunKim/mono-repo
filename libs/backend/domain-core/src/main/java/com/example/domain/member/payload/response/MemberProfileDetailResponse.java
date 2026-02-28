@@ -8,8 +8,7 @@ import com.example.global.utils.DateTimeFormatUtils;
 /**
  * 회원 상세 프로필 응답
  * <p>
- * - GEMINI 규칙: 응답은 record 사용
- * - 감사(Audit) 정보를 포함합니다.
+ * 감사(Audit) 정보를 포함합니다.
  */
 public record MemberProfileDetailResponse(
         Long id,
@@ -35,10 +34,6 @@ public record MemberProfileDetailResponse(
                 DateTimeFormatUtils.formatKoreanDateTime(member.getModifiedAt()),
                 member.getLastModifiedBy()
         );
-    }
-
-    public static MemberProfileDetailResponse of(Member member) {
-        return from(member);
     }
 
     public static MemberProfileDetailResponse from(Member member) {

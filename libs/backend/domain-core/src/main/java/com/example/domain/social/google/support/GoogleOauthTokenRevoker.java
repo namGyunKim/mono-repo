@@ -13,8 +13,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -46,60 +44,39 @@ public class GoogleOauthTokenRevoker {
             return;
         }
 
-        long revokeStartNanos = System.nanoTime();
+        long startNanos = System.nanoTime();
         try {
             ResponseEntity<Void> response = googleOauthClient.revokeToken(refreshToken);
-            long elapsedMs = elapsedMs(revokeStartNanos);
             log.info(
                     "traceId={}, 구글 토큰 revoke 호출 완료: status={}, elapsedMs={}, memberId={}, loginId={}",
                     TraceIdUtils.resolveTraceId(),
                     response.getStatusCode().value(),
-                    elapsedMs,
+                    GoogleOauthTimingSupport.elapsedMs(startNanos),
                     memberId,
                     loginId
             );
         } catch (RestClientResponseException e) {
-            long elapsedMs = elapsedMs(revokeStartNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 호출 실패: status={}, elapsedMs={}, memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_UNLINK_ERROR,
-                    e.getClass().getSimpleName(),
-                    e.getStatusCode().value(),
-                    elapsedMs,
-                    memberId,
-                    loginId,
-                    e
-            );
+            logRevokeFailure("status=" + e.getStatusCode().value(), startNanos, memberId, loginId, e);
         } catch (RestClientException e) {
-            long elapsedMs = elapsedMs(revokeStartNanos);
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 호출 실패: status=UNKNOWN, elapsedMs={}, memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_UNLINK_ERROR,
-                    e.getClass().getSimpleName(),
-                    elapsedMs,
-                    memberId,
-                    loginId,
-                    e
-            );
+            logRevokeFailure("status=UNKNOWN", startNanos, memberId, loginId, e);
         } catch (Exception e) {
-            log.warn(
-                    "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 실패: memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
-                    ErrorCode.GOOGLE_API_UNLINK_ERROR,
-                    e.getClass().getSimpleName(),
-                    memberId,
-                    loginId,
-                    e
-            );
+            logRevokeFailure(null, startNanos, memberId, loginId, e);
         }
     }
 
-    private long elapsedMs(long startNanos) {
-        if (startNanos <= 0) {
-            return 0L;
+    private void logRevokeFailure(String statusInfo, long startNanos, Long memberId, String loginId, Exception e) {
+        String message = statusInfo != null
+                ? "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 호출 실패: {}, elapsedMs={}, memberId={}, loginId={}"
+                : "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 실패: memberId={}, loginId={}";
+
+        if (statusInfo != null) {
+            log.warn(message,
+                    TraceIdUtils.resolveTraceId(), ErrorCode.GOOGLE_API_UNLINK_ERROR, e.getClass().getSimpleName(),
+                    statusInfo, GoogleOauthTimingSupport.elapsedMs(startNanos), memberId, loginId, e);
+        } else {
+            log.warn(message,
+                    TraceIdUtils.resolveTraceId(), ErrorCode.GOOGLE_API_UNLINK_ERROR, e.getClass().getSimpleName(),
+                    memberId, loginId, e);
         }
-        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
     }
 }

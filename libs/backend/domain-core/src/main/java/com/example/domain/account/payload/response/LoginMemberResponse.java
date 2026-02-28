@@ -7,8 +7,6 @@ import com.example.domain.contract.enums.ApiMemberType;
 
 /**
  * 로그인/프로필 화면에서 사용하는 회원 요약 DTO
- * <p>
- * - GEMINI 규칙: DTO는 record 사용
  */
 public record LoginMemberResponse(
         Long id,

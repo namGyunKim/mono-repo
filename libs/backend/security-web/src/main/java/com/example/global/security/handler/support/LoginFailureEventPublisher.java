@@ -2,7 +2,7 @@ package com.example.global.security.handler.support;
 
 import com.example.domain.log.enums.LogType;
 import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
+import com.example.domain.log.service.command.LogActivityPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ public class LoginFailureEventPublisher {
 
     private static final String DEFAULT_LOGIN_ID = "UNKNOWN";
 
-    private final ActivityEventPublisher activityEventPublisher;
+    private final LogActivityPublisher activityEventPublisher;
 
     public void publishLoginFailEvent(String loginId, Long memberId, String detailMessage) {
         String resolvedLoginId = hasText(loginId) ? loginId : DEFAULT_LOGIN_ID;

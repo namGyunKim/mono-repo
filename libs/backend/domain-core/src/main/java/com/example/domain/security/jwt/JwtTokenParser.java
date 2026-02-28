@@ -7,7 +7,6 @@ import com.example.global.security.jwt.JwtTokenParseStatus;
 import com.example.global.security.jwt.JwtTokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -37,55 +36,67 @@ public class JwtTokenParser {
         }
 
         try {
-            Jws<Claims> parsed = Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(keyProvider.getSecretKey())
                     .build()
-                    .parseSignedClaims(token);
-            Claims claims = parsed.getPayload();
-            String subject = claims.getSubject();
-            String issuer = claims.getIssuer();
-            String tokenId = claims.getId();
-            String roleValue = claims.get(JwtTokenClaimKeys.ROLE, String.class);
-            String typeValue = claims.get(JwtTokenClaimKeys.TYPE, String.class);
-            Number versionValue = claims.get(JwtTokenClaimKeys.VERSION, Number.class);
-            Instant issuedAt = Optional.ofNullable(claims.getIssuedAt())
-                    .map(Date::toInstant)
-                    .orElse(null);
-            Instant expiresAt = Optional.ofNullable(claims.getExpiration())
-                    .map(Date::toInstant)
-                    .orElse(null);
-            Instant now = Instant.now();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
-            if (expiresAt != null && !expiresAt.isAfter(now)) {
-                return JwtTokenParseResult.of(JwtTokenParseStatus.EXPIRED, null);
-            }
-
-            if (!StringUtils.hasText(subject)
-                    || !StringUtils.hasText(issuer)
-                    || !StringUtils.hasText(tokenId)
-                    || !StringUtils.hasText(roleValue)
-                    || !StringUtils.hasText(typeValue)
-                    || !keyProvider.getProperties().issuer().equals(issuer)
-                    || issuedAt == null
-                    || expiresAt == null
-                    || versionValue == null
-                    || !expiresAt.isAfter(issuedAt)
-                    || issuedAt.isAfter(now)) {
-                return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
-            }
-
-            AccountRole role = AccountRole.valueOf(roleValue);
-            JwtTokenType tokenType = JwtTokenType.valueOf(typeValue);
-            long tokenVersion = versionValue.longValue();
-            if (tokenVersion < 0L) {
-                return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
-            }
-            JwtTokenPayload payload = JwtTokenPayload.of(subject, role, tokenType, tokenVersion, issuedAt, expiresAt);
-            return JwtTokenParseResult.of(JwtTokenParseStatus.VALID, payload);
+            return validateAndBuildResult(claims);
         } catch (ExpiredJwtException ex) {
             return JwtTokenParseResult.of(JwtTokenParseStatus.EXPIRED, null);
         } catch (Exception ex) {
             return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
         }
+    }
+
+    private JwtTokenParseResult validateAndBuildResult(Claims claims) {
+        String subject = claims.getSubject();
+        String issuer = claims.getIssuer();
+        String tokenId = claims.getId();
+        String roleValue = claims.get(JwtTokenClaimKeys.ROLE, String.class);
+        String typeValue = claims.get(JwtTokenClaimKeys.TYPE, String.class);
+        Number versionValue = claims.get(JwtTokenClaimKeys.VERSION, Number.class);
+        Instant issuedAt = Optional.ofNullable(claims.getIssuedAt()).map(Date::toInstant).orElse(null);
+        Instant expiresAt = Optional.ofNullable(claims.getExpiration()).map(Date::toInstant).orElse(null);
+        Instant now = Instant.now();
+
+        if (expiresAt != null && !expiresAt.isAfter(now)) {
+            return JwtTokenParseResult.of(JwtTokenParseStatus.EXPIRED, null);
+        }
+
+        if (!isValidClaims(subject, issuer, tokenId, roleValue, typeValue, versionValue, issuedAt, expiresAt, now)) {
+            return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
+        }
+
+        return buildPayload(subject, roleValue, typeValue, versionValue, issuedAt, expiresAt);
+    }
+
+    private boolean isValidClaims(String subject, String issuer, String tokenId,
+                                  String roleValue, String typeValue, Number versionValue,
+                                  Instant issuedAt, Instant expiresAt, Instant now) {
+        return StringUtils.hasText(subject)
+                && StringUtils.hasText(issuer)
+                && StringUtils.hasText(tokenId)
+                && StringUtils.hasText(roleValue)
+                && StringUtils.hasText(typeValue)
+                && keyProvider.getProperties().issuer().equals(issuer)
+                && issuedAt != null
+                && expiresAt != null
+                && versionValue != null
+                && expiresAt.isAfter(issuedAt)
+                && !issuedAt.isAfter(now);
+    }
+
+    private JwtTokenParseResult buildPayload(String subject, String roleValue, String typeValue,
+                                             Number versionValue, Instant issuedAt, Instant expiresAt) {
+        AccountRole role = AccountRole.valueOf(roleValue);
+        JwtTokenType tokenType = JwtTokenType.valueOf(typeValue);
+        long tokenVersion = versionValue.longValue();
+        if (tokenVersion < 0L) {
+            return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
+        }
+        JwtTokenPayload payload = JwtTokenPayload.of(subject, role, tokenType, tokenVersion, issuedAt, expiresAt);
+        return JwtTokenParseResult.of(JwtTokenParseStatus.VALID, payload);
     }
 }

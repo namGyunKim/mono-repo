@@ -1,5 +1,6 @@
 package com.example.domain.account.service.command;
 
+import com.example.domain.account.payload.dto.AccountActivityPublishCommand;
 import com.example.domain.account.payload.dto.AccountLogoutCommand;
 import com.example.domain.account.payload.dto.AccountProfileUpdateCommand;
 import com.example.domain.account.payload.dto.AccountWithdrawCommand;
@@ -27,10 +28,7 @@ public class AccountCommandService {
 
         CurrentAccountDTO currentAccount = command.currentAccount();
         accountActivityPublishPort.publishMemberActivity(
-                currentAccount.loginId(),
-                currentAccount.id(),
-                LogType.LOGOUT,
-                "로그아웃"
+                AccountActivityPublishCommand.of(currentAccount.loginId(), currentAccount.id(), LogType.LOGOUT, "로그아웃")
         );
         accountTokenRevocationPort.revokeOnLogout(currentAccount.id(), command.accessToken());
     }
@@ -47,14 +45,7 @@ public class AccountCommandService {
     public Long updateProfile(AccountProfileUpdateCommand command) {
         validateProfileUpdateCommand(command);
 
-        CurrentAccountDTO currentAccount = command.currentAccount();
-        // 프로필 변경 성공 응답 직후 조회 일관성을 보장하기 위해 동일 트랜잭션 내에서 회원 업데이트를 수행합니다.
-        return accountMemberCommandPort.updateMemberProfile(
-                currentAccount.role(),
-                command.nickName(),
-                command.password(),
-                currentAccount.id()
-        );
+        return accountMemberCommandPort.updateMemberProfile(command);
     }
 
     private void validateLogoutCommand(AccountLogoutCommand command) {

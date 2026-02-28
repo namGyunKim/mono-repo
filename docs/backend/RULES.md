@@ -560,6 +560,8 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | `MemberSocialCleanupPort` | `MemberSocialCleanupPortAdapter` | member → social |
 | `InitMemberSeedPort` | `InitMemberSeedPortAdapter` | init → member |
 | `LogAuthenticationCheckPort` | `LogAuthenticationCheckPortAdapter` | log → security |
+| `MemberImageCommandPort` | `MemberImageCommandPortAdapter` | aws → member |
+| `MemberImageStoragePort` | `S3MemberImageStoragePortAdapter` | member → aws |
 
 #### Shared Kernel (도메인 간 공유 허용 타입)
 
@@ -570,6 +572,12 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | `AccountRole` | account/enums | 역할 기반 분기·검증에 전 도메인 필수 |
 | `CurrentAccountDTO` | account/payload/dto | 인증 컨텍스트 전달에 security·member·log 등 필수 |
 | `LogType` | log/enums | 활동 로그 발행 Port 파라미터로 account·member·social 사용 |
+| `MemberActiveStatus` | member/enums | 회원 활성 상태 판별에 account·social 등 필수 |
+| `MemberType` | member/enums | 회원 유형 분기에 account·social 등 필수 |
+| `LoginTokenResponse` | account/payload/response | 로그인 토큰 반환에 security·social 필수 |
+| `RefreshTokenResponse` | account/payload/response | 토큰 갱신 반환에 security 필수 |
+| `AccountAuthMemberView` | account/payload/dto | 인증 주체 정보 전달에 security 필수 |
+| `LoginMemberView` | account/payload/dto | 로그인 회원 뷰 전달에 security 필수 |
 
 - Shared Kernel 타입은 Port 인터페이스 파라미터/반환 타입에 사용 가능
 - Shared Kernel 이외의 타입(Service·Repository·Entity·내부 DTO)은 **반드시 Port 경유**

@@ -9,6 +9,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public abstract class AbstractS3ServiceSupport {
@@ -54,7 +56,7 @@ public abstract class AbstractS3ServiceSupport {
 
     protected void validateExtension(String originalFilename, ImageType imageType) {
         String fileExtension = getFileExtension(originalFilename);
-        imageType.isExtensionAllowed(fileExtension);
+        imageType.validateExtension(fileExtension);
     }
 
     protected String getFileExtension(String filename) {
@@ -86,5 +88,14 @@ public abstract class AbstractS3ServiceSupport {
 
     protected String extractFilenameFromContentDisposition(String contentDisposition) {
         return s3UrlParser.extractFilenameFromContentDisposition(contentDisposition);
+    }
+
+    protected String buildContentDisposition(String originalFilename) {
+        String encodedOriginalFilename = encodeFilename(originalFilename);
+        return "attachment; filename*=\"UTF-8''" + encodedOriginalFilename + "\"";
+    }
+
+    protected String encodeFilename(String originalFilename) {
+        return URLEncoder.encode(originalFilename, StandardCharsets.UTF_8).replace("+", "%20");
     }
 }

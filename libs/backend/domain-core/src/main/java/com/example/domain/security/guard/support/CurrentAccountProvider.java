@@ -37,7 +37,7 @@ public class CurrentAccountProvider {
     }
 
     public CurrentAccountDTO getCurrentAccountOrGuest() {
-        return getCurrentAccount().orElse(CurrentAccountDTO.generatedGuest());
+        return getCurrentAccount().orElse(CurrentAccountDTO.ofGuest());
     }
 
     public String getLoginIdOrDefault(String defaultLoginId) {

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class ActivityEventPublisher {
+public class LogActivityPublisher {
 
     private final ApplicationEventPublisher eventPublisher;
     private final ClientIpResolver clientIpResolver;

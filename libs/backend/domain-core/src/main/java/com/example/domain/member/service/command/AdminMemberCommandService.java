@@ -129,7 +129,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
                 member.getLoginId(),
                 member.getId(),
                 LogType.UPDATE,
-                "관리자 권한 변경: " + oldRole + " -> " + newRole
+                "관리자 권한 변경: %s -> %s".formatted(oldRole, newRole)
         );
     }
 

@@ -1,9 +1,9 @@
 package com.example.domain.log.support;
 
+import com.example.domain.account.payload.dto.AccountActivityPublishCommand;
 import com.example.domain.account.support.AccountActivityPublishPort;
-import com.example.domain.log.enums.LogType;
 import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
+import com.example.domain.log.service.command.LogActivityPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AccountActivityPublishPortAdapter implements AccountActivityPublishPort {
 
-    private final ActivityEventPublisher activityEventPublisher;
+    private final LogActivityPublisher activityEventPublisher;
 
     @Override
-    public void publishMemberActivity(String loginId, Long memberId, LogType logType, String details) {
-        activityEventPublisher.publishMemberActivity(MemberActivityCommand.of(loginId, memberId, logType, details));
+    public void publishMemberActivity(AccountActivityPublishCommand command) {
+        activityEventPublisher.publishMemberActivity(MemberActivityCommand.of(command.loginId(), command.memberId(), command.logType(), command.details()));
     }
 }

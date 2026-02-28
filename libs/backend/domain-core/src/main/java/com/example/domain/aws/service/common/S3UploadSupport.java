@@ -16,8 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
@@ -183,15 +181,6 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
                 .key(s3Key)
                 .contentDisposition(buildContentDisposition(originalFilename))
                 .build();
-    }
-
-    private String buildContentDisposition(String originalFilename) {
-        String encodedOriginalFilename = encodeFilename(originalFilename);
-        return "attachment; filename*=\"UTF-8''" + encodedOriginalFilename + "\"";
-    }
-
-    private String encodeFilename(String originalFilename) {
-        return URLEncoder.encode(originalFilename, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     private void putObjectFromFile(PutObjectRequest putObjectRequest, File tempFile) {

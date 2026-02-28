@@ -9,6 +9,7 @@ import com.example.domain.security.guard.support.MemberStatusChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -206,6 +207,6 @@ public class MemberGuard {
         }
 
         AccountRole current = currentRole.get();
-        return java.util.Arrays.stream(roles).anyMatch(role -> current == role);
+        return Arrays.stream(roles).anyMatch(role -> current == role);
     }
 }

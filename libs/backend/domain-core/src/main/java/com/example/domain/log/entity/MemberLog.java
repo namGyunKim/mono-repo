@@ -8,8 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -52,8 +51,6 @@ public class MemberLog {
     @Column(comment = "대상 회원 고유 ID (참조용)")
     private Long memberId;
 
-    // executorId 제거 -> BaseTimeEntity의 createdBy 사용
-
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)", comment = "활동 유형")
     private LogType logType;
@@ -64,17 +61,10 @@ public class MemberLog {
     @Column(comment = "요청 IP")
     private String clientIp;
 
+    // @CreatedBy 컬럼으로 실행자 기록
     @CreatedBy
     @Column(name = "created_by", updatable = false, comment = "생성자")
     private String createdBy;
-
-    @LastModifiedDate
-    @Column(name = "modified_at", comment = "수정일")
-    private LocalDateTime modifiedAt;
-
-    @LastModifiedBy
-    @Column(name = "last_modified_by", comment = "수정자")
-    private String lastModifiedBy;
 
     private MemberLog(String loginId, Long memberId, LogType logType, String details, String clientIp) {
         this.loginId = loginId;

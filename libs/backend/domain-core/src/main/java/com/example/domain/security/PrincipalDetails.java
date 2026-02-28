@@ -7,14 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-/*
- * Spring Security에서 사용하는 인증 객체 구현체입니다.
- * 타임리프에서 sec:authentication="principal.nickName" 처럼
- * 이 클래스의 필드나 Getter 메서드에 직접 접근할 수 있습니다.
- */
+/* Spring Security 인증 주체 구현체 */
 public class PrincipalDetails implements UserDetails {
 
     private final Long id;
@@ -36,7 +32,6 @@ public class PrincipalDetails implements UserDetails {
         this.memberType = member.memberType();
     }
 
-    // 타임리프에서 principal.nickName으로 호출될 때 사용됩니다.
     public String getNickName() {
         return nickName;
     }
@@ -55,9 +50,7 @@ public class PrincipalDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

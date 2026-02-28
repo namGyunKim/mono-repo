@@ -7,7 +7,6 @@ import com.example.global.security.jwt.JwtTokenType;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Date;
@@ -15,7 +14,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class JwtTokenCommandService {
 
     private final JwtTokenKeyProvider keyProvider;
