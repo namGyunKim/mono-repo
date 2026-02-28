@@ -31,10 +31,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "SocialApiController", description = "소셜 로그인 REST API")
+@PreAuthorize("permitAll()")
 @ConditionalOnProperty(name = "app.type", havingValue = "user")
 @RestController
 // 외부 OAuth Provider 콜백 특성상 API-Version 헤더 전달이 불가능하여, 이 컨트롤러는 헤더 버저닝 예외로 운영합니다.

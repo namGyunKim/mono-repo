@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  */
 @Tag(name = "Auth", description = "관리자 로그인 API (Spring Security Filter 기반)")
+@PreAuthorize("permitAll()")
 @ConditionalOnProperty(name = "app.type", havingValue = "admin")
 @RestController
 @RequiredArgsConstructor

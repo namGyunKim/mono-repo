@@ -689,9 +689,9 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 ### 권한 통제는 PreAuthorize로만 (CRITICAL)
 
-- 권한 필요 API에 `@PreAuthorize` 필수
+- **모든 컨트롤러**에 `@PreAuthorize` 필수 — 권한 필요 API는 역할 검증, 공개 API는 `@PreAuthorize("permitAll()")`
+- ❌ `@PreAuthorize` 없는 컨트롤러 금지 — 누락인지 의도적 공개인지 구분할 수 없으므로
 - ❌ 서비스/컨트롤러 내부 if-else 권한 체크 금지
-- 누락 = 공개 API로 간주
 - 인증 필요 API에 `@SecurityRequirement(name = "Bearer Authentication")` 필수
 - SpEL에서 패키지 의존형 `T(...)` 참조 지양 → `@Component` 메서드 호출로 캡슐화
 - 인증/인가 체크는 **`MemberGuard`** `@Component`로 통합
