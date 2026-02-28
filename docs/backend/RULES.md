@@ -6,6 +6,27 @@
 이 문서는 AI가 이 모노레포의 **REST API 전용 백엔드**(Spring Boot) 코드를 생성하거나 수정할 때 반드시 따라야 할 규칙입니다.
 본 프로젝트는 `apps/*-api`와 `libs/backend/*`를 분리한 모노레포 구조를 기준으로 운영합니다.
 
+## 개발 철학 (Development Philosophy) — CRITICAL
+
+이 프로젝트는 아래 6가지 원칙을 핵심 개발 방향으로 삼는다.
+**모든 코드 생성/수정/리뷰 시 아래 원칙을 기준으로 판단**하며, 위반 발견 시 즉시 수정한다.
+
+| 원칙 | 핵심 요약 |
+|------|-----------|
+| **SRP** (단일 책임 원칙) | 클래스·메서드는 하나의 책임만 가진다 |
+| **Clean Code** | 읽기 쉬운 이름, 짧은 메서드, 명확한 의도 |
+| **CQRS** | Command(상태 변경)와 Query(조회)를 물리적으로 분리 |
+| **DDD** | Bounded Context 경계, Aggregate, 도메인 중심 설계 |
+| **Hexagonal Architecture** | Port/Adapter로 도메인을 인프라에서 격리 |
+| **AI 친화적 구조** | 예측 가능한 패턴, 일관된 네이밍, 자기 문서화 코드 |
+
+### AI 자율 실행 규칙 (CRITICAL)
+
+- 코드 생성/수정/리팩토링/삭제는 **권한 확인 없이 자율 진행**한다
+- 빌드·테스트·린트 실행도 자율 진행
+- 리팩토링 중 발견된 위반 사항은 즉시 수정한다
+- 커밋/푸시는 **사용자 명시 요청 시에만** 진행
+
 > 모노레포 경로: `apps/user-api/`, `apps/admin-api/`, `libs/backend/*`
 
 ---
@@ -477,6 +498,25 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - 공통 흐름은 추상 클래스, 차이점은 Hook 메서드
 - `@Transactional(AOP)` 주의: 공통 흐름 메서드를 `final`로 만들지 않기
 
+### Hexagonal Architecture (Ports & Adapters) — CRITICAL
+
+- 도메인 계층은 인프라(DB, 외부 API, 프레임워크)에 의존하지 않는다
+- **Inbound Adapter**: 외부 요청을 도메인으로 연결 → `api/` 패키지 (Controller)
+- **Outbound Port**: 도메인이 외부에 요청하는 인터페이스 → `support/` 패키지의 Port 인터페이스
+- **Outbound Adapter**: Port 구현체로 인프라를 연결 → `support/` 패키지의 Adapter 구현체
+- **의존 방향**: Adapter → Port ← Domain (**항상 안쪽으로**, 역방향 금지)
+- 패키지 매핑:
+
+| 패키지 | 헥사고날 역할 | 설명 |
+|--------|-------------|------|
+| `api/` | Inbound Adapter | Controller, 외부 요청 진입점 |
+| `service/command/` | Application Service | 상태 변경 유스케이스 |
+| `service/query/` | Application Service | 조회 유스케이스 |
+| `entity/` | Domain Model | 핵심 비즈니스 모델 (Aggregate) |
+| `support/` | Outbound Port + Adapter | 도메인 간 경계, 외부 인프라 추상화 |
+| `repository/` | Outbound Adapter | 같은 도메인 내 JPA 영속화 |
+| `client/` | Outbound Adapter | 외부 API 연동 |
+
 ### DDD Bounded Context 경계 — CRITICAL
 
 - 도메인 간 참조는 **Port 인터페이스**(또는 이벤트/DTO/ID)로만 허용, **Repository·Entity·Service 직접 참조 금지**
@@ -486,6 +526,17 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - Aggregate 내부 필드에 다른 도메인의 관심사(인증 토큰, 외부 연동 키 등)를 혼합하지 않는다
   - 불가피하게 같은 테이블에 저장해야 하면, 접근은 반드시 **해당 도메인의 Port를 경유**
 - 기존 패턴 참고: `AccountMemberQueryPort`(account/support) → `AccountMemberQueryPortAdapter`(member/support)
+
+### AI 친화적 구조 (AI-Friendly Structure)
+
+- **예측 가능한 네이밍**: 클래스명만으로 역할·계층·도메인을 파악할 수 있어야 한다
+  - `{Domain}{역할}{계층}` 패턴: `MemberCommandService`, `SecurityMemberTokenPort`, `MemberSocialCleanupPortAdapter`
+- **일관된 패키지 구조**: 모든 도메인이 동일한 패키지 레이아웃(`api/entity/enums/payload/repository/service/support`)을 따른다
+- **자기 문서화 코드**: 주석보다 명확한 이름과 작은 메서드로 의도를 표현한다
+- **단일 진입점**: 도메인 외부 접점은 Controller(인바운드) + Port(아웃바운드)로 한정한다
+- **파일당 하나의 public 타입**: 검색·탐색·수정 범위를 최소화한다
+- **작은 클래스, 작은 메서드**: AI가 컨텍스트 윈도우 내에서 전체를 파악할 수 있도록 한다
+  - public 클래스 300라인, 메서드 30라인 초과 시 분리 고려
 
 ### 이벤트 기반 로깅
 
@@ -608,6 +659,18 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - [ ] 다른 도메인의 Service를 직접 호출하지 않고 Port/Event를 경유하는가?
 - [ ] Aggregate에 다른 도메인의 관심사가 혼합되어 있지 않은가?
 
+### Hexagonal Architecture
+
+- [ ] 도메인 계층이 인프라(DB, 외부 API)에 직접 의존하지 않는가?
+- [ ] 의존 방향이 항상 안쪽(Adapter → Port ← Domain)인가?
+- [ ] 도메인 외부 접점이 Controller(인바운드) + Port(아웃바운드)로 한정되는가?
+
+### AI 친화적 구조
+
+- [ ] 클래스명만으로 역할·계층·도메인을 파악할 수 있는가?
+- [ ] 모든 도메인이 동일한 패키지 레이아웃을 따르는가?
+- [ ] public 클래스 300라인, 메서드 30라인 이내인가?
+
 ### Enum 계약 동기화
 
 - [ ] API 계약 Enum(`com.example.domain.contract.enums.*`)과 대응 도메인 Enum의 `name()`이 동기화되어 있는가?
@@ -652,7 +715,9 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 |---------------|--------------------------------------------------------------------------------|
 | DTO           | record + `from/of`, 외부 `new` 금지                                                |
 | 계층 경계         | 값 나열 금지, DTO 1개로 전달                                                            |
-| 도메인 경계        | `id`/DTO/Port/Event 우선, 직접 참조 지양                                               |
+| 도메인 경계        | Port/Event/DTO/ID로만 참조, Repository·Entity·Service 직접 참조 금지                     |
+| 헥사고날 아키텍처     | 의존 방향 항상 안쪽으로, Port/Adapter로 도메인-인프라 격리                                         |
+| AI 친화적 구조     | 예측 가능한 네이밍(`{Domain}{역할}{계층}`), 일관된 패키지, 자기 문서화 코드                              |
 | 스크립트          | `gradlew`/`gradlew.bat` 외 shell 스크립트 추가/수정은 사용자 요청 시만 진행                       |
 | CQRS          | 물리 분리, Command=`@Transactional`, Query=`readOnly=true`                         |
 | 조회 최적화        | QueryDSL + fetch join, DTO Projection                                          |
