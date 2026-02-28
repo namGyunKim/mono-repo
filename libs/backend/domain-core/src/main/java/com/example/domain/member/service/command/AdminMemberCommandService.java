@@ -7,8 +7,10 @@ import com.example.domain.log.service.command.ActivityEventPublisher;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.payload.dto.MemberCreateCommand;
 import com.example.domain.member.payload.dto.MemberDeactivateCommand;
+import com.example.domain.member.payload.dto.MemberDeactivateContext;
 import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
+import com.example.domain.member.payload.dto.MemberUpdateContext;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
@@ -81,16 +83,10 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         }
 
         Member member = findAdminMember(command.memberId());
-        updateMemberCommon(
-                member,
-                command,
-                memberUniquenessSupport,
-                passwordEncoder,
-                activityEventPublisher,
-                true,
-                "관리자 비밀번호 변경",
-                "관리자 정보 수정"
-        );
+        updateMemberCommon(member, command, MemberUpdateContext.of(
+                memberUniquenessSupport, passwordEncoder, activityEventPublisher,
+                true, "관리자 비밀번호 변경", "관리자 정보 수정"
+        ));
 
         return member.getId();
     }
@@ -107,13 +103,9 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         }
 
         Member member = findAdminMember(command.memberId());
-        deactivateMemberCommon(
-                member,
-                memberImageStoragePort,
-                memberSocialCleanupPort,
-                activityEventPublisher,
-                "관리자 탈퇴/비활성화 처리"
-        );
+        deactivateMemberCommon(member, MemberDeactivateContext.of(
+                memberImageStoragePort, memberSocialCleanupPort, activityEventPublisher, "관리자 탈퇴/비활성화 처리"
+        ));
         revokeSelfLogoutIfNeeded(command);
 
         return member.getId();

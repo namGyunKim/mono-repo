@@ -8,8 +8,10 @@ import com.example.domain.member.entity.Member;
 import com.example.domain.member.enums.MemberType;
 import com.example.domain.member.payload.dto.MemberCreateCommand;
 import com.example.domain.member.payload.dto.MemberDeactivateCommand;
+import com.example.domain.member.payload.dto.MemberDeactivateContext;
 import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
+import com.example.domain.member.payload.dto.MemberUpdateContext;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
@@ -72,16 +74,10 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
 
         Member member = findUserMember(command.memberId());
         boolean allowPasswordChange = member.getMemberType() == MemberType.GENERAL;
-        updateMemberCommon(
-                member,
-                command,
-                memberUniquenessSupport,
-                passwordEncoder,
-                activityEventPublisher,
-                allowPasswordChange,
-                "비밀번호 변경",
-                "회원 정보 수정"
-        );
+        updateMemberCommon(member, command, MemberUpdateContext.of(
+                memberUniquenessSupport, passwordEncoder, activityEventPublisher,
+                allowPasswordChange, "비밀번호 변경", "회원 정보 수정"
+        ));
 
         return member.getId();
     }
@@ -93,13 +89,9 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
         }
 
         Member member = findUserMember(command.memberId());
-        deactivateMemberCommon(
-                member,
-                memberImageStoragePort,
-                memberSocialCleanupPort,
-                activityEventPublisher,
-                "회원 탈퇴 처리"
-        );
+        deactivateMemberCommon(member, MemberDeactivateContext.of(
+                memberImageStoragePort, memberSocialCleanupPort, activityEventPublisher, "회원 탈퇴 처리"
+        ));
         return member.getId();
     }
 

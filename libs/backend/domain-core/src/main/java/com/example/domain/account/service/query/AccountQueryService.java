@@ -2,6 +2,7 @@ package com.example.domain.account.service.query;
 
 import com.example.domain.account.payload.dto.*;
 import com.example.domain.account.support.AccountMemberQueryPort;
+import com.example.domain.account.validator.AccountInputValidator;
 import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
@@ -81,36 +82,18 @@ public class AccountQueryService {
     }
 
     private void validateCurrentAccount(CurrentAccountDTO request) {
-        if (request == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 정보가 비어있습니다.");
-        }
-        if (request.loginId() == null || request.loginId().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "loginId는 필수입니다.");
-        }
-        if (request.role() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "role은 필수입니다.");
-        }
+        AccountInputValidator.requireCurrentAccountBasic(request);
     }
 
     private void validateLoginIdRoleQuery(AccountLoginIdRoleQuery request) {
-        if (request == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "로그인 조회 요청 값이 비어있습니다.");
-        }
-        if (request.loginId() == null || request.loginId().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "loginId는 필수입니다.");
-        }
-        if (request.role() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "role은 필수입니다.");
-        }
+        AccountInputValidator.requireNonNull(request, "로그인 조회 요청 값이 비어있습니다.");
+        AccountInputValidator.requireHasText(request.loginId(), "loginId는 필수입니다.");
+        AccountInputValidator.requireNonNull(request.role(), "role은 필수입니다.");
     }
 
     private void validateLoginIdQuery(AccountLoginIdQuery request) {
-        if (request == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "로그인 조회 요청 값이 비어있습니다.");
-        }
-        if (request.loginId() == null || request.loginId().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "loginId는 필수입니다.");
-        }
+        AccountInputValidator.requireNonNull(request, "로그인 조회 요청 값이 비어있습니다.");
+        AccountInputValidator.requireHasText(request.loginId(), "loginId는 필수입니다.");
     }
 
     private boolean isValidLoginValidationQuery(AccountLoginValidationQuery request) {

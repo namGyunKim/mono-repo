@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JwtTokenRefreshCommandService {
 
@@ -33,7 +34,6 @@ public class JwtTokenRefreshCommandService {
     private final SecurityMemberTokenPort securityMemberTokenPort;
     private final RefreshTokenCrypto refreshTokenCrypto;
 
-    @Transactional
     public RefreshTokenResponse refreshTokens(RefreshTokenIssueCommand command) {
         String refreshToken = resolveRefreshToken(command);
         JwtTokenPayload payload = parseRefreshToken(refreshToken);

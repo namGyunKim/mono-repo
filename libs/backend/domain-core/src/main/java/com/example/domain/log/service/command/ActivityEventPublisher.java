@@ -28,23 +28,27 @@ public class ActivityEventPublisher {
             throw new IllegalArgumentException("command는 필수입니다.");
         }
 
-        final String loginId = command.loginId();
-        final Long memberId = command.memberId();
-        final String details = command.details();
-
-        final String safeLoginId = (loginId == null || loginId.isBlank()) ? "UNKNOWN" : loginId;
-        final String safeMemberId = (memberId == null) ? "UNKNOWN" : String.valueOf(memberId);
-
+        final String safeLoginId = resolveLoginId(command.loginId());
+        final String safeMemberId = resolveMemberId(command.memberId());
         final String target = "loginId=%s, memberId=%s".formatted(safeLoginId, safeMemberId);
-        final String formattedDetails = LogDetailsFormatter.format(command.logType(), target, details);
+        final String formattedDetails = LogDetailsFormatter.format(command.logType(), target, command.details());
+
         final MemberActivityPayload payload = MemberActivityPayload.of(
                 safeLoginId,
-                memberId,
+                command.memberId(),
                 command.logType(),
                 formattedDetails,
                 clientIpResolver.resolveClientIp()
         );
 
         eventPublisher.publishEvent(MemberActivityEvent.from(payload));
+    }
+
+    private String resolveLoginId(String loginId) {
+        return (loginId == null || loginId.isBlank()) ? "UNKNOWN" : loginId;
+    }
+
+    private String resolveMemberId(Long memberId) {
+        return (memberId == null) ? "UNKNOWN" : String.valueOf(memberId);
     }
 }

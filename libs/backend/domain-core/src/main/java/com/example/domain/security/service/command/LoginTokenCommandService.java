@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class LoginTokenCommandService {
 
@@ -24,7 +25,6 @@ public class LoginTokenCommandService {
     private final RefreshTokenCrypto refreshTokenCrypto;
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
 
-    @Transactional
     public LoginTokenResponse issueTokens(LoginTokenIssueCommand command) {
         SecurityMemberTokenInfo memberInfo = findMemberTokenInfo(command);
         blacklistPreviousRefreshTokenIfPresent(memberInfo);

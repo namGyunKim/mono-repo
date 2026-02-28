@@ -10,13 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JwtTokenRevocationCommandService {
 
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
     private final SecurityMemberTokenPort securityMemberTokenPort;
 
-    @Transactional
     public void revokeOnLogout(SecurityLogoutCommand command) {
         if (command == null) {
             return;

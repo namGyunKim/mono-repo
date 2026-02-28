@@ -470,6 +470,19 @@ libs/backend/domain-core/src/main/java/com/example/domain/
     └── support
 ```
 
+#### 도메인별 특수 구조 (AI 참고용)
+
+모든 도메인이 위 표준 레이아웃을 100% 따르지는 않는다.
+아래 도메인은 역할 특성상 일부 패키지를 생략하며, 이는 **의도된 설계**이다.
+
+| 도메인 | 특수 구조 | 사유 |
+|--------|-----------|------|
+| **account** | `entity`/`repository` 없음 | `AccountMemberQueryPort`를 통해 member 도메인에 위임하는 **조회·조합 전용 도메인** |
+| **security** | `api`/`entity`/`repository` 없음 | JWT·Guard·블랙리스트 등 **횡단 관심사 도메인**, 자체 영속 엔티티 없음 |
+| **social** | 루트에 `service` 없음, `google/` 서브도메인 중심 | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제 |
+| **aws** | `entity`/`repository`/`validator` 없음 | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인** |
+| **log** | `api` 없음 | 이벤트 리스너로만 동작하는 **내부 전용 도메인**, 외부 API 노출 없음 |
+
 ### 멀티라인 문자열 (Text Block) — CRITICAL
 
 - ❌ `"\n"` escape 금지

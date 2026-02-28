@@ -205,12 +205,7 @@ public class MemberGuard {
             return false;
         }
 
-        for (AccountRole role : roles) {
-            if (currentRole.get() == role) {
-                return true;
-            }
-        }
-
-        return false;
+        AccountRole current = currentRole.get();
+        return java.util.Arrays.stream(roles).anyMatch(role -> current == role);
     }
 }

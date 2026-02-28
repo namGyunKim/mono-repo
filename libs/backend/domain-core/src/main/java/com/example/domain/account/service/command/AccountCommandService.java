@@ -4,6 +4,7 @@ import com.example.domain.account.payload.dto.AccountLogoutCommand;
 import com.example.domain.account.payload.dto.AccountProfileUpdateCommand;
 import com.example.domain.account.payload.dto.AccountWithdrawCommand;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
+import com.example.domain.account.validator.AccountInputValidator;
 import com.example.domain.log.enums.LogType;
 import com.example.domain.log.payload.dto.MemberActivityCommand;
 import com.example.domain.log.service.command.ActivityEventPublisher;
@@ -12,8 +13,6 @@ import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.service.MemberStrategyFactory;
 import com.example.domain.member.service.command.MemberCommandService;
 import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
-import com.example.global.exception.GlobalException;
-import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -74,48 +73,19 @@ public class AccountCommandService {
     }
 
     private void validateLogoutCommand(AccountLogoutCommand command) {
-        if (command == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "로그아웃 요청 값이 비어있습니다.");
-        }
-        validateCurrentAccount(command.currentAccount());
+        AccountInputValidator.requireNonNull(command, "로그아웃 요청 값이 비어있습니다.");
+        AccountInputValidator.requireCurrentAccountFull(command.currentAccount());
     }
 
     private void validateWithdrawCommand(AccountWithdrawCommand command) {
-        if (command == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "탈퇴 요청 값이 비어있습니다.");
-        }
-        validateCurrentAccount(command.currentAccount());
+        AccountInputValidator.requireNonNull(command, "탈퇴 요청 값이 비어있습니다.");
+        AccountInputValidator.requireCurrentAccountFull(command.currentAccount());
     }
 
     private void validateProfileUpdateCommand(AccountProfileUpdateCommand command) {
-        if (command == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "프로필 수정 요청 값이 비어있습니다.");
-        }
-        validateCurrentAccount(command.currentAccount());
-        if (command.nickName() == null || command.nickName().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "nickName은 필수입니다.");
-        }
-    }
-
-    private void validateCurrentAccount(CurrentAccountDTO currentAccount) {
-        if (currentAccount == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 정보가 비어있습니다.");
-        }
-        if (currentAccount.id() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 식별자는 필수입니다.");
-        }
-        if (currentAccount.loginId() == null || currentAccount.loginId().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 loginId는 필수입니다.");
-        }
-        if (currentAccount.role() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 role은 필수입니다.");
-        }
-        if (currentAccount.memberType() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 memberType은 필수입니다.");
-        }
-        if (currentAccount.nickName() == null || currentAccount.nickName().isBlank()) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "현재 사용자 nickName은 필수입니다.");
-        }
+        AccountInputValidator.requireNonNull(command, "프로필 수정 요청 값이 비어있습니다.");
+        AccountInputValidator.requireCurrentAccountFull(command.currentAccount());
+        AccountInputValidator.requireHasText(command.nickName(), "nickName은 필수입니다.");
     }
 
 }

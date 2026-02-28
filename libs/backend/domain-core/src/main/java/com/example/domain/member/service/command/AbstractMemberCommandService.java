@@ -8,8 +8,10 @@ import com.example.domain.member.entity.Member;
 import com.example.domain.member.entity.MemberImage;
 import com.example.domain.member.enums.MemberUploadDirect;
 import com.example.domain.member.payload.dto.MemberImagesStorageDeleteCommand;
+import com.example.domain.member.payload.dto.MemberDeactivateContext;
 import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
+import com.example.domain.member.payload.dto.MemberUpdateContext;
 import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
@@ -27,47 +29,24 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     // 해당 서비스가 처리할 수 있는 권한 목록 반환
     public abstract List<AccountRole> getSupportedRoles();
 
-    protected void updateMemberCommon(
-            Member member,
-            MemberUpdateCommand command,
-            MemberUniquenessSupport memberUniquenessSupport,
-            PasswordEncoder passwordEncoder,
-            ActivityEventPublisher activityEventPublisher,
-            boolean allowPasswordChange,
-            String passwordChangeMessage,
-            String updateMessage
-    ) {
+    protected void updateMemberCommon(Member member, MemberUpdateCommand command, MemberUpdateContext context) {
         validateUpdateMemberInput(member, command);
 
         String loginId = member.getLoginId();
-        validateNickNameUniqueness(command, loginId, memberUniquenessSupport);
+        validateNickNameUniqueness(command, loginId, context.memberUniquenessSupport());
         member.changeNickName(command.nickName());
-        updatePasswordIfAllowed(
-                member,
-                command,
-                allowPasswordChange,
-                passwordEncoder,
-                activityEventPublisher,
-                passwordChangeMessage,
-                loginId
-        );
-        publishMemberUpdatedEvent(activityEventPublisher, member, updateMessage, loginId);
+        updatePasswordIfAllowed(member, command, context, loginId);
+        publishMemberUpdatedEvent(context.activityEventPublisher(), member, context.updateMessage(), loginId);
     }
 
-    protected void deactivateMemberCommon(
-            Member member,
-            MemberImageStoragePort memberImageStoragePort,
-            MemberSocialCleanupPort memberSocialCleanupPort,
-            ActivityEventPublisher activityEventPublisher,
-            String inactiveMessage
-    ) {
+    protected void deactivateMemberCommon(Member member, MemberDeactivateContext context) {
         validateDeactivateMemberInput(member);
 
         String loginId = member.getLoginId();
         member.withdraw();
-        memberSocialCleanupPort.cleanupOnWithdraw(member.getId(), loginId);
-        deleteMemberProfileImages(member, memberImageStoragePort);
-        publishMemberDeactivatedEvent(activityEventPublisher, member, inactiveMessage, loginId);
+        context.memberSocialCleanupPort().cleanupOnWithdraw(member.getId(), loginId);
+        deleteMemberProfileImages(member, context.memberImageStoragePort());
+        publishMemberDeactivatedEvent(context.activityEventPublisher(), member, context.inactiveMessage(), loginId);
     }
 
     private void validateUpdateMemberInput(Member member, MemberUpdateCommand command) {
@@ -90,26 +69,23 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     private void updatePasswordIfAllowed(
             Member member,
             MemberUpdateCommand command,
-            boolean allowPasswordChange,
-            PasswordEncoder passwordEncoder,
-            ActivityEventPublisher activityEventPublisher,
-            String passwordChangeMessage,
+            MemberUpdateContext context,
             String loginId
     ) {
-        if (!allowPasswordChange || !StringUtils.hasText(command.password())) {
+        if (!context.allowPasswordChange() || !StringUtils.hasText(command.password())) {
             return;
         }
 
-        member.updatePassword(passwordEncoder.encode(command.password()));
+        member.updatePassword(context.passwordEncoder().encode(command.password()));
         member.rotateTokenVersion();
         member.invalidateRefreshTokenEncrypted();
 
-        activityEventPublisher.publishMemberActivity(
+        context.activityEventPublisher().publishMemberActivity(
                 MemberActivityCommand.of(
                         loginId,
                         member.getId(),
                         LogType.PASSWORD_CHANGE,
-                        passwordChangeMessage
+                        context.passwordChangeMessage()
                 )
         );
     }
