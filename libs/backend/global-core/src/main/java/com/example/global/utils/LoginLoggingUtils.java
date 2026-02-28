@@ -11,6 +11,8 @@ import java.util.Optional;
  */
 public final class LoginLoggingUtils {
 
+    public static final String DEFAULT_UNKNOWN_LOGIN_ID = "UNKNOWN";
+
     private LoginLoggingUtils() {
     }
 

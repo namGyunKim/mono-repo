@@ -13,6 +13,7 @@ import com.example.global.security.handler.CustomAuthSuccessHandler;
 import com.example.global.security.handler.CustomAuthenticationEntryPoint;
 import com.example.global.security.jwt.JwtProperties;
 import com.example.global.security.service.query.PrincipalDetailsQueryService;
+import com.example.global.utils.RequestUriUtils;
 import com.example.global.utils.TraceIdUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +59,7 @@ public class SecurityConfig {
             return false;
         }
 
-        final String path = getPathWithinApplication(request);
+        final String path = RequestUriUtils.getPathWithinApplication(request);
         return path.equals(AUTH_LOGIN_JSON_API_PATH) || path.equals(ADMIN_LOGIN_JSON_API_PATH);
     }
 
@@ -73,20 +74,6 @@ public class SecurityConfig {
         }
 
         return isJsonLoginApiRequest(request);
-    }
-
-    private static String getPathWithinApplication(HttpServletRequest request) {
-        final String uri = request.getRequestURI();
-        if (uri == null) {
-            return "";
-        }
-
-        final String contextPath = request.getContextPath();
-        if (contextPath != null && !contextPath.isBlank() && uri.startsWith(contextPath)) {
-            return uri.substring(contextPath.length());
-        }
-
-        return uri;
     }
 
     @Bean

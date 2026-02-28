@@ -10,6 +10,7 @@ import com.example.global.security.handler.support.LoginFailureMessageResolver;
 import com.example.global.security.handler.support.LoginFailureRequestResolver;
 import com.example.global.security.handler.support.LoginFailureResponseWriter;
 import com.example.global.security.service.query.MemberAuthQueryService;
+import com.example.global.utils.LoginLoggingUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
 
-    private static final String DEFAULT_LOGIN_ID = "UNKNOWN";
     private final MemberAuthQueryService memberAuthQueryService;
     private final LoginFailureRequestResolver loginFailureRequestResolver;
     private final LoginFailureMessageResolver loginFailureMessageResolver;
@@ -49,7 +49,7 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
             return;
         }
 
-        final String loginIdForEvent = loginFailureRequestResolver.resolveLoginIdOrDefault(request, DEFAULT_LOGIN_ID);
+        final String loginIdForEvent = loginFailureRequestResolver.resolveLoginIdOrDefault(request, LoginLoggingUtils.DEFAULT_UNKNOWN_LOGIN_ID);
 
         // 1) 폼 로그인 입력값 누락은 400으로 분리 (JSON 로그인은 Filter 단계에서 이미 400 처리됨)
         final List<ApiErrorDetail> missingCredentialErrors = loginFailureRequestResolver.resolveMissingCredentialErrors(request);

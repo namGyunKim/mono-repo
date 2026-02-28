@@ -3,6 +3,7 @@ package com.example.global.security.filter.support;
 import com.example.domain.account.payload.request.AccountAdminLoginRequest;
 import com.example.domain.account.payload.request.AccountUserLoginRequest;
 import com.example.global.payload.response.ApiErrorDetail;
+import com.example.global.utils.RequestUriUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -50,7 +51,7 @@ public class JsonBodyLoginRequestParser {
             );
         }
 
-        final String path = getPathWithinApplication(request);
+        final String path = RequestUriUtils.getPathWithinApplication(request);
 
         try (InputStream inputStream = request.getInputStream()) {
             if (isAdminLoginPath(path)) {
@@ -66,20 +67,6 @@ public class JsonBodyLoginRequestParser {
                     List.of(ApiErrorDetail.of("body", "요청 본문을 읽는 중 오류가 발생했습니다."))
             );
         }
-    }
-
-    private String getPathWithinApplication(HttpServletRequest request) {
-        final String uri = request.getRequestURI();
-        if (uri == null) {
-            return "";
-        }
-
-        final String contextPath = request.getContextPath();
-        if (contextPath != null && !contextPath.isBlank() && uri.startsWith(contextPath)) {
-            return uri.substring(contextPath.length());
-        }
-
-        return uri;
     }
 
     private boolean isAdminLoginPath(String path) {
