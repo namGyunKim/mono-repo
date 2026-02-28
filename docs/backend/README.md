@@ -25,13 +25,16 @@
 mono-repo/
 ├── apps/
 │   ├── user-api/                 # 사용자 API 애플리케이션
-│   └── admin-api/                # 관리자 API 애플리케이션
+│   ├── admin-api/                # 관리자 API 애플리케이션
+│   └── web/                      # Next.js 16 프론트엔드
 ├── libs/
-│   └── backend/
-│       ├── global-core/          # 전역 공통(도메인 비의존)
-│       ├── domain-core/          # 도메인 핵심(account/member/log/social 등)
-│       ├── security-web/         # 인증/인가 웹 계층 어댑터
-│       └── web-support/          # MVC/AOP/예외/API-Version 필터 등
+│   ├── backend/
+│   │   ├── global-core/          # 전역 공통(도메인 비의존)
+│   │   ├── domain-core/          # 도메인 핵심(account/member/log/social 등)
+│   │   ├── security-web/         # 인증/인가 웹 계층 어댑터
+│   │   └── web-support/          # MVC/AOP/예외/API-Version 필터 등
+│   └── shared/
+│       └── types/                # 프론트·백엔드 공유 TS 타입(API 계약 Enum 등)
 ├── build.gradle.kts
 ├── settings.gradle.kts
 └── docs/backend/
@@ -59,6 +62,10 @@ mono-repo/
 
 ### Nx 경유 (권장)
 
+Nx 타겟이 등록된 프로젝트: `user-api`, `admin-api`, `domain-core`
+
+> `global-core`, `security-web`, `web-support`는 Nx 타겟이 없으며 Gradle 직접 명령으로 빌드한다.
+
 ```bash
 pnpm nx show projects
 
@@ -67,9 +74,11 @@ pnpm nx serve admin-api
 
 pnpm nx build user-api
 pnpm nx build admin-api
+pnpm nx build domain-core
 
 pnpm nx test user-api
 pnpm nx test admin-api
+pnpm nx test domain-core
 ```
 
 ### Gradle 직접
@@ -80,6 +89,12 @@ pnpm nx test admin-api
 
 ./gradlew :apps:user-api:build
 ./gradlew :apps:admin-api:build
+
+# 개별 라이브러리 컴파일 검증
+./gradlew :libs:backend:global-core:compileJava
+./gradlew :libs:backend:domain-core:compileJava
+./gradlew :libs:backend:security-web:compileJava
+./gradlew :libs:backend:web-support:compileJava
 ```
 
 ---
@@ -90,13 +105,17 @@ pnpm nx test admin-api
 
 - `GET /` : 서버 안내
 - `GET /api/health` : 헬스체크
-- `GET /swagger-ui.html` : Swagger UI (활성화 환경에서만)
+- `POST /api/sessions` : 사용자 로그인
+- `POST /api/tokens` : 토큰 갱신
+- `GET /swagger-ui.html` : Swagger UI (`local` 프로파일에서만 활성화)
 
 ### admin-api (`localhost:8082`)
 
 - `GET /` : 서버 안내
 - `GET /api/health` : 헬스체크
-- `GET /swagger-ui.html` : Swagger UI (활성화 환경에서만)
+- `POST /api/admin/sessions` : 관리자 로그인
+- `POST /api/tokens` : 토큰 갱신
+- `GET /swagger-ui.html` : Swagger UI (`local` 프로파일에서만 활성화)
 
 ---
 
@@ -110,7 +129,69 @@ pnpm nx test admin-api
 
 ---
 
-## 7. 문서 역할 분리
+## 7. 로깅 전략
+
+### traceId 기반 요청 추적
+
+- `MdcLoggingFilter`가 모든 요청에 traceId를 생성하여 MDC에 저장한다
+- 로그 패턴 `%X{traceId:-NO_TRACE}`가 자동 출력하므로, 로그 메시지에 traceId를 수동 삽입하지 않는다
+- 에러 응답의 `requestId`에 traceId 값을 포함하여 클라이언트가 문의 시 추적 가능
+
+### 이벤트 기반 비동기 로깅
+
+- 서비스 계층에서 `ApplicationEventPublisher.publishEvent()`로 로그 이벤트를 발행한다
+- `@Async @TransactionalEventListener`가 비동기로 소비하여 비즈니스 로직과 로깅을 분리한다
+
+| 이벤트 | 리스너 | 트랜잭션 시점 |
+|--------|--------|---------------|
+| `LogEvent` | `LogEventListener` | `AFTER_COMMIT` (+ fallback) / `AFTER_ROLLBACK` |
+| `ExceptionEvent` | `ExceptionEventListener` | `AFTER_COMMIT` / `AFTER_ROLLBACK` |
+| `MemberActivityEvent` | `MemberLogEventListener` | `AFTER_COMMIT` |
+
+### 로그 템플릿 관리
+
+- 모든 예외/이벤트 로그 템플릿은 `ExceptionLogTemplates` 클래스에서 Text Block 기반으로 중앙 관리한다
+- 민감정보(password/token/secret)는 `SensitiveLogMessageSanitizer`가 자동 마스킹한다
+
+### 요청/응답 로깅
+
+- `ControllerLoggingAspect`(AOP): `@RestController` 메서드 진입/종료 시점에 `[REQ]`/`[RES]` 로그 출력
+- `FallbackRequestLoggingFilter`: AOP가 적용되지 않는 요청(필터 단계 예외 등)을 보완
+- `RequestLoggingAttributes.CONTROLLER_LOGGED` 플래그로 중복 방지
+
+---
+
+## 8. 보안 아키텍처
+
+### JWT 인증 흐름
+
+- 로그인 성공 시 Access Token(헤더) + Refresh Token(DB 저장) 발급
+- Access Token은 `Authorization: Bearer` 헤더로 전달
+- Refresh Token은 SHA-256 해시 후 DB에 저장, 원본은 응답 헤더로 전달
+
+### 토큰 블랙리스트
+
+- 로그아웃 시 `JwtLogoutHandler` → `JwtTokenRevocationCommandService`가 동작
+  - Access Token을 `BlacklistedToken` 엔티티로 블랙리스트에 등록 (SHA-256 해시 저장)
+  - 해당 회원의 Refresh Token을 DB에서 삭제
+- 매일 03:00 `BlacklistedTokenCleanupCommandService`가 만료된 블랙리스트 토큰을 정리
+
+### 보안 감사 로깅
+
+- 로그인 성공/실패, 로그아웃, 토큰 폐기 등 보안 상태 변경은 반드시 INFO 레벨로 로깅한다
+
+---
+
+## 9. 비동기 처리
+
+- `AsyncConfig`에서 `Executors.newVirtualThreadPerTaskExecutor()`로 Virtual Thread 기반 Executor를 구성한다
+- `TaskDecorator`를 통해 MDC(traceId) 및 `SecurityContext`(인증 정보)를 비동기 스레드에 전파한다
+- `AsyncConfigurer.getAsyncUncaughtExceptionHandler()`를 등록하여 `@Async` 메서드의 예외 유실을 방지한다
+- `application.yml`에서 `spring.threads.virtual.enabled: true`로 전역 Virtual Thread를 활성화한다
+
+---
+
+## 10. 문서 역할 분리
 
 - 이 문서: 구조/실행/운영 기준(개요)
 - [RULES.md](./RULES.md): 코드 작성 및 리뷰 시 반드시 지켜야 하는 세부 규칙
@@ -119,7 +200,7 @@ pnpm nx test admin-api
 
 ---
 
-## 8. API 계약 Enum 전략
+## 11. API 계약 Enum 전략
 
 백엔드는 **도메인 Enum**과 **API 계약 Enum**을 분리해서 운영합니다.
 
