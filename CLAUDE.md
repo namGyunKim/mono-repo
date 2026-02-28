@@ -59,7 +59,7 @@
 
 이 워크스페이스에는 세 개의 MCP 서버가 연결되어 있다.
 
-## Serena (`mcp__serena__*`) — 시맨틱 코드 분석/편집
+## Serena — 시맨틱 코드 분석/편집
 
 - 심볼(클래스, 메서드, 필드) 단위로 코드를 탐색·편집한다
 - 파일 전체를 읽기보다 `get_symbols_overview` → `find_symbol(include_body=True)` 순서로 필요한 부분만 읽는다
@@ -82,7 +82,7 @@
 | `mcp__serena__find_file` | 파일명/파일 마스크로 파일 검색 |
 | `mcp__serena__write_memory` / `read_memory` | 프로젝트 메모리 저장/읽기 |
 
-## Context7 (`mcp__context7__*`) — 최신 라이브러리 문서 조회
+## Context7 — 최신 라이브러리 문서 조회
 
 - 학습 데이터 컷오프 이후 변경된 API나 최신 버전 문서 확인 시 사용한다
 - 반드시 `resolve-library-id` → `query-docs` 순서로 호출한다
@@ -94,7 +94,7 @@
 | `mcp__context7__resolve-library-id` | 라이브러리 이름으로 Context7 ID를 검색 (항상 먼저 호출) |
 | `mcp__context7__query-docs` | 검색된 ID로 최신 문서/코드 예제 조회 |
 
-## PostgreSQL (`mcp__postgres__*`) — 데이터베이스 직접 조회
+## Postgres — 데이터베이스 직접 조회
 
 ### 왜 사용하는가
 
