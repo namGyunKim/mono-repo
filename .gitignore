@@ -83,6 +83,9 @@ out/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Serena MCP local data
+.serena/
+
 # Environment
 .env*
 
