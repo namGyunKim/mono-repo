@@ -89,6 +89,10 @@ pnpm nx test admin-api
 ./gradlew :apps:admin-api:build
 ./gradlew :apps:admin-api:bootRun
 ./gradlew :apps:admin-api:test
+
+# 라이브러리 단위 테스트
+./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:domain-core:test
 ```
 
 ## 새 백엔드 API 추가 절차
@@ -199,6 +203,43 @@ pnpm nx test admin-api
 - 코드 변경 시 위험도 기준으로 필요하면 사전 요청 없이 테스트 추가/수정/실행 가능
 - 사용자가 명시 요청하지 않는 한 **설정 파일 임의 수정 금지**
 - 설정 변경 필요 시 사유/영향 범위를 먼저 설명하고 확인 후 진행
+
+### 테스트 코드 작성 규칙 (CRITICAL)
+
+#### 기본 원칙
+
+- **순수 단위 테스트**: Spring Context 로딩 없음 (`@SpringBootTest` 금지)
+- **테스트 스택**: JUnit5 + Mockito (`@ExtendWith(MockitoExtension.class)`) + AssertJ (`assertThat`)
+- **패턴**: AAA (Arrange-Act-Assert), 메서드당 하나의 동작 검증
+- **클래스 접근 제한**: 테스트 클래스는 **package-private** (public 금지)
+- **final 규칙**: 테스트 코드에서도 재할당 불필요한 변수는 `final` 선언
+
+#### 테스트 구조
+
+- 테스트 패키지는 대상 클래스의 패키지 경로와 동일하게 유지
+- 테스트 클래스명: `{대상클래스명}Test`
+- 테스트 메서드명: `{메서드명}_{시나리오}_{기대결과}` (snake_case)
+
+#### Mockito 사용 규칙
+
+- 외부 의존성(Repository, Port 등)만 Mock 처리
+- `@Mock` + `@InjectMocks` 조합 사용
+- `verify()`로 상호작용 검증, `when().thenReturn()`으로 행위 스텁
+- 불필요한 스텁은 작성하지 않는다 (`strictStubs` 정책 준수)
+
+#### 테스트 실행 명령
+
+```bash
+# 개별 모듈 테스트
+./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:domain-core:test
+
+# 특정 테스트 클래스
+./gradlew :libs:backend:global-core:test --tests "com.example.global.utils.PaginationUtilsTest"
+
+# 전체 백엔드 테스트
+./gradlew test
+```
 
 ### Gradle 의존성 점검 실행 규칙 (CRITICAL)
 
@@ -769,6 +810,12 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - [ ] 모든 도메인이 동일한 패키지 레이아웃을 따르는가?
 - [ ] public 클래스 300라인, 메서드 30라인 이내인가?
 
+### 테스트 코드
+
+- [ ] 새로운 유틸리티/서비스/Validator 추가 시 대응하는 단위 테스트가 있는가?
+- [ ] 테스트가 Spring Context 없이 순수 단위 테스트로 작성되었는가?
+- [ ] `./gradlew :libs:backend:global-core:test :libs:backend:domain-core:test` 전체 통과하는가?
+
 ### Enum 계약 동기화
 
 - [ ] API 계약 Enum(`com.example.domain.contract.enums.*`)과 대응 도메인 Enum의 `name()`이 동기화되어 있는가?
@@ -824,6 +871,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                              |
 | 컨트롤러 격리       | 앱 전용 컨트롤러에 `@ConditionalOnProperty(name = "app.type")` 필수                      |
 | 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                |
+| 테스트            | 순수 단위 테스트(JUnit5+Mockito+AssertJ), `@SpringBootTest` 금지                        |
 | Enum 계약 동기화   | `Api* == Domain name()` 유지 + `pnpm nx test domain-core` 통과                     |
 | 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                  |
 | 보안            | `@PreAuthorize`만, 누락=공개                                                        |

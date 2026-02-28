@@ -95,6 +95,10 @@ pnpm nx test domain-core
 ./gradlew :libs:backend:domain-core:compileJava
 ./gradlew :libs:backend:security-web:compileJava
 ./gradlew :libs:backend:web-support:compileJava
+
+# 라이브러리 단위 테스트
+./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:domain-core:test
 ```
 
 ---
@@ -191,7 +195,64 @@ pnpm nx test domain-core
 
 ---
 
-## 10. 문서 역할 분리
+## 10. 테스트 전략
+
+### 기본 원칙
+
+- **순수 단위 테스트**: Spring Context 로딩 없이 JUnit5 + Mockito + AssertJ 기반으로 작성한다
+- `@SpringBootTest` 사용 금지 — 빠른 피드백 루프 유지
+- 테스트 클래스는 package-private, 메서드명은 `{메서드}_{시나리오}_{기대결과}` 패턴
+
+### 테스트 디렉토리 구조
+
+```text
+libs/backend/global-core/src/test/java/com/example/global/
+├── utils/                    # 유틸리티 테스트 (11개)
+├── security/                 # 보안 테스트 (4개)
+│   ├── handler/support/      # 로그인 핸들러 테스트 (2개)
+│   └── blacklist/            # 블랙리스트 테스트 (2개)
+├── exception/support/        # 예외 처리 지원 테스트 (5개)
+└── aop/support/              # AOP 지원 테스트 (2개)
+
+libs/backend/domain-core/src/test/java/com/example/domain/
+├── contract/enums/           # Enum 동기화 테스트 (1개, 기존)
+├── member/
+│   ├── validator/            # 회원 Validator 테스트 (3개)
+│   └── service/              # 회원 서비스 테스트 (3개)
+├── account/
+│   ├── validator/            # 계정 Validator 테스트 (1개)
+│   └── service/command/      # 계정 서비스 테스트 (1개)
+├── social/google/
+│   ├── validator/            # 소셜 Validator 테스트 (1개)
+│   └── service/              # 소셜 서비스 테스트 (3개)
+└── log/validator/            # 로그 Validator 테스트 (1개)
+```
+
+### 실행 명령
+
+```bash
+# 개별 모듈 테스트
+./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:domain-core:test
+
+# 특정 테스트 클래스
+./gradlew :libs:backend:global-core:test --tests "com.example.global.utils.PaginationUtilsTest"
+
+# 전체 백엔드 테스트
+./gradlew test
+```
+
+### 현재 테스트 현황
+
+| 모듈 | 테스트 파일 수 | 테스트 메서드 수 |
+|------|-------------|--------------|
+| global-core | 26 | ~185 |
+| domain-core | 14 | ~85 |
+| **합계** | **40** | **~270** |
+
+---
+
+## 11. 문서 역할 분리
 
 - 이 문서: 구조/실행/운영 기준(개요)
 - [RULES.md](./RULES.md): 코드 작성 및 리뷰 시 반드시 지켜야 하는 세부 규칙
@@ -200,7 +261,7 @@ pnpm nx test domain-core
 
 ---
 
-## 11. API 계약 Enum 전략
+## 12. API 계약 Enum 전략
 
 백엔드는 **도메인 Enum**과 **API 계약 Enum**을 분리해서 운영합니다.
 
