@@ -27,6 +27,7 @@ project_name: mono-repo
 # Note that when using the JetBrains backend, language servers are not used and this list is correspondingly ignored.
 languages:
 - java
+- typescript
 
 # whether to use project's .gitignore files to ignore files
 ignore_all_files_in_gitignore: true

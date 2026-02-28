@@ -268,10 +268,12 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 | 파일 | 내용 |
 |------|------|
-| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 |
-| `style_and_conventions` | 코딩 규칙, CQRS, DDD, 테스트 컨벤션 |
-| `suggested_commands` | 빌드/테스트/실행 명령 모음 |
-| `task_completion_checklist` | 작업 완료 후 점검 항목 |
+| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 (전체) |
+| `backend/style_and_conventions` | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션 |
+| `backend/suggested_commands` | 백엔드 빌드/테스트/실행 명령 모음 |
+| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목 |
+
+> 프론트엔드 메모리는 `frontend/` 토픽 아래에 동일 패턴으로 추가한다.
 
 ### 운영 원칙
 

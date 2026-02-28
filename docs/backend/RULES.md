@@ -40,10 +40,12 @@
 
 | 메모리 파일 | 내용 | 변경 시점 |
 |------------|------|----------|
-| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 | 구조 변경 시 |
-| `style_and_conventions` | 코딩 규칙, CQRS, DDD, 테스트 컨벤션 | 규칙 변경 시 |
-| `suggested_commands` | 빌드/테스트/실행 명령 모음 | 명령 추가/변경 시 |
-| `task_completion_checklist` | 작업 완료 후 점검 항목 | 체크리스트 변경 시 |
+| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 (전체) | 구조 변경 시 |
+| `backend/style_and_conventions` | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션 | 규칙 변경 시 |
+| `backend/suggested_commands` | 백엔드 빌드/테스트/실행 명령 모음 | 명령 추가/변경 시 |
+| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목 | 체크리스트 변경 시 |
+
+> 프론트엔드 메모리는 `frontend/` 토픽 아래에 동일 패턴으로 추가한다.
 
 ---
 
