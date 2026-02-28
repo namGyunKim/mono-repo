@@ -330,6 +330,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 - 예외 로그 템플릿 변경은 `ExceptionLogTemplates`에서만 관리
 - traceId는 **MDC 패턴(`%X{traceId}`)이 자동 출력**하므로, 로그 메시지 본문에 `traceId={}`를 수동 삽입하지 않는다
 - 서비스/도메인 계층에서 `TraceIdUtils.resolveTraceId()`를 로깅 목적으로 직접 호출하지 않는다 (이벤트 데이터 전달 등 구조적 용도 제외)
+- **보안 상태 변경**(로그아웃, 토큰 폐기, 권한 변경 등)은 반드시 **INFO 레벨로 로깅**한다 — 감사 추적(audit trail) 목적
+- `finally` 블록에서 `RequestContextHolder.currentRequestAttributes()` 접근 시 `try-catch(IllegalStateException)`으로 방어한다
 
 ### 로그 레벨 사용 기준 (CRITICAL)
 
@@ -614,6 +616,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - ✅ `eventPublisher.publishEvent(new MemberActivityEvent(...))`
 - 활동 로그: `AFTER_COMMIT`에서만 저장
 - 예외/운영 로그: 커밋/롤백 모두 기록, `txStatus` 포함
+- `AsyncConfig`는 `AsyncConfigurer`를 구현하고 `getAsyncUncaughtExceptionHandler()`를 등록하여 `@Async` 예외 유실을 방지한다
 
 ---
 
