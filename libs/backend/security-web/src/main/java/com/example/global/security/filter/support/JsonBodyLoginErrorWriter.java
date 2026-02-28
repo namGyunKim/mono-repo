@@ -49,7 +49,7 @@ public class JsonBodyLoginErrorWriter {
                 request,
                 JsonBodyLoginAuthenticationFilter.REQUEST_ATTRIBUTE_LOGIN_ID,
                 JsonBodyLoginAuthenticationFilter.REQUEST_ATTRIBUTE_LOGIN_ID,
-                "UNKNOWN"
+                LoginLoggingUtils.DEFAULT_UNKNOWN_LOGIN_ID
         );
 
         final String code = errorCode != null ? errorCode.getCode() : "";
