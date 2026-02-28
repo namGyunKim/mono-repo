@@ -20,12 +20,12 @@ public class FallbackLoginIdResolver {
             return DEFAULT_GUEST;
         }
 
-        String paramLoginId = request.getParameter(PARAM_LOGIN_ID);
+        final String paramLoginId = request.getParameter(PARAM_LOGIN_ID);
         if (hasText(paramLoginId)) {
             return paramLoginId.trim();
         }
 
-        Object attribute = request.getAttribute(JsonBodyLoginAuthenticationFilter.REQUEST_ATTRIBUTE_LOGIN_ID);
+        final Object attribute = request.getAttribute(JsonBodyLoginAuthenticationFilter.REQUEST_ATTRIBUTE_LOGIN_ID);
         if (attribute instanceof String attrLoginId && hasText(attrLoginId)) {
             return attrLoginId.trim();
         }

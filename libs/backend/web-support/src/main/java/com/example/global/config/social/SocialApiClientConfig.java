@@ -43,7 +43,7 @@ public class SocialApiClientConfig {
     }
 
     private <T> T createClient(RestClient restClient, Class<T> clientType) {
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build();
+        final HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build();
         return factory.createClient(clientType);
     }
 }

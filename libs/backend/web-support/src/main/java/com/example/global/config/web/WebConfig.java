@@ -105,7 +105,7 @@ public class WebConfig implements WebMvcConfigurer {
         // local 프로필에서는 Tailwind 등 정적 파일이 자주 바뀌므로,
         // 버전 매핑/해시 결과를 캐시하지 않아도 즉시 반영되도록 cache=false로 운영한다.
         // prod 등에서는 성능을 위해 cache=true를 사용한다.
-        for (String profile : environment.getActiveProfiles()) {
+        for (final String profile : environment.getActiveProfiles()) {
             if ("local".equalsIgnoreCase(profile)) {
                 return false;
             }

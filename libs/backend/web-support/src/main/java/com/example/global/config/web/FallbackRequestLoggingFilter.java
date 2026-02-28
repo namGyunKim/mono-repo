@@ -46,7 +46,7 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
             return true;
         }
 
-        String uri = request.getRequestURI();
+        final String uri = request.getRequestURI();
         if (!hasText(uri)) {
             return true;
         }

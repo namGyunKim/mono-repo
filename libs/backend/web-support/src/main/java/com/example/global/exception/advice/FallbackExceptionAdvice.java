@@ -32,10 +32,10 @@ public class FallbackExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logUnexpected(meta, resolvedAccount, e, ErrorCode.INTERNAL_SERVER_ERROR);
-            String detailMessage = support.resolveMessage(e, ErrorCode.INTERNAL_SERVER_ERROR.getErrorMessage());
+            final String detailMessage = support.resolveMessage(e, ErrorCode.INTERNAL_SERVER_ERROR.getErrorMessage());
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
                     ErrorCode.INTERNAL_SERVER_ERROR,

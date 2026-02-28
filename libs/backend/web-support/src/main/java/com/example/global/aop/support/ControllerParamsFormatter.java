@@ -49,8 +49,8 @@ public class ControllerParamsFormatter {
             final String[] parameterNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
 
             for (int i = 0; i < args.length; i++) {
-                Object arg = args[i];
-                String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
+                final Object arg = args[i];
+                final String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
 
                 // 로깅 가능한 타입만 맵에 담기
                 if (isLoggable(arg)) {

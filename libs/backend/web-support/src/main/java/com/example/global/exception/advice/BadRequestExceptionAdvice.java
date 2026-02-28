@@ -40,8 +40,8 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logTypeMismatch(meta, e, ErrorCode.INVALID_PARAMETER);
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -61,8 +61,8 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logMissingParameter(meta, e, ErrorCode.INVALID_PARAMETER);
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -82,8 +82,8 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logMessageOnly(meta, ErrorCode.INVALID_PARAMETER, "요청 본문(JSON) 파싱 실패");
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -103,8 +103,8 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logMessageOnly(meta, ErrorCode.API_VERSION_REQUIRED, support.resolveMessage(e, ""));
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -124,9 +124,9 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
-            ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.API_VERSION_INVALID);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.API_VERSION_INVALID);
             exceptionLogWriter.logMessageOnly(meta, errorCode, support.resolveMessage(e, ""));
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -146,9 +146,9 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
-            ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.API_VERSION_INVALID);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.API_VERSION_INVALID);
             exceptionLogWriter.logMessageOnly(meta, errorCode, support.resolveMessage(e, ""));
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -168,10 +168,10 @@ public class BadRequestExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logMessageOnly(meta, ErrorCode.INPUT_VALUE_INVALID, "요청 값 검증 실패");
-            String detailMessage = support.resolveValidationDetailMessage(e, "요청 값 검증 실패");
+            final String detailMessage = support.resolveValidationDetailMessage(e, "요청 값 검증 실패");
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
                     ErrorCode.INPUT_VALUE_INVALID,

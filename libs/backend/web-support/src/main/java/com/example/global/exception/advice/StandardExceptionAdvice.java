@@ -36,9 +36,9 @@ public class StandardExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            String message = support.resolveMessage(e, "권한이 없습니다.");
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final String message = support.resolveMessage(e, "권한이 없습니다.");
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logAccessDenied(meta, ErrorCode.ACCESS_DENIED, message);
             support.publishExceptionEvent(ExceptionEvent.from(e, ErrorCode.ACCESS_DENIED, message, resolvedAccount, request));
             return support.toResponse(ErrorCode.ACCESS_DENIED, HttpStatus.FORBIDDEN);
@@ -52,10 +52,10 @@ public class StandardExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
-            ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.PAGE_NOT_EXIST);
-            String detailMessage = support.resolveDetailMessage(e, errorCode);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.PAGE_NOT_EXIST);
+            final String detailMessage = support.resolveDetailMessage(e, errorCode);
             exceptionLogWriter.logMessageOnly(meta, errorCode, detailMessage);
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -75,10 +75,10 @@ public class StandardExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
-            ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.PAGE_NOT_EXIST);
-            String detailMessage = support.resolveDetailMessage(e, errorCode);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final ErrorCode errorCode = support.resolveApiVersionErrorCode(request, ErrorCode.PAGE_NOT_EXIST);
+            final String detailMessage = support.resolveDetailMessage(e, errorCode);
             exceptionLogWriter.logMessageOnly(meta, errorCode, detailMessage);
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,
@@ -98,8 +98,8 @@ public class StandardExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
-            RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final RequestMeta meta = exceptionLogWriter.resolveRequestMeta(request);
             exceptionLogWriter.logMessageOnly(meta, ErrorCode.METHOD_NOT_SUPPORTED, support.resolveMessage(e, ""));
             support.publishExceptionEvent(ExceptionEvent.from(
                     e,

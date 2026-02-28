@@ -31,9 +31,9 @@ public class CustomExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
             support.publishExceptionEvent(ExceptionEvent.from((Exception) e, resolvedAccount, request));
-            HttpStatus status = support.resolveHttpStatus(e.getErrorCode());
+            final HttpStatus status = support.resolveHttpStatus(e.getErrorCode());
             return support.toResponse(e.getErrorCode(), status);
         });
     }
@@ -45,7 +45,7 @@ public class CustomExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
             support.publishExceptionEvent(ExceptionEvent.from((Exception) e, resolvedAccount, request));
             return support.toResponse(e.getErrorCode(), HttpStatus.BAD_REQUEST);
         });
@@ -58,7 +58,7 @@ public class CustomExceptionAdvice {
             HttpServletRequest request
     ) {
         return support.withFilterLogged(request, () -> {
-            CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
+            final CurrentAccountDTO resolvedAccount = support.resolveAccount(account);
             support.publishExceptionEvent(ExceptionEvent.from((Exception) e, resolvedAccount, request));
             return support.toResponse(e.getErrorCode(), HttpStatus.UNAUTHORIZED);
         });
