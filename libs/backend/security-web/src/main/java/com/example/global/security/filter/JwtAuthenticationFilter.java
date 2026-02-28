@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // REST API는 stateless를 기본으로 하므로, 매 요청마다 토큰 기반 인증만 신뢰합니다.
         // 토큰이 없거나 검증 실패 시 컨텍스트를 즉시 비웁니다.
-        Optional<String> tokenOptional = accessTokenResolver.resolveAccessToken(request);
+        final Optional<String> tokenOptional = accessTokenResolver.resolveAccessToken(request);
         if (tokenOptional.isEmpty()) {
             securityContextManager.clearContext();
             filterChain.doFilter(request, response);
@@ -67,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean authenticate(String token) {
-        Optional<JwtTokenPayload> payloadOptional = jwtTokenParser.parseToken(token);
+        final Optional<JwtTokenPayload> payloadOptional = jwtTokenParser.parseToken(token);
         if (payloadOptional.isEmpty()) {
             return false;
         }
@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        Optional<Member> memberOptional = memberAuthQueryService.findActiveMemberForAuthentication(
+        final Optional<Member> memberOptional = memberAuthQueryService.findActiveMemberForAuthentication(
                 MemberLoginIdQuery.of(payload.subject())
         );
         if (memberOptional.isEmpty()) {
@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        AccountAuthMemberView authMember = AccountAuthMemberView.of(
+        final AccountAuthMemberView authMember = AccountAuthMemberView.of(
                 member.getId(),
                 member.getLoginId(),
                 member.getPassword(),
@@ -99,13 +99,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 member.getActive(),
                 member.getTokenVersion()
         );
-        PrincipalDetails principalDetails = new PrincipalDetails(authMember);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+        final PrincipalDetails principalDetails = new PrincipalDetails(authMember);
+        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 principalDetails,
                 null,
                 principalDetails.getAuthorities()
         );
-        SecurityContext securityContext = securityContextManager.createEmptyContext();
+        final SecurityContext securityContext = securityContextManager.createEmptyContext();
         securityContext.setAuthentication(authentication);
         securityContextManager.setContext(securityContext);
         return true;

@@ -36,7 +36,7 @@ public class JsonBodyLoginRequestParser {
     private final ObjectMapper objectMapper;
 
     public boolean isJsonRequest(HttpServletRequest request) {
-        String contentType = request != null ? request.getContentType() : null;
+        final String contentType = request != null ? request.getContentType() : null;
         if (contentType == null) {
             return false;
         }
@@ -50,7 +50,7 @@ public class JsonBodyLoginRequestParser {
             );
         }
 
-        String path = getPathWithinApplication(request);
+        final String path = getPathWithinApplication(request);
 
         try (InputStream inputStream = request.getInputStream()) {
             if (isAdminLoginPath(path)) {
@@ -69,12 +69,12 @@ public class JsonBodyLoginRequestParser {
     }
 
     private String getPathWithinApplication(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        final String uri = request.getRequestURI();
         if (uri == null) {
             return "";
         }
 
-        String contextPath = request.getContextPath();
+        final String contextPath = request.getContextPath();
         if (contextPath != null && !contextPath.isBlank() && uri.startsWith(contextPath)) {
             return uri.substring(contextPath.length());
         }

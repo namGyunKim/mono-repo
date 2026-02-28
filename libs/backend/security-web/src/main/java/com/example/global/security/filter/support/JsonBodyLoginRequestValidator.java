@@ -42,16 +42,16 @@ public class JsonBodyLoginRequestValidator {
             return LoginRequestValidationResult.of(null, null, null, null, errors);
         }
 
-        LoginRequestRoleStrategy strategy = resolveStrategy(loginRequest);
-        String loginId = extractLoginId(strategy, loginRequest);
-        String password = extractPassword(strategy, loginRequest);
+        final LoginRequestRoleStrategy strategy = resolveStrategy(loginRequest);
+        final String loginId = extractLoginId(strategy, loginRequest);
+        final String password = extractPassword(strategy, loginRequest);
 
         // 1) Bean Validation
-        Set<ConstraintViolation<Object>> violations = beanValidator.validate(loginRequest);
+        final Set<ConstraintViolation<Object>> violations = beanValidator.validate(loginRequest);
         if (violations != null && !violations.isEmpty()) {
-            for (ConstraintViolation<Object> violation : violations) {
-                String field = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "";
-                String message = violation.getMessage() != null ? violation.getMessage() : "";
+            for (final ConstraintViolation<Object> violation : violations) {
+                final String field = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "";
+                final String message = violation.getMessage() != null ? violation.getMessage() : "";
                 errors.add(ApiErrorDetail.of(field, message));
             }
             // 필드 기본값이 누락된 상태에서는 DB 조회 기반 검증을 진행하지 않습니다.
@@ -59,21 +59,21 @@ public class JsonBodyLoginRequestValidator {
         }
 
         // 2) 커스텀 Validator (계정 존재/상태/권한 정책 검증)
-        String objectName = resolveObjectName(loginRequest, strategy);
-        DataBinder dataBinder = new DataBinder(loginRequest, objectName);
+        final String objectName = resolveObjectName(loginRequest, strategy);
+        final DataBinder dataBinder = new DataBinder(loginRequest, objectName);
         dataBinder.addValidators(loginAccountValidator);
         dataBinder.validate();
-        BindingResult bindingResult = dataBinder.getBindingResult();
+        final BindingResult bindingResult = dataBinder.getBindingResult();
 
         if (bindingResult.hasErrors()) {
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            for (final FieldError fieldError : bindingResult.getFieldErrors()) {
                 errors.add(ApiErrorDetail.of(
                         fieldError.getField(),
                         fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : ""
                 ));
             }
 
-            for (ObjectError objectError : bindingResult.getGlobalErrors()) {
+            for (final ObjectError objectError : bindingResult.getGlobalErrors()) {
                 errors.add(ApiErrorDetail.of(
                         objectError.getObjectName(),
                         objectError.getDefaultMessage() != null ? objectError.getDefaultMessage() : ""
@@ -86,13 +86,13 @@ public class JsonBodyLoginRequestValidator {
 
     private String resolveObjectName(Object target, LoginRequestRoleStrategy strategy) {
         if (strategy != null) {
-            String objectName = strategy.resolveObjectName();
+            final String objectName = strategy.resolveObjectName();
             if (objectName != null && !objectName.isBlank()) {
                 return objectName;
             }
         }
 
-        String simpleName = target.getClass().getSimpleName();
+        final String simpleName = target.getClass().getSimpleName();
         if (simpleName == null || simpleName.isBlank()) {
             return FALLBACK_LOGIN_OBJECT_NAME;
         }
@@ -104,7 +104,7 @@ public class JsonBodyLoginRequestValidator {
         if (target == null) {
             return null;
         }
-        Class<?> targetClass = target.getClass();
+        final Class<?> targetClass = target.getClass();
         return loginRequestRoleStrategies.stream()
                 .filter(strategy -> strategy.supports(targetClass))
                 .findFirst()
