@@ -57,9 +57,9 @@
 
 ---
 
-# MCP 서버 (Serena, Context7)
+# MCP 서버 (Serena, Context7, PostgreSQL)
 
-이 워크스페이스에는 두 개의 MCP 서버가 연결되어 있다.
+이 워크스페이스에는 세 개의 MCP 서버가 연결되어 있다.
 
 ## Serena — 시맨틱 코드 분석/편집
 
@@ -73,3 +73,53 @@
 
 - `resolve-library-id`로 라이브러리 ID를 먼저 확인한 뒤 `query-docs`로 문서를 조회한다
 - 학습 데이터 컷오프 이후 변경된 API나 최신 버전 문서 확인 시 사용한다
+
+## PostgreSQL MCP — 데이터베이스 직접 조회
+
+### 왜 사용하는가
+
+- **엔티티 ↔ 스키마 정합성 검증**: JPA 엔티티 수정 시 실제 DB 테이블과 비교하여 불일치를 사전에 발견한다
+- **쿼리 성능 분석**: `EXPLAIN ANALYZE`를 에이전트 내에서 바로 실행하여 느린 쿼리 원인을 분석한다
+- **마이그레이션 검증**: Flyway/Liquibase 적용 후 결과를 즉시 확인한다
+- **디버깅**: 버그 재현 시 실제 데이터를 조회하며 원인을 추적한다
+- DB 구조를 이해한 상태에서 코드를 생성/수정하므로 **정확도가 높아진다**
+
+### 사용 규칙
+
+- **읽기 전용 계정(`claude_readonly`)으로만 접속**한다 — `INSERT`, `UPDATE`, `DELETE`, `DROP` 등 쓰기 작업은 불가
+- 테이블 구조 확인, `SELECT` 쿼리 실행, 관계(FK/인덱스) 파악 용도로만 사용한다
+- 설정 파일: 프로젝트 루트 `.mcp.json` (git에 포함, 읽기 전용 계정이므로 안전)
+
+### 최초 설정 방법 (새 팀원용)
+
+PostgreSQL에서 아래 SQL을 실행하여 읽기 전용 계정을 생성한다:
+
+```sql
+CREATE USER claude_readonly WITH PASSWORD 'readonly_pass';
+GRANT CONNECT ON DATABASE base_project TO claude_readonly;
+GRANT USAGE ON SCHEMA public TO claude_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO claude_readonly;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO claude_readonly;
+```
+
+이후 Claude Code를 재시작하면 `.mcp.json`이 자동으로 로드되어 DB MCP가 활성화된다.
+
+### 동작 방식
+
+1. Claude Code가 시작되면 프로젝트 루트의 `.mcp.json`을 읽는다
+2. `@modelcontextprotocol/server-postgres` 서버가 `npx`로 자동 실행된다
+3. 서버는 `.mcp.json`에 명시된 접속 문자열(`postgresql://claude_readonly:readonly_pass@localhost:5432/base_project`)로 PostgreSQL에 연결한다
+4. `claude_readonly` 계정은 `SELECT` 권한만 가지므로, 모든 조회는 읽기 전용으로 수행된다
+5. 연결된 DB의 **스키마 정보(테이블, 컬럼, 타입, FK, 인덱스)가 리소스로 자동 노출**되어 에이전트가 참조할 수 있다
+6. 에이전트는 `query` 도구를 통해 `SELECT` 쿼리를 직접 실행하고 결과를 받을 수 있다
+
+### 사용 예시
+
+| 요청 | 에이전트 동작 |
+|------|--------------|
+| `"테이블 목록 보여줘"` | DB 리소스에서 전체 테이블/컬럼/타입 정보를 조회하여 반환 |
+| `"users 테이블 구조 확인해줘"` | 해당 테이블의 컬럼명, 데이터 타입, PK, FK, 인덱스 정보를 조회 |
+| `"최근 가입한 유저 10명 조회해줘"` | `SELECT * FROM users ORDER BY created_at DESC LIMIT 10` 실행 후 결과 반환 |
+| `"이 JPA 엔티티가 DB 스키마와 맞는지 검증해줘"` | 엔티티 클래스의 필드와 실제 테이블 컬럼을 비교하여 불일치 항목 보고 |
+| `"이 쿼리 성능 분석해줘"` | `EXPLAIN ANALYZE`로 실행 계획을 조회하여 병목 지점 분석 |
+| `"Member 엔티티에 새 필드 추가하려는데 현재 테이블 구조 먼저 확인"` | 테이블 스키마를 조회한 뒤, 기존 구조에 맞게 엔티티 코드 수정 |
