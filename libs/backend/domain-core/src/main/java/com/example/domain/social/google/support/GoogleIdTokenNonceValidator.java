@@ -3,7 +3,7 @@ package com.example.domain.social.google.support;
 import com.example.domain.social.google.payload.response.GoogleTokenResponse;
 import com.example.global.exception.SocialException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -76,8 +76,8 @@ public class GoogleIdTokenNonceValidator {
     }
 
     private void logNonceParseFailure(ErrorCode errorCode, Exception e, String idToken) {
-        log.warn("traceId={}, errorCode={}, exceptionName={}, id_token nonce 파싱 실패: tokenPresent={}, tokenLength={}",
-                TraceIdUtils.resolveTraceId(), errorCode, e.getClass().getSimpleName(),
+        log.warn("errorCode={}, exceptionName={}, id_token nonce 파싱 실패: tokenPresent={}, tokenLength={}",
+                errorCode, e.getClass().getSimpleName(),
                 StringUtils.hasText(idToken), safeTokenLength(idToken), e);
     }
 

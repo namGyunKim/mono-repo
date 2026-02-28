@@ -6,7 +6,7 @@ import com.example.domain.social.google.payload.dto.GoogleOauthSession;
 import com.example.domain.social.google.payload.dto.GoogleSocialRedirectCommand;
 import com.example.domain.social.google.support.GoogleOauthSessionResolver;
 import com.example.domain.social.support.SocialLoginTokenPort;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,11 @@ public class GoogleSocialRedirectCommandService {
         final Long memberId = googleSocialCommandService.registerOrLoginBySocialCode(
                 GoogleOauthLoginCommand.of(command.code(), oauthSession.codeVerifier(), oauthSession.nonce())
         );
-        log.info("traceId={}, Google 소셜 로그인 성공: memberId={}", TraceIdUtils.resolveTraceId(), memberId);
+        log.info("Google 소셜 로그인 성공: memberId={}", memberId);
 
         final LoginTokenResponse response = socialLoginTokenPort.issueTokens(memberId);
         log.info(
-                "traceId={}, Google 소셜 로그인 토큰 발급 완료: memberId={}, refreshTokenIssued={}",
-                TraceIdUtils.resolveTraceId(),
+                "Google 소셜 로그인 토큰 발급 완료: memberId={}, refreshTokenIssued={}",
                 memberId,
                 response.refreshToken() != null
         );

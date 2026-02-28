@@ -3,7 +3,7 @@ package com.example.domain.aws.service.common;
 import com.example.domain.aws.enums.ImageType;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -153,14 +153,11 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
         s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, size));
     }
 
-    // ========== Logging Methods ==========
-
     private void logUploadIOError(final String originalFilename, final Long entityId, final IOException e) {
         log.error(
                 """
-                        traceId={}, errorCode={}, exceptionName={}, S3 파일 업로드 실패 (IO 오류): originalFilename={}, entityId={}
+                        errorCode={}, exceptionName={}, S3 파일 업로드 실패 (IO 오류): originalFilename={}, entityId={}
                         """.stripTrailing(),
-                TraceIdUtils.resolveTraceId(),
                 ErrorCode.FILE_UPLOAD_FAILED.getCode(),
                 e.getClass().getSimpleName(),
                 originalFilename,
@@ -178,9 +175,8 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
     ) {
         log.error(
                 """
-                        traceId={}, errorCode={}, exceptionName={}, 임시 파일 처리 중 오류 발생: originalFilename={}, imageType={}, entityId={}, tempFilePath={}
+                        errorCode={}, exceptionName={}, 임시 파일 처리 중 오류 발생: originalFilename={}, imageType={}, entityId={}, tempFilePath={}
                         """.stripTrailing(),
-                TraceIdUtils.resolveTraceId(),
                 ErrorCode.FILE_UPLOAD_FAILED.getCode(),
                 e.getClass().getSimpleName(),
                 originalFilename,
@@ -201,9 +197,8 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
     ) {
         log.error(
                 """
-                        traceId={}, errorCode={}, exceptionName={}, S3 스트리밍 업로드 실패: originalFilename={}, imageType={}, entityId={}, s3Key={}, size={}
+                        errorCode={}, exceptionName={}, S3 스트리밍 업로드 실패: originalFilename={}, imageType={}, entityId={}, s3Key={}, size={}
                         """.stripTrailing(),
-                TraceIdUtils.resolveTraceId(),
                 ErrorCode.FILE_UPLOAD_FAILED.getCode(),
                 e.getClass().getSimpleName(),
                 originalFilename,

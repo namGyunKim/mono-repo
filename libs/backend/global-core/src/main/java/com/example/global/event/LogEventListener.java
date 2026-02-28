@@ -1,5 +1,6 @@
 package com.example.global.event;
 
+import com.example.global.exception.support.ExceptionLogTemplates;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,12 @@ public class LogEventListener {
             return;
         }
         final String resolvedTxStatus = resolveTxStatus(txStatus);
-        log.info("traceId={}, txStatus={}, {}", logEvent.traceId(), resolvedTxStatus, logEvent.message());
+        log.info(
+                ExceptionLogTemplates.LOG_EVENT_TEMPLATE.stripTrailing(),
+                logEvent.traceId(),
+                resolvedTxStatus,
+                logEvent.message()
+        );
     }
 
     private String resolveTxStatus(final String txStatus) {

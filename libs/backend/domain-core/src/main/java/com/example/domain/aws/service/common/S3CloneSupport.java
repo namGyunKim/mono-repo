@@ -4,7 +4,7 @@ import com.example.domain.aws.enums.ImageType;
 import com.example.domain.aws.payload.dto.S3UrlParts;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -50,8 +50,7 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
 
     private void logCloneStart(String sourceS3Url, ImageType destinationImageType, Long destinationEntityId) {
         log.info(
-                "traceId={}, S3-to-S3 복사 시작: sourceUrl={}, destType={}, destEntityId={}",
-                TraceIdUtils.resolveTraceId(),
+                "S3-to-S3 복사 시작: sourceUrl={}, destType={}, destEntityId={}",
                 sourceS3Url,
                 destinationImageType.name(),
                 destinationEntityId
@@ -67,9 +66,8 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
     ) {
         log.info(
                 """
-                        traceId={}, resultCode=SUCCESS, S3-to-S3 복사 완료: sourceBucket={}, sourceKey={}, destinationBucket={}, destinationKey={}, destinationImageType={}, destinationEntityId={}, elapsedMs={}
+                        resultCode=SUCCESS, S3-to-S3 복사 완료: sourceBucket={}, sourceKey={}, destinationBucket={}, destinationKey={}, destinationImageType={}, destinationEntityId={}, elapsedMs={}
                         """.stripTrailing(),
-                TraceIdUtils.resolveTraceId(),
                 source.bucketName(),
                 source.objectKey(),
                 bucketName,
@@ -93,9 +91,8 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
         final String sourceKey = source != null ? source.objectKey() : "UNKNOWN";
         log.error(
                 """
-                        traceId={}, errorCode={}, exceptionName={}, resultCode=FAILED, S3-to-S3 복사 실패: sourceUrl={}, sourceBucket={}, sourceKey={}, destinationBucket={}, destinationKey={}, destinationImageType={}, destinationEntityId={}, elapsedMs={}, errorMessage={}
+                        errorCode={}, exceptionName={}, resultCode=FAILED, S3-to-S3 복사 실패: sourceUrl={}, sourceBucket={}, sourceKey={}, destinationBucket={}, destinationKey={}, destinationImageType={}, destinationEntityId={}, elapsedMs={}, errorMessage={}
                         """.stripTrailing(),
-                TraceIdUtils.resolveTraceId(),
                 ErrorCode.FILE_UPLOAD_FAILED.getCode(),
                 e.getClass().getSimpleName(),
                 sourceS3Url,
@@ -126,9 +123,8 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
         } catch (Exception e) {
             log.warn(
                     """
-                            traceId={}, errorCode={}, exceptionName={}, S3 원본 파일 조회 실패: bucket={}, key={}, sourceUrl={}, errorMessage={}
+                            errorCode={}, exceptionName={}, S3 원본 파일 조회 실패: bucket={}, key={}, sourceUrl={}, errorMessage={}
                             """.stripTrailing(),
-                    TraceIdUtils.resolveTraceId(),
                     ErrorCode.FILE_NOT_FOUND.getCode(),
                     e.getClass().getSimpleName(),
                     source.bucketName(),

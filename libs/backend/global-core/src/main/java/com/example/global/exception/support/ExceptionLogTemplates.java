@@ -38,7 +38,7 @@ public final class ExceptionLogTemplates {
             """;
 
     public static final String ACCESS_DENIED_LOG_TEMPLATE = """
-            [EXCEPTION]
+            [ACCESS_DENIED]
             traceId={}
             method={}
             path={}
@@ -153,6 +153,13 @@ public final class ExceptionLogTemplates {
             errorCode={}
             errorMessage={}
             errors={}
+            """;
+
+    public static final String LOG_EVENT_TEMPLATE = """
+            [LOG_EVENT]
+            traceId={}
+            txStatus={}
+            message={}
             """;
 
     private ExceptionLogTemplates() {

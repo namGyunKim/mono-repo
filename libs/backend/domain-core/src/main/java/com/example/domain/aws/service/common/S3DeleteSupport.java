@@ -3,7 +3,7 @@ package com.example.domain.aws.service.common;
 import com.example.domain.aws.enums.ImageType;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -67,9 +67,8 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
             if (response.hasErrors()) {
                 log.error(
                         """
-                                traceId={}, errorCode={}, exceptionName={}, S3 일부 파일 삭제 실패: bucket={}, imageType={}, entityId={}, fileCount={}, errors={}
+                                errorCode={}, exceptionName={}, S3 일부 파일 삭제 실패: bucket={}, imageType={}, entityId={}, fileCount={}, errors={}
                                 """.stripTrailing(),
-                        TraceIdUtils.resolveTraceId(),
                         ErrorCode.FAILED.getCode(),
                         "DeleteObjectsPartialFailure",
                         bucketName, imageType, entityId, fileCount, response.errors()
@@ -81,9 +80,8 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
         } catch (Exception e) {
             log.error(
                     """
-                            traceId={}, errorCode={}, exceptionName={}, S3 일괄 삭제 중 오류 발생: bucket={}, imageType={}, entityId={}, fileCount={}
+                            errorCode={}, exceptionName={}, S3 일괄 삭제 중 오류 발생: bucket={}, imageType={}, entityId={}, fileCount={}
                             """.stripTrailing(),
-                    TraceIdUtils.resolveTraceId(),
                     ErrorCode.FAILED.getCode(),
                     e.getClass().getSimpleName(),
                     bucketName, imageType, entityId, fileCount, e

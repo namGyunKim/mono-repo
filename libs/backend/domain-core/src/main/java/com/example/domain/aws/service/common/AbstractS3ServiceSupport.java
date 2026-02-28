@@ -4,7 +4,7 @@ import com.example.domain.aws.enums.ImageType;
 import com.example.domain.aws.payload.dto.S3UrlParts;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -44,10 +44,10 @@ public abstract class AbstractS3ServiceSupport {
 
     private void logBucket(boolean localBucket) {
         final String messageTemplate = localBucket ?
-                "traceId={}, 로컬 프로필이 감지되어 로컬 버킷({})을 사용합니다." :
-                "traceId={}, 운영 버킷({})을 사용합니다.";
+                "로컬 프로필이 감지되어 로컬 버킷({})을 사용합니다." :
+                "운영 버킷({})을 사용합니다.";
         org.slf4j.LoggerFactory.getLogger(getClass())
-                .info(messageTemplate, TraceIdUtils.resolveTraceId(), this.bucketName);
+                .info(messageTemplate, this.bucketName);
     }
 
     protected String generateFinalUploadFileName(ImageType imageType, String originalFilename) {

@@ -2,7 +2,7 @@ package com.example.domain.social.google.support;
 
 import com.example.domain.social.entity.SocialAccount;
 import com.example.domain.social.google.payload.dto.GoogleSocialUnlinkCommand;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -45,13 +45,13 @@ public class GoogleSocialUnlinkHandler {
 
     private boolean isInvalidUnlinkCommand(GoogleSocialUnlinkCommand command) {
         if (command == null) {
-            log.warn("traceId={}, 구글 연동 해제 스킵: command=null", TraceIdUtils.resolveTraceId());
+            log.warn("구글 연동 해제 스킵: command=null");
             return true;
         }
 
         final Long memberId = command.memberId();
         if (memberId == null || memberId <= 0) {
-            log.warn("traceId={}, 구글 연동 해제 스킵: memberId 유효하지 않음", TraceIdUtils.resolveTraceId());
+            log.warn("구글 연동 해제 스킵: memberId 유효하지 않음");
             return true;
         }
 
@@ -62,8 +62,7 @@ public class GoogleSocialUnlinkHandler {
         final Optional<SocialAccount> socialAccount = socialAccountManager.findByMemberId(memberId);
         if (socialAccount.isEmpty()) {
             log.info(
-                    "traceId={}, 구글 연동 해제 스킵: 소셜 계정 없음 memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
+                    "구글 연동 해제 스킵: 소셜 계정 없음 memberId={}, loginId={}",
                     memberId,
                     loginId
             );
@@ -78,8 +77,7 @@ public class GoogleSocialUnlinkHandler {
         }
 
         log.info(
-                "traceId={}, 구글 토큰 revoke 스킵 후 소셜 계정 삭제 진행: refresh_token_encrypted 없음 memberId={}, loginId={}",
-                TraceIdUtils.resolveTraceId(),
+                "구글 토큰 revoke 스킵 후 소셜 계정 삭제 진행: refresh_token_encrypted 없음 memberId={}, loginId={}",
                 memberId,
                 loginId
         );
@@ -90,8 +88,7 @@ public class GoogleSocialUnlinkHandler {
         try {
             googleOauthTokenRevoker.revoke(socialAccount, memberId, loginId);
             log.info(
-                    "traceId={}, 구글 연동 해제 완료: memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
+                    "구글 연동 해제 완료: memberId={}, loginId={}",
                     memberId,
                     loginId
             );

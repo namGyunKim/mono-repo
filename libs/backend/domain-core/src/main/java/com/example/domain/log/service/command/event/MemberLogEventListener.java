@@ -6,7 +6,7 @@ import com.example.domain.log.payload.dto.MemberLogCreateCommand;
 import com.example.domain.log.repository.MemberLogRepository;
 import com.example.global.exception.BaseAppException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -33,8 +33,7 @@ public class MemberLogEventListener {
             memberLogRepository.save(logEntity);
 
             log.info(
-                    "traceId={}, 회원 활동 로그 저장 완료: loginId={}, logType={}",
-                    TraceIdUtils.resolveTraceId(),
+                    "회원 활동 로그 저장 완료: loginId={}, logType={}",
                     command.loginId(),
                     command.logType()
             );
@@ -46,8 +45,7 @@ public class MemberLogEventListener {
     private void logSaveError(Exception e, MemberActivityEvent event) {
         final String errorCode = resolveErrorCode(e);
         log.error(
-                "traceId={}, errorCode={}, 로그 저장 중 오류 발생: exceptionName={}, loginId={}, memberId={}, logType={}, message={}",
-                TraceIdUtils.resolveTraceId(),
+                "errorCode={}, 로그 저장 중 오류 발생: exceptionName={}, loginId={}, memberId={}, logType={}, message={}",
                 errorCode,
                 e.getClass().getSimpleName(),
                 event.loginId(),

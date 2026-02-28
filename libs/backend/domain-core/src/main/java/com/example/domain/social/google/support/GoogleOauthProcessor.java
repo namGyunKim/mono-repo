@@ -8,7 +8,7 @@ import com.example.domain.social.google.payload.response.GoogleTokenResponse;
 import com.example.domain.social.google.payload.response.GoogleUserInfoResponse;
 import com.example.global.exception.SocialException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,12 +58,12 @@ public class GoogleOauthProcessor {
             final long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
             final GoogleTokenResponse body = response.getBody();
             if (body == null) {
-                log.warn("traceId={}, 구글 토큰 API 응답 바디가 비어있습니다: status={}, elapsedMs={}",
-                        TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
+                log.warn("구글 토큰 API 응답 바디가 비어있습니다: status={}, elapsedMs={}",
+                        response.getStatusCode().value(), elapsedMs);
                 return null;
             }
-            log.info("traceId={}, 구글 토큰 API 호출 완료: status={}, elapsedMs={}",
-                    TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
+            log.info("구글 토큰 API 호출 완료: status={}, elapsedMs={}",
+                    response.getStatusCode().value(), elapsedMs);
             return body;
         } catch (RestClientResponseException e) {
             logApiFailure("구글 토큰 API", ErrorCode.GOOGLE_API_GET_TOKEN_ERROR,
@@ -105,12 +105,12 @@ public class GoogleOauthProcessor {
             final long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
             final GoogleUserInfoResponse body = response.getBody();
             if (body == null) {
-                log.warn("traceId={}, 구글 사용자 정보 API 응답 바디가 비어있습니다: status={}, elapsedMs={}, accessTokenPresent={}",
-                        TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs, StringUtils.hasText(accessToken));
+                log.warn("구글 사용자 정보 API 응답 바디가 비어있습니다: status={}, elapsedMs={}, accessTokenPresent={}",
+                        response.getStatusCode().value(), elapsedMs, StringUtils.hasText(accessToken));
                 throw new SocialException(ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR, "구글 사용자 정보 응답이 비어있습니다.");
             }
-            log.info("traceId={}, 구글 사용자 정보 API 호출 완료: status={}, elapsedMs={}",
-                    TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
+            log.info("구글 사용자 정보 API 호출 완료: status={}, elapsedMs={}",
+                    response.getStatusCode().value(), elapsedMs);
             return body;
         } catch (RestClientResponseException e) {
             logApiFailure("구글 사용자 정보 API", ErrorCode.GOOGLE_API_GET_INFORMATION_ERROR,
@@ -127,8 +127,8 @@ public class GoogleOauthProcessor {
 
     private void logApiFailure(String apiName, ErrorCode errorCode, String statusInfo, long startNanos,
                                String contextParams, Exception e) {
-        log.warn("traceId={}, errorCode={}, exceptionName={}, {} 호출 실패: {}, elapsedMs={}, {}",
-                TraceIdUtils.resolveTraceId(), errorCode, e.getClass().getSimpleName(),
+        log.warn("errorCode={}, exceptionName={}, {} 호출 실패: {}, elapsedMs={}, {}",
+                errorCode, e.getClass().getSimpleName(),
                 apiName, statusInfo, GoogleOauthTimingSupport.elapsedMs(startNanos), contextParams, e);
     }
 }

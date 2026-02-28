@@ -7,7 +7,7 @@ import com.example.domain.member.service.command.MemberCommandService;
 import com.example.domain.member.service.query.MemberQueryService;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import com.example.global.utils.TraceIdUtils;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,7 @@ public class MemberStrategyFactory {
         initializeCommandServices();
         initializeQueryServices();
         log.info(
-                "traceId={}, MemberStrategyFactory 초기화 완료. Command 서비스 수: {}, Query 서비스 수: {}",
-                TraceIdUtils.resolveTraceId(),
+                "MemberStrategyFactory 초기화 완료. Command 서비스 수: {}, Query 서비스 수: {}",
                 commandServiceMap.size(),
                 queryServiceMap.size()
         );
@@ -52,7 +51,7 @@ public class MemberStrategyFactory {
             //   instanceof 기반 분기 대신, 인터페이스에 정의된 getSupportedRoles()를 사용합니다.
             final List<AccountRole> supportedRoles = service.getSupportedRoles();
             if (supportedRoles == null || supportedRoles.isEmpty()) {
-                log.warn("traceId={}, MemberCommandService 구현체가 지원 Role을 반환하지 않습니다: {}", TraceIdUtils.resolveTraceId(), service.getClass().getName());
+                log.warn("MemberCommandService 구현체가 지원 Role을 반환하지 않습니다: {}", service.getClass().getName());
                 continue;
             }
 
@@ -75,7 +74,7 @@ public class MemberStrategyFactory {
             // Command와 동일한 이유로, 프록시 안정성을 위해 인터페이스 메서드 사용
             final List<AccountRole> supportedRoles = service.getSupportedRoles();
             if (supportedRoles == null || supportedRoles.isEmpty()) {
-                log.warn("traceId={}, MemberQueryService 구현체가 지원 Role을 반환하지 않습니다: {}", TraceIdUtils.resolveTraceId(), service.getClass().getName());
+                log.warn("MemberQueryService 구현체가 지원 Role을 반환하지 않습니다: {}", service.getClass().getName());
                 continue;
             }
 

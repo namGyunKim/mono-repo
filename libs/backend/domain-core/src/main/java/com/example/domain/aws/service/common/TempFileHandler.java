@@ -1,6 +1,6 @@
 package com.example.domain.aws.service.common;
 
-import com.example.global.utils.TraceIdUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -63,9 +63,8 @@ public class TempFileHandler {
         if (!tempFile.delete()) {
             log.warn(
                     """
-                            traceId={}, 임시 파일 삭제 실패: tempFilePath={}
+                            임시 파일 삭제 실패: tempFilePath={}
                             """.stripTrailing(),
-                    TraceIdUtils.resolveTraceId(),
                     tempFile.getAbsolutePath()
             );
         }
