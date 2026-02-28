@@ -7,10 +7,12 @@ import com.example.global.security.payload.SecurityLogoutCommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
@@ -24,8 +26,11 @@ public class JwtLogoutHandler implements LogoutHandler {
         final String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
         memberGuard.getCurrentAccount()
                 .map(account -> account.id())
-                .ifPresent(memberId -> jwtTokenRevocationCommandService.revokeOnLogout(
-                        SecurityLogoutCommand.of(memberId, accessToken)
-                ));
+                .ifPresent(memberId -> {
+                    jwtTokenRevocationCommandService.revokeOnLogout(
+                            SecurityLogoutCommand.of(memberId, accessToken)
+                    );
+                    log.info("로그아웃 완료: memberId={}", memberId);
+                });
     }
 }

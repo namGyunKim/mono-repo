@@ -81,12 +81,14 @@ public class ControllerLoggingAspect {
             result = joinPoint.proceed();
         } finally {
             stopWatch.stop();
-            final HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
-            final String responseStatus = loggingSupport.getResponseStatus(response);
-            final String responseSize = loggingSupport.getResponseSize(response);
-            // [RES] 로그 출력 (수행 시간 포함)
-            // 멀티라인 로그는 텍스트 블록(""" """)으로 일관되게 관리합니다.
-            log.info(loggingSupport.buildResponseLog(traceId, stopWatch.getTotalTimeMillis(), responseStatus, responseSize));
+            try {
+                final HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+                final String responseStatus = loggingSupport.getResponseStatus(response);
+                final String responseSize = loggingSupport.getResponseSize(response);
+                log.info(loggingSupport.buildResponseLog(traceId, stopWatch.getTotalTimeMillis(), responseStatus, responseSize));
+            } catch (final IllegalStateException e) {
+                log.warn("응답 로깅 스킵: RequestAttributes 소실 time={}ms", stopWatch.getTotalTimeMillis());
+            }
         }
 
         return result;

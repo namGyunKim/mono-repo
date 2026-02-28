@@ -2,22 +2,26 @@ package com.example.global.config.async;
 
 import com.example.global.security.SecurityContextManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.TaskExecutorAdapter;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.context.SecurityContext;
 
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Configuration
 @EnableAsync
 @RequiredArgsConstructor
-public class AsyncConfig {
+public class AsyncConfig implements AsyncConfigurer {
 
     private final SecurityContextManager securityContextManager;
 
@@ -33,6 +37,13 @@ public class AsyncConfig {
         final TaskExecutorAdapter adapter = new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
         adapter.setTaskDecorator(this::decorateWithContext);
         return adapter;
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (ex, method, params) ->
+                log.error("비동기 메서드 예외 발생: method={}, exceptionName={}",
+                        method.toGenericString(), ex.getClass().getSimpleName(), ex);
     }
 
     private Runnable decorateWithContext(final Runnable runnable) {
