@@ -5,6 +5,49 @@
 
 ---
 
+## 서버 세팅 (user-api 기준)
+
+서버를 새로 만들면 아래 8단계를 순서대로 실행한다. 10분이면 끝난다.
+
+```bash
+# 1. Docker 설치
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# ※ 여기서 재로그인 (newgrp docker 또는 SSH 재접속)
+
+# 2. Nginx 설치
+sudo apt update && sudo apt install -y nginx
+sudo systemctl enable nginx
+
+# 3. GHCR 로그인 (이미지 pull 용)
+echo "<GHCR_PAT>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin
+
+# 4. 디렉토리 생성
+sudo mkdir -p /opt/deploy/{projects,nginx/conf.d}
+sudo chown -R $USER:$USER /opt/deploy
+
+# 5. 파일 복사 (docs/deployment/ 에서)
+cp deploy.sh /opt/deploy/deploy.sh && chmod +x /opt/deploy/deploy.sh
+cp user-api/user-api.env /opt/deploy/projects/
+cp user-api/user-api-upstream.conf /opt/deploy/nginx/conf.d/
+sudo cp user-api/user-api.conf /etc/nginx/conf.d/
+
+# 6. 서버별 값 수정
+#    /opt/deploy/projects/user-api.env → IMAGE, SPRING_PROFILES
+#    /etc/nginx/conf.d/user-api.conf   → server_name
+
+# 7. Nginx에 upstream 디렉토리 연결 (최초 1회)
+sudo bash -c 'grep -q "/opt/deploy/nginx" /etc/nginx/nginx.conf || \
+  sed -i "/http {/a\\    include /opt/deploy/nginx/conf.d/*.conf;" /etc/nginx/nginx.conf'
+
+# 8. Nginx 검증 & 적용
+sudo nginx -t && sudo nginx -s reload
+```
+
+끝. 이후 `deploy/user-api` 브랜치에 push하면 자동 배포된다.
+
+---
+
 ## 빠른 요약 — 서버에 필요한 것
 
 user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉토리의 파일을 사용한다.
