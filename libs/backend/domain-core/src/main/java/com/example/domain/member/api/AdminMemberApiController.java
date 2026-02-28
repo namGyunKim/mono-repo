@@ -1,7 +1,12 @@
 package com.example.domain.member.api;
 
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
-import com.example.domain.member.payload.dto.*;
+import com.example.domain.member.payload.dto.MemberCreateCommand;
+import com.example.domain.member.payload.dto.MemberDeactivateCommand;
+import com.example.domain.member.payload.dto.MemberDetailQuery;
+import com.example.domain.member.payload.dto.MemberListQuery;
+import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
+import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.payload.request.MemberCreateRequest;
 import com.example.domain.member.payload.request.MemberListRequest;
 import com.example.domain.member.payload.request.MemberRoleUpdateRequest;
@@ -31,7 +36,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Tag(name = "AdminMemberApiController", description = "관리자 전용 회원 관리 REST API (전략 패턴 적용)")

@@ -45,8 +45,8 @@ public class AccountApiController {
     @GetMapping(value = "/me", version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.isAuthenticated()")
     public ResponseEntity<RestApiResponse<LoginMemberResponse>> profile(@CurrentAccount CurrentAccountDTO currentAccount) {
-        LoginMemberView view = accountQueryService.getLoginData(currentAccount);
-        LoginMemberResponse response = LoginMemberResponse.from(view);
+        final LoginMemberView view = accountQueryService.getLoginData(currentAccount);
+        final LoginMemberResponse response = LoginMemberResponse.from(view);
         return restApiController.ok(response);
     }
 
@@ -57,10 +57,10 @@ public class AccountApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             @Valid @RequestBody AccountProfileUpdateRequest accountProfileUpdateRequest
     ) {
-        Long updatedId = accountCommandService.updateProfile(
+        final Long updatedId = accountCommandService.updateProfile(
                 AccountProfileUpdateCommand.from(currentAccount, accountProfileUpdateRequest)
         );
-        IdResponse updateResponse = IdResponse.of(updatedId);
+        final IdResponse updateResponse = IdResponse.of(updatedId);
 
         return restApiController.ok(updateResponse);
     }
@@ -72,7 +72,7 @@ public class AccountApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             HttpServletRequest request
     ) {
-        String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
+        final String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
         accountCommandService.withdraw(AccountWithdrawCommand.of(currentAccount, accessToken));
         return restApiController.noContent();
     }

@@ -50,14 +50,14 @@ public class LoginAccountValidator implements Validator {
             return;
         }
 
-        LoginRequestRoleStrategy strategy = resolveStrategy(target);
+        final LoginRequestRoleStrategy strategy = resolveStrategy(target);
         if (strategy == null) {
             errors.reject("loginRequest.invalid", "로그인 요청 형식이 올바르지 않습니다.");
             return;
         }
 
-        String loginId = strategy.resolveLoginId(target);
-        List<AccountRole> allowedRoles = strategy.allowedRoles();
+        final String loginId = strategy.resolveLoginId(target);
+        final List<AccountRole> allowedRoles = strategy.allowedRoles();
 
         // 기본값이 누락된 경우(Bean Validation 단계에서 처리)에는 DB 조회를 하지 않습니다.
         if (loginId == null || loginId.isBlank()) {
@@ -68,7 +68,7 @@ public class LoginAccountValidator implements Validator {
     }
 
     private LoginRequestRoleStrategy resolveStrategy(Object target) {
-        Class<?> targetClass = target.getClass();
+        final Class<?> targetClass = target.getClass();
         return roleStrategies.stream()
                 .filter(strategy -> strategy.supports(targetClass))
                 .findFirst()
@@ -80,7 +80,7 @@ public class LoginAccountValidator implements Validator {
             errors.rejectValue("loginId", "login.fail", "아이디가 존재하지 않거나 권한이 일치하지 않습니다.");
             return;
         }
-        Optional<AccountLoginCandidateView> candidateOptional = accountQueryService.findLoginCandidate(
+        final Optional<AccountLoginCandidateView> candidateOptional = accountQueryService.findLoginCandidate(
                 AccountLoginValidationQuery.of(loginId, allowedRoles)
         );
 
@@ -90,7 +90,7 @@ public class LoginAccountValidator implements Validator {
             return;
         }
 
-        AccountLoginCandidateView candidate = candidateOptional.get();
+        final AccountLoginCandidateView candidate = candidateOptional.get();
 
         // 활성화 상태 체크
         if (candidate.active() != MemberActiveStatus.ACTIVE) {

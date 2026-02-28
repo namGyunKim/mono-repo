@@ -31,14 +31,10 @@ public enum AccountRole {
         return EnumParser.fromNameIgnoreCase(AccountRole.class, requestValue);
     }
 
-    /**
-     * URL PathVariable 등에서 "반드시" 유효한 값이 필요할 때 사용합니다.
-     * - 변환 실패 시 GlobalException을 던져 400 에러 페이지/응답으로 처리되게 합니다.
-     */
     public static AccountRole fromRequired(String requestValue) {
         AccountRole role = from(requestValue);
         if (role == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "유효하지 않은 role 값입니다: " + requestValue);
+            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "유효하지 않은 role 값입니다: %s".formatted(requestValue));
         }
         return role;
     }

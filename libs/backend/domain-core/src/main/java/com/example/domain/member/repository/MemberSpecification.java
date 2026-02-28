@@ -32,7 +32,7 @@ public final class MemberSpecification {
     }
 
     public static Predicate searchMember(MemberListQuery request, List<AccountRole> roles) {
-        BooleanBuilder builder = new BooleanBuilder();
+        final BooleanBuilder builder = new BooleanBuilder();
 
         // 1. 권한(Role) 필터링 (IN 절)
         if (roles != null && !roles.isEmpty()) {
@@ -56,7 +56,7 @@ public final class MemberSpecification {
             return Optional.empty();
         }
 
-        MemberFilterType resolvedFilter = filter != null ? filter : MemberFilterType.ALL;
+        final MemberFilterType resolvedFilter = filter != null ? filter : MemberFilterType.ALL;
         Function<String, Predicate> resolver = FILTER_PREDICATE_RESOLVERS.getOrDefault(
                 resolvedFilter,
                 FILTER_PREDICATE_RESOLVERS.get(MemberFilterType.ALL)

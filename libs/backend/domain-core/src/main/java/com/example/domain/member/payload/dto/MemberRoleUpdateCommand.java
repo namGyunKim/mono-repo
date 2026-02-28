@@ -18,7 +18,7 @@ public record MemberRoleUpdateCommand(
     }
 
     public static MemberRoleUpdateCommand from(Long memberId, MemberRoleUpdateRequest request) {
-        AccountRole role = request != null ? request.toDomainRole() : null;
+        final AccountRole role = request != null ? request.toDomainRole() : null;
         return of(memberId, role);
     }
 }

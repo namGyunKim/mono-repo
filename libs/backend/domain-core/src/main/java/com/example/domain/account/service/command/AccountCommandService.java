@@ -26,7 +26,7 @@ public class AccountCommandService {
     public void logout(AccountLogoutCommand command) {
         validateLogoutCommand(command);
 
-        CurrentAccountDTO currentAccount = command.currentAccount();
+        final CurrentAccountDTO currentAccount = command.currentAccount();
         accountActivityPublishPort.publishMemberActivity(
                 AccountActivityPublishCommand.of(currentAccount.loginId(), currentAccount.id(), LogType.LOGOUT, "로그아웃")
         );
@@ -36,7 +36,7 @@ public class AccountCommandService {
     public void withdraw(AccountWithdrawCommand command) {
         validateWithdrawCommand(command);
 
-        CurrentAccountDTO currentAccount = command.currentAccount();
+        final CurrentAccountDTO currentAccount = command.currentAccount();
         // 계정 탈퇴 응답 시점에 회원 비활성화 상태가 즉시 반영되어야 하므로 동일 트랜잭션 동기 호출을 유지합니다.
         accountMemberCommandPort.deactivateMember(currentAccount.role(), currentAccount.id());
         accountTokenRevocationPort.revokeOnLogout(currentAccount.id(), command.accessToken());

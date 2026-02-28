@@ -36,7 +36,7 @@ public class AccountSessionApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             HttpServletRequest request
     ) {
-        String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
+        final String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
         accountCommandService.logout(AccountLogoutCommand.of(currentAccount, accessToken));
         return restApiController.noContent();
     }

@@ -18,13 +18,13 @@ public class AccountMemberCommandPortAdapter implements AccountMemberCommandPort
 
     @Override
     public Long updateMemberProfile(AccountProfileUpdateCommand command) {
-        MemberCommandService commandService = memberStrategyFactory.getCommandService(command.currentAccount().role());
+        final MemberCommandService commandService = memberStrategyFactory.getCommandService(command.currentAccount().role());
         return commandService.updateMember(MemberUpdateCommand.of(command.nickName(), command.password(), command.currentAccount().id()));
     }
 
     @Override
     public void deactivateMember(AccountRole role, Long memberId) {
-        MemberCommandService commandService = memberStrategyFactory.getCommandService(role);
+        final MemberCommandService commandService = memberStrategyFactory.getCommandService(role);
         commandService.deactivateMember(MemberDeactivateCommand.of(memberId));
     }
 }

@@ -16,13 +16,13 @@ public class S3KeyBuilder {
     public String generateS3Key(String fileName, ImageType imageType, Long entityId) {
         String basePath = resolveBasePath(imageType);
         String encodedFileName = encodeFileName(fileName);
-        return String.format("%s/%d/%s", basePath, entityId, encodedFileName);
+        return "%s/%d/%s".formatted(basePath, entityId, encodedFileName);
     }
 
     public String buildPublicImageUrl(String fileName, ImageType imageType, Long entityId, String bucketName, String region) {
         String singleEncodedS3Key = generateS3Key(fileName, imageType, entityId);
         String doubleEncodedPath = singleEncodedS3Key.replace("%", "%25");
-        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, doubleEncodedPath);
+        return "https://%s.s3.%s.amazonaws.com/%s".formatted(bucketName, region, doubleEncodedPath);
     }
 
     private String resolveBasePath(ImageType imageType) {

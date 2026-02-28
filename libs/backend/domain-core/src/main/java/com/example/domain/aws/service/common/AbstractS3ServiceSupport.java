@@ -44,10 +44,10 @@ public abstract class AbstractS3ServiceSupport {
 
     private void logBucket(boolean localBucket) {
         String messageTemplate = localBucket ?
-                "로컬 프로필이 감지되어 로컬 버킷({})을 사용합니다." :
-                "운영 버킷({})을 사용합니다.";
+                "traceId={}, 로컬 프로필이 감지되어 로컬 버킷({})을 사용합니다." :
+                "traceId={}, 운영 버킷({})을 사용합니다.";
         org.slf4j.LoggerFactory.getLogger(getClass())
-                .info("traceId={}, " + messageTemplate, TraceIdUtils.resolveTraceId(), this.bucketName);
+                .info(messageTemplate, TraceIdUtils.resolveTraceId(), this.bucketName);
     }
 
     protected String generateFinalUploadFileName(ImageType imageType, String originalFilename) {

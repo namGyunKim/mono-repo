@@ -29,7 +29,7 @@ public class MemberCreateRequestPolicyValidator implements Validator {
             return;
         }
 
-        AccountRole role = request.toDomainRole();
+        final AccountRole role = request.toDomainRole();
         if (role == null) {
             errors.rejectValue("role", "role.required", "권한은 필수입니다.");
             return;

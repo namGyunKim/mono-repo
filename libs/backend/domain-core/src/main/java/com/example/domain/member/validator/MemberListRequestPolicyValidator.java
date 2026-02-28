@@ -32,22 +32,22 @@ public class MemberListRequestPolicyValidator implements Validator {
             return;
         }
 
-        AccountRole role = request.toDomainRole();
+        final AccountRole role = request.toDomainRole();
         if (role == null || role == AccountRole.USER) {
             return;
         }
 
-        MemberOrderType order = request.toDomainOrder();
+        final MemberOrderType order = request.toDomainOrder();
         if (order != null && !MemberOrderType.checkAdminMember(order)) {
             errors.rejectValue("order", "order.invalid", "관리자 정렬 기준이 아닙니다.");
         }
 
-        MemberFilterType filter = request.toDomainFilter();
+        final MemberFilterType filter = request.toDomainFilter();
         if (filter != null && !MemberFilterType.checkAdminMember(filter)) {
             errors.rejectValue("filter", "filter.invalid", "관리자 필터 기준이 아닙니다.");
         }
 
-        MemberActiveStatus active = request.toDomainActive();
+        final MemberActiveStatus active = request.toDomainActive();
         if (active != null && !MemberActiveStatus.checkMember(active)) {
             errors.rejectValue("active", "active.invalid", "회원 상태가 아닙니다.");
         }

@@ -99,13 +99,13 @@ public class AccountAuthApiController {
             @NotBlank(message = "refreshToken은 필수입니다.")
             String refreshToken
     ) {
-        RefreshTokenResponse response = accountTokenRefreshPort.refreshTokens(refreshToken);
+        final RefreshTokenResponse response = accountTokenRefreshPort.refreshTokens(refreshToken);
         localTokenHeaderLoggingSupport.logResponseTokenHeaders(
                 "refresh",
                 response.accessToken(),
                 response.refreshToken()
         );
-        HttpHeaders headers = TokenResponseHeaders.of(response.accessToken(), response.refreshToken());
+        final HttpHeaders headers = TokenResponseHeaders.of(response.accessToken(), response.refreshToken());
         return restApiController.noContentWithHeaders(headers);
     }
 }

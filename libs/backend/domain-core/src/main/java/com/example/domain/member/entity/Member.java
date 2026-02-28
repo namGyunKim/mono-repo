@@ -5,7 +5,17 @@ import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.enums.MemberType;
 import com.example.domain.member.payload.dto.MemberCreateCommand;
 import com.example.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -84,7 +94,7 @@ public class Member extends BaseTimeEntity implements Serializable {
      * </p>
      */
     public static Member from(MemberCreateCommand command, String encodedPassword) {
-        Member member = new Member();
+        final Member member = new Member();
         member.loginId = command.loginId();
         member.nickName = command.nickName();
         member.password = encodedPassword;
@@ -129,7 +139,7 @@ public class Member extends BaseTimeEntity implements Serializable {
 
     // 회원 탈퇴 처리 (Soft Delete + Unique Key 회피)
     public void withdraw() {
-        String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        final String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         this.active = MemberActiveStatus.INACTIVE;
         this.loginId = "%s_LEAVE_%s".formatted(this.loginId, nowStr);
         this.nickName = "%s_LEAVE_%s".formatted(this.nickName, nowStr);

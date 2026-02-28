@@ -29,7 +29,7 @@ public class AccountQueryService {
     public LoginMemberView getLoginData(CurrentAccountDTO request) {
         validateCurrentAccount(request);
 
-        LoginMemberView view = accountMemberQueryPort.findLoginMemberView(
+        final LoginMemberView view = accountMemberQueryPort.findLoginMemberView(
                         AccountLoginIdRoleQuery.of(request.loginId(), request.role())
                 )
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
@@ -40,18 +40,10 @@ public class AccountQueryService {
         return view;
     }
 
-    /**
-     * 인증/인가 흐름 전용 조회 메서드
-     *
-     * <p>
-     * - API 응답용 조회는 DTO 프로젝션(getLoginData 등)을 사용합니다.
-     * - 이 메서드는 Security 내부 처리에 한해 사용합니다.
-     * </p>
-     */
     public AccountAuthMemberView findActiveMemberForAuthByLoginIdAndRole(AccountLoginIdRoleQuery request) {
         validateLoginIdRoleQuery(request);
 
-        AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
+        final AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
         if (view.active() != MemberActiveStatus.ACTIVE) {
@@ -60,18 +52,10 @@ public class AccountQueryService {
         return view;
     }
 
-    /**
-     * 인증/인가 흐름 전용 조회 메서드
-     *
-     * <p>
-     * - API 응답용 조회는 DTO 프로젝션(getLoginData 등)을 사용합니다.
-     * - 이 메서드는 Security 내부 처리에 한해 사용합니다.
-     * </p>
-     */
     public AccountAuthMemberView findActiveMemberForAuthByLoginId(AccountLoginIdQuery request) {
         validateLoginIdQuery(request);
 
-        AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
+        final AccountAuthMemberView view = accountMemberQueryPort.findAuthMember(request)
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
         if (view.active() != MemberActiveStatus.ACTIVE) {
