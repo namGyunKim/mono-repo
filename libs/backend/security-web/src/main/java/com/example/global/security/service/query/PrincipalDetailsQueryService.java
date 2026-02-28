@@ -31,7 +31,7 @@ public class PrincipalDetailsQueryService implements UserDetailsService {
             // [수정] Form Login 시 `role` 파라미터를 함께 전달받지 못하므로,
             // AccountQueryService는 `loginId`만으로 찾도록 합니다.
             // *단, AccountQueryService::findActiveMemberForAuthByLoginId는 Active 체크를 수행합니다.*
-            AccountAuthMemberView member = queryAccountService.findActiveMemberForAuthByLoginId(AccountLoginIdQuery.of(username));
+            final AccountAuthMemberView member = queryAccountService.findActiveMemberForAuthByLoginId(AccountLoginIdQuery.of(username));
             if (member.memberType() != MemberType.GENERAL) {
                 throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
             }

@@ -35,7 +35,7 @@ public class JsonBodyLoginRequestValidator {
     }
 
     public LoginRequestValidationResult validate(Object loginRequest) {
-        List<ApiErrorDetail> errors = new ArrayList<>();
+        final List<ApiErrorDetail> errors = new ArrayList<>();
 
         if (loginRequest == null) {
             errors.add(ApiErrorDetail.of("body", "요청 값이 비어있습니다."));

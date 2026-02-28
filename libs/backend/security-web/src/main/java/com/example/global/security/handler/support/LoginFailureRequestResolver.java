@@ -22,10 +22,10 @@ public class LoginFailureRequestResolver {
             return List.of();
         }
 
-        String loginId = request != null ? request.getParameter(PARAM_LOGIN_ID) : null;
-        String password = request != null ? request.getParameter(PARAM_PASSWORD) : null;
+        final String loginId = request != null ? request.getParameter(PARAM_LOGIN_ID) : null;
+        final String password = request != null ? request.getParameter(PARAM_PASSWORD) : null;
 
-        List<ApiErrorDetail> errors = new ArrayList<>();
+        final List<ApiErrorDetail> errors = new ArrayList<>();
         if (loginId == null || loginId.isBlank()) {
             errors.add(ApiErrorDetail.of(PARAM_LOGIN_ID, "로그인 아이디를 입력해주세요."));
         }
@@ -56,7 +56,7 @@ public class LoginFailureRequestResolver {
         if (request == null) {
             return false;
         }
-        String contentType = request.getContentType();
+        final String contentType = request.getContentType();
         if (contentType == null) {
             return false;
         }

@@ -58,7 +58,7 @@ public class SecurityConfig {
             return false;
         }
 
-        String path = getPathWithinApplication(request);
+        final String path = getPathWithinApplication(request);
         return path.equals(AUTH_LOGIN_JSON_API_PATH) || path.equals(ADMIN_LOGIN_JSON_API_PATH);
     }
 
@@ -67,7 +67,7 @@ public class SecurityConfig {
             return false;
         }
 
-        String method = request.getMethod();
+        final String method = request.getMethod();
         if (method == null || !"POST".equalsIgnoreCase(method)) {
             return false;
         }
@@ -76,12 +76,12 @@ public class SecurityConfig {
     }
 
     private static String getPathWithinApplication(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        final String uri = request.getRequestURI();
         if (uri == null) {
             return "";
         }
 
-        String contextPath = request.getContextPath();
+        final String contextPath = request.getContextPath();
         if (contextPath != null && !contextPath.isBlank() && uri.startsWith(contextPath)) {
             return uri.substring(contextPath.length());
         }
@@ -99,7 +99,7 @@ public class SecurityConfig {
             PrincipalDetailsQueryService principalDetailsService,
             PasswordEncoder passwordEncoder
     ) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(principalDetailsService);
+        final DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(principalDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
         authProvider.setHideUserNotFoundExceptions(false);
         return authProvider;
@@ -135,8 +135,8 @@ public class SecurityConfig {
         // JSON 바디 로그인(/api/sessions, /api/admin/sessions) 필터 등록
         // - formLogin(/login)과 충돌하지 않도록, 요청 경로를 별도로 매칭합니다.
         // - 성공/실패 응답 정책은 기존 핸들러를 그대로 재사용합니다.
-        AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
-        JsonBodyLoginAuthenticationFilter jsonBodyLoginAuthenticationFilter = new JsonBodyLoginAuthenticationFilter(
+        final AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
+        final JsonBodyLoginAuthenticationFilter jsonBodyLoginAuthenticationFilter = new JsonBodyLoginAuthenticationFilter(
                 jsonBodyLoginRequestParser,
                 jsonBodyLoginRequestValidator,
                 jsonBodyLoginErrorWriter
@@ -163,7 +163,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        final CorsConfiguration configuration = new CorsConfiguration();
 
         final List<String> normalizedOrigins = allowedOrigins == null ? List.of() : allowedOrigins.stream()
                 .map(String::trim)
@@ -182,7 +182,7 @@ public class SecurityConfig {
         ));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
