@@ -27,11 +27,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Tag(name = "AdminS3ApiController", description = "관리자 전용 S3 업로드/삭제 테스트 REST API")
+@ConditionalOnProperty(name = "app.type", havingValue = "admin")
 @RestController
 @RequestMapping("/api/admin/aws/s3")
 @RequiredArgsConstructor

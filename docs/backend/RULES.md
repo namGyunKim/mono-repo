@@ -618,6 +618,25 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - Health 제외 모든 API에 `version = ApiVersioning.V1` 등 버전 매핑
 - 상태 코드: POST→`201 Created`+Location, PUT/PATCH→`200`/`204`, DELETE→`204`
 
+### 컨트롤러 앱 격리 규칙 (CRITICAL)
+
+두 앱(`user-api`, `admin-api`)은 동일한 `scanBasePackages = "com.example"`을 사용하므로,
+`domain-core`의 컨트롤러가 양쪽 앱에 모두 등록되는 것을 방지하기 위해 `@ConditionalOnProperty`로 격리한다.
+
+- 각 앱의 `Application` 클래스에서 `setDefaultProperties(Map.of("app.type", "..."))`로 앱 타입을 설정한다
+  - `UserApiApplication`: `app.type = user`
+  - `AdminApiApplication`: `app.type = admin`
+- 앱 전용 컨트롤러에는 `@ConditionalOnProperty(name = "app.type", havingValue = "...")`를 반드시 추가한다
+- 양쪽 앱에서 공통으로 사용하는 컨트롤러는 `@ConditionalOnProperty`를 **추가하지 않는다**
+
+| 구분 | 대상 컨트롤러 | `@ConditionalOnProperty` |
+|------|-------------|--------------------------|
+| **admin 전용** | `AdminMemberApiController`, `AdminLogApiController`, `AdminS3ApiController`, `AdminAccountAuthDocsApiController` | `havingValue = "admin"` |
+| **user 전용** | `AccountSessionApiController`, `AccountAuthDocsApiController`, `AccountApiController`, `SocialApiController` | `havingValue = "user"` |
+| **공통** | `RootApiController`, `AccountAuthApiController`, `HealthRestController` | 추가 안 함 |
+
+- 새 컨트롤러 생성 시 반드시 **어느 앱에 귀속되는지** 판단하고, 전용이면 해당 `havingValue`를 추가한다
+
 ### API 설계 원칙
 
 - URL은 **리소스 명사(복수형)** 중심, 동사 금지
@@ -681,6 +700,11 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 - [ ] NPE 가능성 없는가?
 - [ ] 경계값(0, 음수, null, empty, max length) 처리되는가?
+
+### 컨트롤러 앱 격리
+
+- [ ] 앱 전용 컨트롤러에 `@ConditionalOnProperty(name = "app.type", havingValue = "...")` 가 선언되어 있는가?
+- [ ] 공통 컨트롤러에 불필요한 `@ConditionalOnProperty`가 추가되지 않았는가?
 
 ### 인증/인가
 
@@ -779,6 +803,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | 로깅            | traceId 포함, 민감정보 금지                                                            |
 | API 버전        | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true` |
 | 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                              |
+| 컨트롤러 격리       | 앱 전용 컨트롤러에 `@ConditionalOnProperty(name = "app.type")` 필수                      |
 | 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                |
 | Enum 계약 동기화   | `Api* == Domain name()` 유지 + `pnpm nx test domain-core` 통과                     |
 | 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                  |

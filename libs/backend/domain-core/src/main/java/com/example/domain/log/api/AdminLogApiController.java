@@ -20,10 +20,12 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "AdminLogApiController", description = "관리자 전용 시스템 로그 REST API")
+@ConditionalOnProperty(name = "app.type", havingValue = "admin")
 @RestController
 @RequestMapping("/api/admin/logs")
 @RequiredArgsConstructor

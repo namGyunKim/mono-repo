@@ -14,11 +14,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "SessionApiController", description = "세션 관련 REST API")
+@ConditionalOnProperty(name = "app.type", havingValue = "user")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/sessions")
