@@ -252,7 +252,36 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ---
 
-## 11. 문서 역할 분리
+## 11. Serena 메모리 공유 (AI 온보딩)
+
+`.serena/memories/` 디렉토리에 팀 공통 프로젝트 컨텍스트를 저장하여, AI 도구(Serena MCP)가 일관된 품질로 작업할 수 있도록 한다.
+
+### 공유/비공유 구분
+
+| 경로 | git 공유 | 용도 |
+|------|---------|------|
+| `.serena/memories/` | O | 팀 공통 컨벤션, 프로젝트 구조, 빌드 명령, 체크리스트 |
+| `.serena/project.yml` | O | 프로젝트 설정 (언어, 무시 경로) |
+| `.serena/cache/` | X | 로컬 LSP 캐시 |
+
+### 메모리 파일 목록
+
+| 파일 | 내용 |
+|------|------|
+| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 |
+| `style_and_conventions` | 코딩 규칙, CQRS, DDD, 테스트 컨벤션 |
+| `suggested_commands` | 빌드/테스트/실행 명령 모음 |
+| `task_completion_checklist` | 작업 완료 후 점검 항목 |
+
+### 운영 원칙
+
+- 메모리 변경 시 코드 변경과 동일하게 커밋하여 팀 전체에 공유한다
+- 개인 설정/로컬 환경 정보는 메모리에 기록하지 않는다
+- `RULES.md` 규칙이 변경되면 관련 메모리도 함께 갱신한다
+
+---
+
+## 12. 문서 역할 분리
 
 - 이 문서: 구조/실행/운영 기준(개요)
 - [RULES.md](./RULES.md): 코드 작성 및 리뷰 시 반드시 지켜야 하는 세부 규칙
@@ -261,7 +290,7 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ---
 
-## 12. API 계약 Enum 전략
+## 13. API 계약 Enum 전략
 
 백엔드는 **도메인 Enum**과 **API 계약 Enum**을 분리해서 운영합니다.
 

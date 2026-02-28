@@ -31,6 +31,20 @@
 
 > 모노레포 경로: `apps/user-api/`, `apps/admin-api/`, `libs/backend/*`
 
+### Serena 메모리 관리 규칙
+
+- `.serena/memories/` — **git 공유**: 팀 공통 컨벤션, 프로젝트 구조, 빌드 명령, 체크리스트
+- `.serena/cache/` — **로컬 전용**: LSP 캐시 (`.serena/.gitignore`에서 제외)
+- 메모리 변경 시 코드 변경과 동일하게 커밋하여 팀 전체에 공유한다
+- 개인 설정/로컬 환경 정보는 메모리에 기록하지 않는다
+
+| 메모리 파일 | 내용 | 변경 시점 |
+|------------|------|----------|
+| `project_overview` | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 | 구조 변경 시 |
+| `style_and_conventions` | 코딩 규칙, CQRS, DDD, 테스트 컨벤션 | 규칙 변경 시 |
+| `suggested_commands` | 빌드/테스트/실행 명령 모음 | 명령 추가/변경 시 |
+| `task_completion_checklist` | 작업 완료 후 점검 항목 | 체크리스트 변경 시 |
+
 ---
 
 ## 모노레포 프로젝트 구조
@@ -886,3 +900,4 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | 버전 하한         | Java 25 + Boot 4 + Framework 7 미만 호환 타협 금지                                     |
 | Jackson 3     | `tools.jackson.*`, 어노테이션만 `com.fasterxml.jackson.annotation.*`                 |
 | Logback       | XML 설정 파일 미사용                                                                  |
+| Serena 메모리    | `.serena/memories/`는 git 공유, `.serena/cache/`는 로컬 전용                           |

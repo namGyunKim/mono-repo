@@ -86,8 +86,8 @@ out/
 # MCP config (API 키 포함)
 .mcp.json
 
-# Serena MCP local data
-.serena/
+# Serena MCP (memories/project.yml은 팀 공유, cache는 로컬 전용)
+# → .serena/.gitignore에서 /cache 무시 처리
 
 # Environment
 .env*
