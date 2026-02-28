@@ -19,12 +19,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class ClientIpResolver {
 
     public String resolveClientIp() {
-        HttpServletRequest request = resolveRequest();
+        final HttpServletRequest request = resolveRequest();
         return ClientIpExtractor.extract(request);
     }
 
     private HttpServletRequest resolveRequest() {
-        HttpServletRequest scopedRequest = RequestContextScope.getCurrentRequestOrNull();
+        final HttpServletRequest scopedRequest = RequestContextScope.getCurrentRequestOrNull();
         if (scopedRequest != null) {
             return scopedRequest;
         }
@@ -33,7 +33,7 @@ public class ClientIpResolver {
     }
 
     private HttpServletRequest resolveRequestFromContextHolder() {
-        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        final RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
         if (!(attributes instanceof ServletRequestAttributes servletAttributes)) {
             return null;
         }

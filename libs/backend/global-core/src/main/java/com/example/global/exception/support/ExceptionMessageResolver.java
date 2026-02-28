@@ -10,7 +10,7 @@ public class ExceptionMessageResolver {
         if (e == null) {
             return fallback;
         }
-        String msg = e.getMessage();
+        final String msg = e.getMessage();
         if (msg == null || msg.isBlank()) {
             return fallback;
         }

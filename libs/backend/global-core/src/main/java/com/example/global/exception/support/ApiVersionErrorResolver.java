@@ -13,7 +13,7 @@ public class ApiVersionErrorResolver {
             return fallback;
         }
 
-        String requestPath = request.getRequestURI();
+        final String requestPath = request.getRequestURI();
         if (requestPath == null || !requestPath.startsWith("/api/")) {
             return fallback;
         }
@@ -26,12 +26,12 @@ public class ApiVersionErrorResolver {
             return fallback;
         }
 
-        String rawVersion = request.getHeader(ApiVersioning.HEADER_NAME);
+        final String rawVersion = request.getHeader(ApiVersioning.HEADER_NAME);
         if (rawVersion == null || rawVersion.isBlank()) {
             return ErrorCode.API_VERSION_REQUIRED;
         }
 
-        String version = rawVersion.trim();
+        final String version = rawVersion.trim();
         if (!ApiVersioning.isSupportedVersion(version)) {
             return ErrorCode.API_VERSION_INVALID;
         }

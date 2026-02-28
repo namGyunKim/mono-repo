@@ -60,7 +60,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=" + StandardCharsets.UTF_8.name());
 
-        ApiErrorResponse body = ApiErrorResponse.from(ErrorCode.AUTHENTICATION_REQUIRED);
+        final ApiErrorResponse body = ApiErrorResponse.from(ErrorCode.AUTHENTICATION_REQUIRED);
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

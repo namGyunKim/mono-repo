@@ -15,12 +15,12 @@ public class AccessTokenResolver {
             return Optional.empty();
         }
 
-        String header = request.getHeader(SecurityHeaders.AUTHORIZATION);
+        final String header = request.getHeader(SecurityHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(header) || !StringUtils.startsWithIgnoreCase(header, SecurityHeaders.BEARER_PREFIX)) {
             return Optional.empty();
         }
 
-        String token = header.substring(SecurityHeaders.BEARER_PREFIX.length()).trim();
+        final String token = header.substring(SecurityHeaders.BEARER_PREFIX.length()).trim();
         return StringUtils.hasText(token) ? Optional.of(token) : Optional.empty();
     }
 }

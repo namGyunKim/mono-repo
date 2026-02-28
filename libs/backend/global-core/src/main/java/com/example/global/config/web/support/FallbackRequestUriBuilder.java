@@ -14,8 +14,8 @@ public class FallbackRequestUriBuilder {
             return "";
         }
 
-        String uri = safe(request.getRequestURI());
-        String query = buildSanitizedQueryString(request);
+        final String uri = safe(request.getRequestURI());
+        final String query = buildSanitizedQueryString(request);
         if (!hasText(query)) {
             return uri;
         }
@@ -28,19 +28,19 @@ public class FallbackRequestUriBuilder {
             return "";
         }
 
-        Enumeration<String> paramNames = request.getParameterNames();
+        final Enumeration<String> paramNames = request.getParameterNames();
         if (paramNames == null || !paramNames.hasMoreElements()) {
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         while (paramNames.hasMoreElements()) {
-            String name = paramNames.nextElement();
+            final String name = paramNames.nextElement();
             if (!hasText(name)) {
                 continue;
             }
 
-            String[] values = request.getParameterValues(name);
+            final String[] values = request.getParameterValues(name);
             if (values == null || values.length == 0) {
                 appendQueryPair(sb, name, maskIfSensitive(name, ""));
                 continue;
@@ -57,7 +57,7 @@ public class FallbackRequestUriBuilder {
         if (sb.length() > 0) {
             sb.append('&');
         }
-        String maskedName = maskKeyIfSensitive(name);
+        final String maskedName = maskKeyIfSensitive(name);
         sb.append(maskedName).append('=').append(safe(value));
     }
 

@@ -60,17 +60,17 @@ public abstract class BaseAppException extends RuntimeException {
         if (exception == null) {
             return null;
         }
-        StringWriter stringWriter = new StringWriter();
+        final StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));
         return stringWriter.toString();
     }
 
     private static boolean resolveCaptureStacktrace() {
-        String property = System.getProperty(STACKTRACE_CAPTURE_PROPERTY);
+        final String property = System.getProperty(STACKTRACE_CAPTURE_PROPERTY);
         if (property != null && !property.isBlank()) {
             return Boolean.parseBoolean(property);
         }
-        String env = System.getenv("APP_EXCEPTION_CAPTURE_STACKTRACE");
+        final String env = System.getenv("APP_EXCEPTION_CAPTURE_STACKTRACE");
         if (env != null && !env.isBlank()) {
             return Boolean.parseBoolean(env);
         }

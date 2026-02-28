@@ -2,7 +2,11 @@ package com.example.global.config.web;
 
 import com.example.global.logging.RequestContextScope;
 import com.example.global.utils.TraceIdUtils;
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
@@ -24,7 +28,7 @@ public class MdcLoggingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String traceId = resolveTraceId(request);
+        final String traceId = resolveTraceId(request);
 
         // MDC에 traceId 저장 (Logback 설정이나 application.yml logging.pattern에서 %X{traceId}로 사용 가능)
         MDC.put(TraceIdUtils.TRACE_ID_KEY, traceId);

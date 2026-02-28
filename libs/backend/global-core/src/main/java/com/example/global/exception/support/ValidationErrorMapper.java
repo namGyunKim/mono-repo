@@ -14,12 +14,7 @@ import java.util.List;
 public class ValidationErrorMapper {
 
     public List<ApiErrorDetail> resolveValidationErrors(Exception e) {
-        BindingResult bindingResult = null;
-        if (e instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
-            bindingResult = methodArgumentNotValidException.getBindingResult();
-        } else if (e instanceof BindException bindException) {
-            bindingResult = bindException.getBindingResult();
-        }
+        final BindingResult bindingResult = extractBindingResult(e);
         if (bindingResult == null) {
             return List.of();
         }
@@ -30,29 +25,34 @@ public class ValidationErrorMapper {
     }
 
     public String resolveValidationDetailMessage(Exception e, String fallback) {
-        BindingResult bindingResult = null;
-        if (e instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
-            bindingResult = methodArgumentNotValidException.getBindingResult();
-        } else if (e instanceof BindException bindException) {
-            bindingResult = bindException.getBindingResult();
-        }
+        final BindingResult bindingResult = extractBindingResult(e);
         if (bindingResult == null) {
             return fallback;
         }
 
-        List<ApiErrorDetail> details = bindingResult.getAllErrors().stream()
+        final List<ApiErrorDetail> details = bindingResult.getAllErrors().stream()
                 .map(this::toApiErrorDetail)
                 .toList();
         if (details.isEmpty()) {
             return fallback;
         }
 
-        String joinedDetails = details.stream()
+        final String joinedDetails = details.stream()
                 .map(detail -> "%s=%s".formatted(detail.field(), detail.reason()))
                 .reduce((left, right) -> left + ", " + right)
                 .orElse(fallback);
 
         return "요청 값 검증 실패: %s".formatted(joinedDetails);
+    }
+
+    private BindingResult extractBindingResult(Exception e) {
+        if (e instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
+            return methodArgumentNotValidException.getBindingResult();
+        }
+        if (e instanceof BindException bindException) {
+            return bindException.getBindingResult();
+        }
+        return null;
     }
 
     private ApiErrorDetail toApiErrorDetail(ObjectError error) {
@@ -66,7 +66,7 @@ public class ValidationErrorMapper {
         if (error == null) {
             return "";
         }
-        String message = error.getDefaultMessage();
+        final String message = error.getDefaultMessage();
         return message != null ? message : "";
     }
 }

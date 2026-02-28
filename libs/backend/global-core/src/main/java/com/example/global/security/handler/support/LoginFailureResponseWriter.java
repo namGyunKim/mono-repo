@@ -34,7 +34,7 @@ public class LoginFailureResponseWriter {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=" + StandardCharsets.UTF_8.name());
 
-        ApiErrorResponse body = ApiErrorResponse.from(errorCode, errors);
+        final ApiErrorResponse body = ApiErrorResponse.from(errorCode, errors);
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

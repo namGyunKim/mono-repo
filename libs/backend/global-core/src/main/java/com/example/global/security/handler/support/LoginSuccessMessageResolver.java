@@ -11,8 +11,8 @@ public class LoginSuccessMessageResolver {
             return "로그인 성공";
         }
 
-        String requestUri = request.getRequestURI();
-        String contextPath = request.getContextPath();
+        final String requestUri = request.getRequestURI();
+        final String contextPath = request.getContextPath();
 
         String normalizedUri = requestUri;
         if (contextPath != null && !contextPath.isBlank() && requestUri != null && requestUri.startsWith(contextPath)) {

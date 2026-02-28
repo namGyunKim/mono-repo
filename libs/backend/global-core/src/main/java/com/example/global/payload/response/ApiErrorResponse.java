@@ -9,7 +9,7 @@ import java.util.List;
  * 공통 에러 응답 DTO
  *
  * <p>
- * - GEMINI 규칙: DTO는 record 사용
+ * - DTO는 record 사용
  * - 외부에서 new 호출을 금지하기 위해 정적 팩토리 메서드를 제공합니다.
  * </p>
  */

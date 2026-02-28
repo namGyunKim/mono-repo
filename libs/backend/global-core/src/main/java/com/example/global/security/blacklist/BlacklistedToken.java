@@ -2,7 +2,13 @@ package com.example.global.security.blacklist;
 
 import com.example.global.entity.BaseTimeEntity;
 import com.example.global.security.jwt.JwtTokenType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +40,7 @@ public class BlacklistedToken extends BaseTimeEntity {
     private String subject;
 
     public static BlacklistedToken of(String tokenHash, JwtTokenType tokenType, LocalDateTime expiresAt, String subject) {
-        BlacklistedToken blacklistedToken = new BlacklistedToken();
+        final BlacklistedToken blacklistedToken = new BlacklistedToken();
         blacklistedToken.tokenHash = tokenHash;
         blacklistedToken.tokenType = tokenType;
         blacklistedToken.expiresAt = expiresAt;

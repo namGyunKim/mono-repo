@@ -19,10 +19,10 @@ public class BlacklistedTokenCleanupCommandService {
 
     @Transactional
     public void cleanupExpiredTokens() {
-        long startedAt = System.currentTimeMillis();
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
-        long deletedCount = blacklistedTokenRepository.deleteExpiredTokens(BlacklistedTokenCleanupCommand.of(now));
-        long elapsedMs = Math.max(0, System.currentTimeMillis() - startedAt);
+        final long startedAt = System.currentTimeMillis();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        final long deletedCount = blacklistedTokenRepository.deleteExpiredTokens(BlacklistedTokenCleanupCommand.of(now));
+        final long elapsedMs = Math.max(0, System.currentTimeMillis() - startedAt);
 
         cleanupLogWriter.logCleanup(now, deletedCount, elapsedMs);
     }

@@ -18,7 +18,7 @@ public class BlacklistedTokenChecker {
             return false;
         }
 
-        String tokenHash = TokenHashUtils.sha256(token);
+        final String tokenHash = TokenHashUtils.sha256(token);
         return blacklistedTokenRepository.existsByTokenHash(BlacklistedTokenHashQuery.of(tokenHash));
     }
 }
