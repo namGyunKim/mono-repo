@@ -116,38 +116,6 @@ public record ExceptionEvent(
      * 예외 이벤트를 사람이 읽기 좋은 문자열 형태로 변환합니다.
      */
     public String toLogString() {
-        String accountBlock = "";
-        if (account != null) {
-            accountBlock = """
-                    Account Member ID : %s
-                    Account role : %s
-                    Account ID : %s
-                    Account Nickname : %s
-                    """.formatted(
-                    account.id() != null ? account.id().toString() : "",
-                    nullToEmpty(account.role() != null ? account.role().name() : ""),
-                    nullToEmpty(account.loginId()),
-                    nullToEmpty(account.nickName())
-            );
-        }
-
-        String errorCodeBlock = "";
-        if (errorCode != null) {
-            errorCodeBlock = """
-                    Error Code & Msg : %s / %s
-                    """.formatted(errorCode.getCode(), errorCode.getErrorMessage());
-        }
-
-        String createdAtText = createdAt != null ? createdAt.toString() : "";
-        String detail = nullToEmpty(errorDetailMsg);
-        String debugBlock = "";
-        if (debugStackTrace != null && !debugStackTrace.isBlank()) {
-            debugBlock = """
-                    Debug StackTrace :
-                    %s
-                    """.formatted(debugStackTrace);
-        }
-
         return """
                 logStart=== === === === === === === === === === === === === === === === === === === === === === === === logStart
                 Trace ID : %s
@@ -166,12 +134,48 @@ public record ExceptionEvent(
                 nullToEmpty(requestPath),
                 nullToEmpty(requestMethod),
                 nullToEmpty(clientIp),
-                accountBlock,
-                errorCodeBlock,
-                createdAtText,
-                detail,
-                debugBlock
+                buildAccountBlock(),
+                buildErrorCodeBlock(),
+                createdAt != null ? createdAt.toString() : "",
+                nullToEmpty(errorDetailMsg),
+                buildDebugBlock()
         ).stripTrailing();
+    }
+
+    private String buildAccountBlock() {
+        if (account == null) {
+            return "";
+        }
+        return """
+                Account Member ID : %s
+                Account role : %s
+                Account ID : %s
+                Account Nickname : %s
+                """.formatted(
+                account.id() != null ? account.id().toString() : "",
+                nullToEmpty(account.role() != null ? account.role().name() : ""),
+                nullToEmpty(account.loginId()),
+                nullToEmpty(account.nickName())
+        );
+    }
+
+    private String buildErrorCodeBlock() {
+        if (errorCode == null) {
+            return "";
+        }
+        return """
+                Error Code & Msg : %s / %s
+                """.formatted(errorCode.getCode(), errorCode.getErrorMessage());
+    }
+
+    private String buildDebugBlock() {
+        if (debugStackTrace == null || debugStackTrace.isBlank()) {
+            return "";
+        }
+        return """
+                Debug StackTrace :
+                %s
+                """.formatted(debugStackTrace);
     }
 
     /**

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member_log")
+@Table(name = "member_log", comment = "회원 활동 로그")
 @IdClass(MemberLogId.class)
 @EntityListeners(value = {AuditingEntityListener.class})
 public class MemberLog {
@@ -38,7 +38,7 @@ public class MemberLog {
             sequenceName = "member_log_id_seq",
             allocationSize = 1
     )
-    @Column(name = "log_id")
+    @Column(name = "log_id", comment = "로그 아이디")
     private Long id;
 
     @Id

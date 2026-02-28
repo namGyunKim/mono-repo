@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class BlacklistedTokenCommandService {
 
@@ -24,7 +25,6 @@ public class BlacklistedTokenCommandService {
     private final JwtTokenParser jwtTokenParser;
     private final BlacklistedTokenChecker blacklistedTokenChecker;
 
-    @Transactional
     public void blacklistToken(BlacklistedTokenRegisterCommand command) {
         if (command == null || !StringUtils.hasText(command.token())) {
             return;

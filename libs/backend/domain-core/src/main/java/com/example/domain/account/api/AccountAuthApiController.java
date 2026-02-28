@@ -1,12 +1,11 @@
 package com.example.domain.account.api;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
-import com.example.domain.security.service.command.JwtTokenRefreshCommandService;
+import com.example.domain.account.support.AccountTokenRefreshPort;
 import com.example.global.api.RestApiController;
 import com.example.global.payload.response.ApiErrorResponse;
 import com.example.global.security.SecurityHeaders;
 import com.example.global.security.TokenResponseHeaders;
-import com.example.global.security.payload.RefreshTokenIssueCommand;
 import com.example.global.security.support.LocalTokenHeaderLoggingSupport;
 import com.example.global.version.ApiVersioning;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AccountAuthApiController {
 
-    private final JwtTokenRefreshCommandService jwtTokenRefreshCommandService;
+    private final AccountTokenRefreshPort accountTokenRefreshPort;
     private final RestApiController restApiController;
     private final LocalTokenHeaderLoggingSupport localTokenHeaderLoggingSupport;
 
@@ -100,9 +99,7 @@ public class AccountAuthApiController {
             @NotBlank(message = "refreshToken은 필수입니다.")
             String refreshToken
     ) {
-        RefreshTokenResponse response = jwtTokenRefreshCommandService.refreshTokens(
-                RefreshTokenIssueCommand.of(refreshToken)
-        );
+        RefreshTokenResponse response = accountTokenRefreshPort.refreshTokens(refreshToken);
         localTokenHeaderLoggingSupport.logResponseTokenHeaders(
                 "refresh",
                 response.accessToken(),

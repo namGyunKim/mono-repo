@@ -2,21 +2,18 @@ package com.example.domain.member.service.command;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.log.enums.LogType;
-import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.payload.dto.MemberCreateCommand;
 import com.example.domain.member.payload.dto.MemberDeactivateCommand;
-import com.example.domain.member.payload.dto.MemberDeactivateContext;
 import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
-import com.example.domain.member.payload.dto.MemberUpdateContext;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.support.MemberImageStoragePort;
+import com.example.domain.member.support.MemberPermissionCheckPort;
+import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
+import com.example.domain.member.support.MemberTokenRevocationPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
-import com.example.domain.security.guard.MemberGuard;
-import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +35,9 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
     private final MemberImageStoragePort memberImageStoragePort;
     private final MemberSocialCleanupPort memberSocialCleanupPort;
 
-    private final ActivityEventPublisher activityEventPublisher;
-    private final JwtTokenRevocationCommandService jwtTokenRevocationCommandService;
-    private final MemberGuard memberGuard;
+    private final MemberActivityPublishPort memberActivityPublishPort;
+    private final MemberTokenRevocationPort memberTokenRevocationPort;
+    private final MemberPermissionCheckPort memberPermissionCheckPort;
 
     @Override
     public List<AccountRole> getSupportedRoles() {
@@ -69,9 +66,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
 
         AccountRole role = member.getRole();
         String details = (role == AccountRole.SUPER_ADMIN) ? "최고 관리자 계정 생성" : "관리자 계정 생성";
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(member.getLoginId(), member.getId(), LogType.JOIN, details)
-        );
+        memberActivityPublishPort.publishMemberActivity(member.getLoginId(), member.getId(), LogType.JOIN, details);
 
         return member.getId();
     }
@@ -84,7 +79,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
 
         Member member = findAdminMember(command.memberId());
         updateMemberCommon(member, command, MemberUpdateContext.of(
-                memberUniquenessSupport, passwordEncoder, activityEventPublisher,
+                memberUniquenessSupport, passwordEncoder, memberActivityPublishPort,
                 true, "관리자 비밀번호 변경", "관리자 정보 수정"
         ));
 
@@ -104,7 +99,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
 
         Member member = findAdminMember(command.memberId());
         deactivateMemberCommon(member, MemberDeactivateContext.of(
-                memberImageStoragePort, memberSocialCleanupPort, activityEventPublisher, "관리자 탈퇴/비활성화 처리"
+                memberImageStoragePort, memberSocialCleanupPort, memberActivityPublishPort, "관리자 탈퇴/비활성화 처리"
         ));
         revokeSelfLogoutIfNeeded(command);
 
@@ -119,7 +114,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         if (command.role() == AccountRole.GUEST) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "GUEST 권한은 설정할 수 없습니다.");
         }
-        if (memberGuard.isSameMember(command.memberId())) {
+        if (memberPermissionCheckPort.isSameMember(command.memberId())) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "자신의 등급은 변경할 수 없습니다.");
         }
 
@@ -130,13 +125,11 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         member.rotateTokenVersion();
         member.invalidateRefreshTokenEncrypted();
 
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(
-                        member.getLoginId(),
-                        member.getId(),
-                        LogType.UPDATE,
-                        "관리자 권한 변경: " + oldRole + " -> " + newRole
-                )
+        memberActivityPublishPort.publishMemberActivity(
+                member.getLoginId(),
+                member.getId(),
+                LogType.UPDATE,
+                "관리자 권한 변경: " + oldRole + " -> " + newRole
         );
     }
 
@@ -167,6 +160,6 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         if (command.logoutCommand() == null) {
             return;
         }
-        jwtTokenRevocationCommandService.revokeOnLogout(command.logoutCommand());
+        memberTokenRevocationPort.revokeOnLogout(command.logoutCommand());
     }
 }

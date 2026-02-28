@@ -4,16 +4,11 @@ import com.example.domain.account.payload.dto.AccountLogoutCommand;
 import com.example.domain.account.payload.dto.AccountProfileUpdateCommand;
 import com.example.domain.account.payload.dto.AccountWithdrawCommand;
 import com.example.domain.account.payload.dto.CurrentAccountDTO;
+import com.example.domain.account.support.AccountMemberCommandPort;
+import com.example.domain.account.support.AccountActivityPublishPort;
+import com.example.domain.account.support.AccountTokenRevocationPort;
 import com.example.domain.account.validator.AccountInputValidator;
 import com.example.domain.log.enums.LogType;
-import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
-import com.example.domain.member.payload.dto.MemberDeactivateCommand;
-import com.example.domain.member.payload.dto.MemberUpdateCommand;
-import com.example.domain.member.service.MemberStrategyFactory;
-import com.example.domain.member.service.command.MemberCommandService;
-import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
-import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,25 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AccountCommandService {
 
-    private final MemberStrategyFactory memberStrategyFactory;
-    private final ActivityEventPublisher activityEventPublisher;
-    private final JwtTokenRevocationCommandService jwtTokenRevocationCommandService;
+    private final AccountMemberCommandPort accountMemberCommandPort;
+    private final AccountActivityPublishPort accountActivityPublishPort;
+    private final AccountTokenRevocationPort accountTokenRevocationPort;
 
     public void logout(AccountLogoutCommand command) {
         validateLogoutCommand(command);
 
         CurrentAccountDTO currentAccount = command.currentAccount();
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(
-                        currentAccount.loginId(),
-                        currentAccount.id(),
-                        LogType.LOGOUT,
-                        "로그아웃"
-                )
+        accountActivityPublishPort.publishMemberActivity(
+                currentAccount.loginId(),
+                currentAccount.id(),
+                LogType.LOGOUT,
+                "로그아웃"
         );
-        jwtTokenRevocationCommandService.revokeOnLogout(
-                SecurityLogoutCommand.of(currentAccount.id(), command.accessToken())
-        );
+        accountTokenRevocationPort.revokeOnLogout(currentAccount.id(), command.accessToken());
     }
 
     public void withdraw(AccountWithdrawCommand command) {
@@ -49,13 +40,8 @@ public class AccountCommandService {
 
         CurrentAccountDTO currentAccount = command.currentAccount();
         // 계정 탈퇴 응답 시점에 회원 비활성화 상태가 즉시 반영되어야 하므로 동일 트랜잭션 동기 호출을 유지합니다.
-        MemberCommandService commandMemberService = memberStrategyFactory.getCommandService(currentAccount.role());
-        commandMemberService.deactivateMember(
-                MemberDeactivateCommand.of(currentAccount.id())
-        );
-        jwtTokenRevocationCommandService.revokeOnLogout(
-                SecurityLogoutCommand.of(currentAccount.id(), command.accessToken())
-        );
+        accountMemberCommandPort.deactivateMember(currentAccount.role(), currentAccount.id());
+        accountTokenRevocationPort.revokeOnLogout(currentAccount.id(), command.accessToken());
     }
 
     public Long updateProfile(AccountProfileUpdateCommand command) {
@@ -63,13 +49,12 @@ public class AccountCommandService {
 
         CurrentAccountDTO currentAccount = command.currentAccount();
         // 프로필 변경 성공 응답 직후 조회 일관성을 보장하기 위해 동일 트랜잭션 내에서 회원 업데이트를 수행합니다.
-        MemberCommandService commandMemberService = memberStrategyFactory.getCommandService(currentAccount.role());
-        MemberUpdateCommand updateCommand = MemberUpdateCommand.of(
+        return accountMemberCommandPort.updateMemberProfile(
+                currentAccount.role(),
                 command.nickName(),
                 command.password(),
                 currentAccount.id()
         );
-        return commandMemberService.updateMember(updateCommand);
     }
 
     private void validateLogoutCommand(AccountLogoutCommand command) {

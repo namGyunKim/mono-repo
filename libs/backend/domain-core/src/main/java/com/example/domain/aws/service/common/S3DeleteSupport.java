@@ -39,19 +39,27 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
             return;
         }
 
-        List<ObjectIdentifier> objectsToDelete = new ArrayList<>();
+        List<ObjectIdentifier> objectsToDelete = buildObjectIdentifiers(fileNames, imageType, entityId);
+        executeDeleteObjects(objectsToDelete, imageType, entityId, fileNames.size());
+    }
+
+    private List<ObjectIdentifier> buildObjectIdentifiers(List<String> fileNames, ImageType imageType, Long entityId) {
+        List<ObjectIdentifier> identifiers = new ArrayList<>();
         for (String fileName : fileNames) {
             String key = generateS3Key(fileName, imageType, entityId);
-            objectsToDelete.add(ObjectIdentifier.builder().key(key).build());
+            identifiers.add(ObjectIdentifier.builder().key(key).build());
         }
+        return identifiers;
+    }
 
+    private void executeDeleteObjects(List<ObjectIdentifier> objectsToDelete, ImageType imageType, Long entityId, int fileCount) {
         try {
-            DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+            DeleteObjectsRequest request = DeleteObjectsRequest.builder()
                     .bucket(bucketName)
                     .delete(Delete.builder().objects(objectsToDelete).build())
                     .build();
 
-            DeleteObjectsResponse response = s3Client.deleteObjects(deleteObjectsRequest);
+            DeleteObjectsResponse response = s3Client.deleteObjects(request);
             if (response.hasErrors()) {
                 log.error(
                         """
@@ -60,11 +68,7 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
                         TraceIdUtils.resolveTraceId(),
                         ErrorCode.FAILED.getCode(),
                         "DeleteObjectsPartialFailure",
-                        bucketName,
-                        imageType,
-                        entityId,
-                        fileNames.size(),
-                        response.errors()
+                        bucketName, imageType, entityId, fileCount, response.errors()
                 );
                 throw new GlobalException(ErrorCode.FAILED, "S3 일부 파일 삭제에 실패했습니다.");
             }
@@ -78,11 +82,7 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
                     TraceIdUtils.resolveTraceId(),
                     ErrorCode.FAILED.getCode(),
                     e.getClass().getSimpleName(),
-                    bucketName,
-                    imageType,
-                    entityId,
-                    fileNames.size(),
-                    e
+                    bucketName, imageType, entityId, fileCount, e
             );
             throw new GlobalException(ErrorCode.FAILED, "S3 일괄 삭제에 실패했습니다.");
         }

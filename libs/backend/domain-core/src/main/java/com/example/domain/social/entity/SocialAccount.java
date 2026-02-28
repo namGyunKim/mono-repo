@@ -16,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "social_account",
+        comment = "소셜 계정",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_social_account_provider_key", columnNames = {"provider", "social_key"}),
                 @UniqueConstraint(name = "uk_social_account_member_provider", columnNames = {"member_id", "provider"})

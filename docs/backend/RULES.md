@@ -481,7 +481,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 | **security** | `api`/`entity`/`repository` 없음 | JWT·Guard·블랙리스트 등 **횡단 관심사 도메인**, 자체 영속 엔티티 없음 |
 | **social** | 루트에 `service` 없음, `google/` 서브도메인 중심 | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제 |
 | **aws** | `entity`/`repository`/`validator` 없음 | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인** |
-| **log** | `api` 없음 | 이벤트 리스너로만 동작하는 **내부 전용 도메인**, 외부 API 노출 없음 |
+| **log** | 이벤트 리스너 + 관리자 조회 API | 활동 로그는 이벤트 리스너로 저장, 관리자 로그 조회용 `api/` 존재 |
 
 ### 멀티라인 문자열 (Text Block) — CRITICAL
 
@@ -540,7 +540,39 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - JPA 연관관계(`@ManyToOne` 등)로 인해 엔티티 참조가 불가피한 경우, Port 반환 타입에 엔티티를 허용하되 **주석으로 사유를 명시**
 - Aggregate 내부 필드에 다른 도메인의 관심사(인증 토큰, 외부 연동 키 등)를 혼합하지 않는다
   - 불가피하게 같은 테이블에 저장해야 하면, 접근은 반드시 **해당 도메인의 Port를 경유**
-- 기존 패턴 참고: `AccountMemberQueryPort`(account/support) → `AccountMemberQueryPortAdapter`(member/support)
+- 기존 Port/Adapter 목록:
+
+| Port (소비자 support/) | Adapter (제공자 support/) | 방향 |
+|---|---|---|
+| `AccountMemberQueryPort` | `AccountMemberQueryPortAdapter` | account → member |
+| `AccountMemberCommandPort` | `AccountMemberCommandPortAdapter` | account → member |
+| `AccountTokenRevocationPort` | `AccountTokenRevocationPortAdapter` | account → security |
+| `AccountTokenRefreshPort` | `AccountTokenRefreshPortAdapter` | account → security |
+| `AccountActivityPublishPort` | `AccountActivityPublishPortAdapter` | account → log |
+| `MemberTokenRevocationPort` | `MemberTokenRevocationPortAdapter` | member → security |
+| `MemberPermissionCheckPort` | `MemberPermissionCheckPortAdapter` | member → security |
+| `MemberActivityPublishPort` | `MemberActivityPublishPortAdapter` | member → log |
+| `SecurityMemberTokenPort` | `SecurityMemberTokenPortAdapter` | security → member |
+| `SecurityMemberAccessPort` | `SecurityMemberAccessPortAdapter` | security → member |
+| `SocialMemberRegistrationPort` | `SocialMemberRegistrationPortAdapter` | social → member |
+| `SocialLoginTokenPort` | `SocialLoginTokenPortAdapter` | social → security |
+| `SocialActivityPublishPort` | `SocialActivityPublishPortAdapter` | social → log |
+| `MemberSocialCleanupPort` | `MemberSocialCleanupPortAdapter` | member → social |
+| `InitMemberSeedPort` | `InitMemberSeedPortAdapter` | init → member |
+| `LogAuthenticationCheckPort` | `LogAuthenticationCheckPortAdapter` | log → security |
+
+#### Shared Kernel (도메인 간 공유 허용 타입)
+
+아래 타입들은 **여러 Bounded Context에서 공통으로 사용되는 Shared Kernel**으로, 도메인 간 직접 참조를 허용한다.
+
+| 타입 | 소속 도메인 | 공유 사유 |
+|------|-------------|-----------|
+| `AccountRole` | account/enums | 역할 기반 분기·검증에 전 도메인 필수 |
+| `CurrentAccountDTO` | account/payload/dto | 인증 컨텍스트 전달에 security·member·log 등 필수 |
+| `LogType` | log/enums | 활동 로그 발행 Port 파라미터로 account·member·social 사용 |
+
+- Shared Kernel 타입은 Port 인터페이스 파라미터/반환 타입에 사용 가능
+- Shared Kernel 이외의 타입(Service·Repository·Entity·내부 DTO)은 **반드시 Port 경유**
 
 ### AI 친화적 구조 (AI-Friendly Structure)
 

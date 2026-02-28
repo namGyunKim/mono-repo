@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("@memberGuard.hasAnyAdminRole()")
 public class AdminLogApiController {
 
-    private final MemberLogQueryService queryMemberLogService;
+    private final MemberLogQueryService memberLogQueryService;
     private final MemberLogRequestPolicyValidator memberLogRequestPolicyValidator;
     private final RestApiController restApiController;
 
@@ -41,7 +41,7 @@ public class AdminLogApiController {
     public ResponseEntity<RestApiResponse<Page<MemberLogResponse>>> memberLogList(
             @Valid @ModelAttribute("memberLogRequest") MemberLogRequest memberLogRequest
     ) {
-        Page<MemberLogResponse> logPage = queryMemberLogService.getMemberLogs(MemberLogQuery.from(memberLogRequest));
+        Page<MemberLogResponse> logPage = memberLogQueryService.getMemberLogs(MemberLogQuery.from(memberLogRequest));
         return restApiController.ok(logPage);
     }
 

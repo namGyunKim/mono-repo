@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AccountApiController {
 
-    private final AccountQueryService queryAccountService;
+    private final AccountQueryService accountQueryService;
     private final AccountCommandService accountCommandService;
     private final RestApiController restApiController;
     private final AccessTokenResolver accessTokenResolver;
@@ -40,7 +40,7 @@ public class AccountApiController {
     @GetMapping(value = "/me", version = ApiVersioning.V1)
     @PreAuthorize("@memberGuard.isAuthenticated()")
     public ResponseEntity<RestApiResponse<LoginMemberResponse>> profile(@CurrentAccount CurrentAccountDTO currentAccount) {
-        LoginMemberView view = queryAccountService.getLoginData(currentAccount);
+        LoginMemberView view = accountQueryService.getLoginData(currentAccount);
         LoginMemberResponse response = LoginMemberResponse.from(view);
         return restApiController.ok(response);
     }

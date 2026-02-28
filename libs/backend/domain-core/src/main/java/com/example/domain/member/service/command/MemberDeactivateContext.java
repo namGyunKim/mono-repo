@@ -1,6 +1,6 @@
-package com.example.domain.member.payload.dto;
+package com.example.domain.member.service.command;
 
-import com.example.domain.log.service.command.ActivityEventPublisher;
+import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
 
@@ -11,19 +11,19 @@ import com.example.domain.member.support.MemberSocialCleanupPort;
 public record MemberDeactivateContext(
         MemberImageStoragePort memberImageStoragePort,
         MemberSocialCleanupPort memberSocialCleanupPort,
-        ActivityEventPublisher activityEventPublisher,
+        MemberActivityPublishPort memberActivityPublishPort,
         String inactiveMessage
 ) {
     public static MemberDeactivateContext of(
             MemberImageStoragePort memberImageStoragePort,
             MemberSocialCleanupPort memberSocialCleanupPort,
-            ActivityEventPublisher activityEventPublisher,
+            MemberActivityPublishPort memberActivityPublishPort,
             String inactiveMessage
     ) {
         return new MemberDeactivateContext(
                 memberImageStoragePort,
                 memberSocialCleanupPort,
-                activityEventPublisher,
+                memberActivityPublishPort,
                 inactiveMessage
         );
     }

@@ -2,7 +2,6 @@ package com.example.domain.security.guard.support;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.member.enums.MemberActiveStatus;
-import com.example.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +11,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberStatusChecker {
 
-    private final MemberRepository memberRepository;
+    private final SecurityMemberAccessPort securityMemberAccessPort;
 
     public boolean isActiveMember(Long memberId, AccountRole role) {
         if (memberId == null || role == null) {
             return false;
         }
 
-        return memberRepository.findByIdAndRoleIn(memberId, List.of(role))
-                .map(member -> member.getActive() == MemberActiveStatus.ACTIVE)
+        return securityMemberAccessPort.findAccessTargetByIdAndRoleIn(memberId, List.of(role))
+                .map(target -> target.active() == MemberActiveStatus.ACTIVE)
                 .orElse(false);
     }
 }

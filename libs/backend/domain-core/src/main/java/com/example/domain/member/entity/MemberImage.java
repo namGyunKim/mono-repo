@@ -8,13 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "member_image", comment = "회원 이미지")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberImage extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_profile_id", comment = "유저 아이디")
-    private long id;
+    @Column(name = "member_profile_id", comment = "회원 이미지 아이디")
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)", comment = "이미지 경로")

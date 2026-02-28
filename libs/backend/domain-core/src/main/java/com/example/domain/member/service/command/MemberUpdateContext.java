@@ -1,6 +1,6 @@
-package com.example.domain.member.payload.dto;
+package com.example.domain.member.service.command;
 
-import com.example.domain.log.service.command.ActivityEventPublisher;
+import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public record MemberUpdateContext(
         MemberUniquenessSupport memberUniquenessSupport,
         PasswordEncoder passwordEncoder,
-        ActivityEventPublisher activityEventPublisher,
+        MemberActivityPublishPort memberActivityPublishPort,
         boolean allowPasswordChange,
         String passwordChangeMessage,
         String updateMessage
@@ -19,7 +19,7 @@ public record MemberUpdateContext(
     public static MemberUpdateContext of(
             MemberUniquenessSupport memberUniquenessSupport,
             PasswordEncoder passwordEncoder,
-            ActivityEventPublisher activityEventPublisher,
+            MemberActivityPublishPort memberActivityPublishPort,
             boolean allowPasswordChange,
             String passwordChangeMessage,
             String updateMessage
@@ -27,7 +27,7 @@ public record MemberUpdateContext(
         return new MemberUpdateContext(
                 memberUniquenessSupport,
                 passwordEncoder,
-                activityEventPublisher,
+                memberActivityPublishPort,
                 allowPasswordChange,
                 passwordChangeMessage,
                 updateMessage

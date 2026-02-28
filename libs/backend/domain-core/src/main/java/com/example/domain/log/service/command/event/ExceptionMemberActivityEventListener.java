@@ -4,8 +4,8 @@ import com.example.domain.log.enums.LogType;
 import com.example.domain.log.event.ExceptionEvent;
 import com.example.domain.log.event.MemberActivityEvent;
 import com.example.domain.log.payload.dto.MemberActivityPayload;
+import com.example.domain.log.support.LogAuthenticationCheckPort;
 import com.example.domain.log.support.LogDetailsFormatter;
-import com.example.domain.security.guard.MemberGuard;
 import com.example.global.utils.SensitiveLogMessageSanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,7 +18,7 @@ public class ExceptionMemberActivityEventListener {
 
     private static final long MIN_RECORDABLE_MEMBER_ID = 1L;
 
-    private final MemberGuard memberGuard;
+    private final LogAuthenticationCheckPort logAuthenticationCheckPort;
     private final ApplicationEventPublisher eventPublisher;
 
     @EventListener
@@ -88,7 +88,7 @@ public class ExceptionMemberActivityEventListener {
         if (event == null) {
             return false;
         }
-        if (!memberGuard.isAuthenticated()) {
+        if (!logAuthenticationCheckPort.isAuthenticated()) {
             return false;
         }
 

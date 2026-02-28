@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "member", comment = "회원")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity implements Serializable {
@@ -28,7 +29,7 @@ public class Member extends BaseTimeEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id", comment = "유저 아이디")
-    private long id;
+    private Long id;
 
     @Column(unique = true, comment = "유저 로그인 아이디") // 변경 가능하도록 updatable = false 제거 (탈퇴 시 변경 위해)
     private String loginId;

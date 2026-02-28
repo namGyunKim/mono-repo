@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * S3 Command 공통 로직.
@@ -53,7 +52,7 @@ public abstract class AbstractS3CommandService extends AbstractS3ServiceSupport 
         validateUploadCommand(command);
         return command.files().stream()
                 .map(file -> uploadImage(S3ImageUploadCommand.of(file, command.imageType(), command.entityId())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -86,7 +85,7 @@ public abstract class AbstractS3CommandService extends AbstractS3ServiceSupport 
                         command.destinationImageType(),
                         command.destinationEntityId()
                 )))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void validateUploadCommand(S3ImageUploadCommand command) {

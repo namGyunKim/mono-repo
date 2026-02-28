@@ -2,16 +2,13 @@ package com.example.domain.member.service.command;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.log.enums.LogType;
-import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.entity.MemberImage;
 import com.example.domain.member.enums.MemberUploadDirect;
 import com.example.domain.member.payload.dto.MemberImagesStorageDeleteCommand;
-import com.example.domain.member.payload.dto.MemberDeactivateContext;
 import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
-import com.example.domain.member.payload.dto.MemberUpdateContext;
+import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
@@ -36,7 +33,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
         validateNickNameUniqueness(command, loginId, context.memberUniquenessSupport());
         member.changeNickName(command.nickName());
         updatePasswordIfAllowed(member, command, context, loginId);
-        publishMemberUpdatedEvent(context.activityEventPublisher(), member, context.updateMessage(), loginId);
+        publishMemberUpdatedEvent(context.memberActivityPublishPort(), member, context.updateMessage(), loginId);
     }
 
     protected void deactivateMemberCommon(Member member, MemberDeactivateContext context) {
@@ -46,7 +43,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
         member.withdraw();
         context.memberSocialCleanupPort().cleanupOnWithdraw(member.getId(), loginId);
         deleteMemberProfileImages(member, context.memberImageStoragePort());
-        publishMemberDeactivatedEvent(context.activityEventPublisher(), member, context.inactiveMessage(), loginId);
+        publishMemberDeactivatedEvent(context.memberActivityPublishPort(), member, context.inactiveMessage(), loginId);
     }
 
     private void validateUpdateMemberInput(Member member, MemberUpdateCommand command) {
@@ -80,29 +77,25 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
         member.rotateTokenVersion();
         member.invalidateRefreshTokenEncrypted();
 
-        context.activityEventPublisher().publishMemberActivity(
-                MemberActivityCommand.of(
-                        loginId,
-                        member.getId(),
-                        LogType.PASSWORD_CHANGE,
-                        context.passwordChangeMessage()
-                )
+        context.memberActivityPublishPort().publishMemberActivity(
+                loginId,
+                member.getId(),
+                LogType.PASSWORD_CHANGE,
+                context.passwordChangeMessage()
         );
     }
 
     private void publishMemberUpdatedEvent(
-            ActivityEventPublisher activityEventPublisher,
+            MemberActivityPublishPort memberActivityPublishPort,
             Member member,
             String updateMessage,
             String loginId
     ) {
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(
-                        loginId,
-                        member.getId(),
-                        LogType.UPDATE,
-                        updateMessage
-                )
+        memberActivityPublishPort.publishMemberActivity(
+                loginId,
+                member.getId(),
+                LogType.UPDATE,
+                updateMessage
         );
     }
 
@@ -135,13 +128,16 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     }
 
     private void publishMemberDeactivatedEvent(
-            ActivityEventPublisher activityEventPublisher,
+            MemberActivityPublishPort memberActivityPublishPort,
             Member member,
             String inactiveMessage,
             String loginId
     ) {
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(loginId, member.getId(), LogType.INACTIVE, inactiveMessage)
+        memberActivityPublishPort.publishMemberActivity(
+                loginId,
+                member.getId(),
+                LogType.INACTIVE,
+                inactiveMessage
         );
     }
 }

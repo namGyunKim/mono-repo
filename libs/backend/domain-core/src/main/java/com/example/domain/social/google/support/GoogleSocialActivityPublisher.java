@@ -1,9 +1,8 @@
 package com.example.domain.social.google.support;
 
 import com.example.domain.log.enums.LogType;
-import com.example.domain.log.payload.dto.MemberActivityCommand;
-import com.example.domain.log.service.command.ActivityEventPublisher;
 import com.example.domain.member.entity.Member;
+import com.example.domain.social.support.SocialActivityPublishPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,17 +10,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GoogleSocialActivityPublisher {
 
-    private final ActivityEventPublisher activityEventPublisher;
+    private final SocialActivityPublishPort socialActivityPublishPort;
 
     public void publishLogin(Member member) {
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(member.getLoginId(), member.getId(), LogType.LOGIN, "GOOGLE 로그인")
-        );
+        socialActivityPublishPort.publishMemberActivity(member.getLoginId(), member.getId(), LogType.LOGIN, "GOOGLE 로그인");
     }
 
     public void publishJoin(Member member) {
-        activityEventPublisher.publishMemberActivity(
-                MemberActivityCommand.of(member.getLoginId(), member.getId(), LogType.JOIN, "GOOGLE 회원가입")
-        );
+        socialActivityPublishPort.publishMemberActivity(member.getLoginId(), member.getId(), LogType.JOIN, "GOOGLE 회원가입");
     }
 }
