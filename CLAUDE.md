@@ -53,8 +53,6 @@
 - 빌드(`pnpm nx build`, `./gradlew build`), 테스트(`pnpm nx test`), 린트 실행도 자율 진행
 - 리팩토링 중 발견된 위반 사항은 즉시 수정한다
 - 파일 읽기/탐색/검색은 자율 진행
-- 커밋/푸시는 **사용자 명시 요청 시에만** 진행
-
 ---
 
 # MCP 서버 (Serena, Context7, PostgreSQL)
@@ -68,6 +66,7 @@
 - 심볼 본문 교체(`replace_symbol_body`), 삽입(`insert_before/after_symbol`), 리네임(`rename_symbol`) 을 활용한다
 - 참조 추적이 필요하면 `find_referencing_symbols`를 사용한다
 - 프로젝트 활성화: 대화 시작 시 `activate_project`로 이 워크스페이스를 활성화한다
+- 온보딩: `check_onboarding_performed`로 확인하여 **미수행 상태일 때만 최초 1회** `onboarding`을 실행한다 (이후 대화에서는 불필요)
 
 ## Context7 — 최신 라이브러리 문서 조회
 

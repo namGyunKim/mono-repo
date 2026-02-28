@@ -16,7 +16,7 @@ public final class RequestUriUtils {
      * @param request HTTP 요청
      * @return 컨텍스트 경로를 제외한 URI (예: /api/sessions)
      */
-    public static String getPathWithinApplication(HttpServletRequest request) {
+    public static String getPathWithinApplication(final HttpServletRequest request) {
         if (request == null) {
             return "";
         }

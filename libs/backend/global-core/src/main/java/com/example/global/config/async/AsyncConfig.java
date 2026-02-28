@@ -27,38 +27,31 @@ public class AsyncConfig {
      * - MDC(TraceId) 및 SecurityContext(인증 정보) 전파 기능 포함
      * - @Primary를 사용하여 별도의 이름 지정 없이 @Async를 사용할 때 기본으로 적용됨
      */
-    @Bean(name = {"taskExecutor", "emailTaskExecutor"}) // 기본 이름 및 이메일용 별칭 지정
+    @Bean(name = {"taskExecutor", "emailTaskExecutor"})
     @Primary
     public AsyncTaskExecutor taskExecutor() {
-        // 가상 스레드 기반의 Executor 생성
         final TaskExecutorAdapter adapter = new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
-
-        // 데코레이터를 통해 메인 스레드의 컨텍스트(로그, 인증)를 비동기 스레드로 복사
-        adapter.setTaskDecorator(runnable -> {
-            // 1. [메인 스레드] 현재 컨텍스트 캡처
-            final Map<String, String> contextMap = MDC.getCopyOfContextMap();
-            final SecurityContext securityContext = securityContextManager.getContext();
-
-            return () -> {
-                try {
-                    // 2. [비동기 스레드] 캡처한 컨텍스트 설정
-                    if (contextMap != null) {
-                        MDC.setContextMap(contextMap);
-                    }
-                    if (securityContext != null) {
-                        securityContextManager.setContext(securityContext);
-                    }
-
-                    // 실제 작업 실행
-                    runnable.run();
-                } finally {
-                    // 3. [비동기 스레드] 작업 완료 후 정리 (스레드 풀 오염 방지)
-                    MDC.clear();
-                    securityContextManager.clearContext();
-                }
-            };
-        });
-
+        adapter.setTaskDecorator(this::decorateWithContext);
         return adapter;
+    }
+
+    private Runnable decorateWithContext(final Runnable runnable) {
+        final Map<String, String> contextMap = MDC.getCopyOfContextMap();
+        final SecurityContext securityContext = securityContextManager.getContext();
+
+        return () -> {
+            try {
+                if (contextMap != null) {
+                    MDC.setContextMap(contextMap);
+                }
+                if (securityContext != null) {
+                    securityContextManager.setContext(securityContext);
+                }
+                runnable.run();
+            } finally {
+                MDC.clear();
+                securityContextManager.clearContext();
+            }
+        };
     }
 }

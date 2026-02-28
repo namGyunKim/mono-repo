@@ -12,7 +12,7 @@ public class JwtTokenKeyProvider {
     private final JwtProperties properties;
     private final SecretKey secretKey;
 
-    public JwtTokenKeyProvider(JwtProperties properties) {
+    public JwtTokenKeyProvider(final JwtProperties properties) {
         this.properties = properties;
         this.secretKey = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
     }

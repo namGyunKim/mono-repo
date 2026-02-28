@@ -9,7 +9,7 @@ public record BlacklistedTokenCleanupCommand(
         LocalDateTime expiresAt
 ) {
 
-    public static BlacklistedTokenCleanupCommand of(LocalDateTime expiresAt) {
+    public static BlacklistedTokenCleanupCommand of(final LocalDateTime expiresAt) {
         if (expiresAt == null) {
             throw new IllegalArgumentException("expiresAt은 필수입니다.");
         }

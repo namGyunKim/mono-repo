@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FilterLoggingMarker {
 
-    public void markFilterLogged(HttpServletRequest request) {
+    public void markFilterLogged(final HttpServletRequest request) {
         if (request == null) {
             return;
         }

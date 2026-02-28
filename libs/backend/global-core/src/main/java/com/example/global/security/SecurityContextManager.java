@@ -23,7 +23,7 @@ public class SecurityContextManager {
         return SecurityContextHolder.getContext();
     }
 
-    public void setContext(SecurityContext securityContext) {
+    public void setContext(final SecurityContext securityContext) {
         if (securityContext == null) {
             SecurityContextHolder.clearContext();
             return;

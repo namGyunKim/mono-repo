@@ -21,10 +21,10 @@ public class LoginFailureResponseWriter {
     private final ObjectMapper objectMapper;
 
     public void writeErrorResponse(
-            HttpServletResponse response,
-            HttpStatus status,
-            ErrorCode errorCode,
-            List<ApiErrorDetail> errors
+            final HttpServletResponse response,
+            final HttpStatus status,
+            final ErrorCode errorCode,
+            final List<ApiErrorDetail> errors
     ) throws IOException {
         if (response == null || response.isCommitted()) {
             return;

@@ -15,11 +15,11 @@ public record RestApiResponse<T>(T data) {
      * 표준 생성 메서드
      * - 성공 응답 전용 생성 메서드입니다.
      */
-    public static <T> RestApiResponse<T> of(T data) {
+    public static <T> RestApiResponse<T> of(final T data) {
         return new RestApiResponse<>(data);
     }
 
-    public static <T> RestApiResponse<T> success(T data) {
+    public static <T> RestApiResponse<T> success(final T data) {
         return of(data);
     }
 }

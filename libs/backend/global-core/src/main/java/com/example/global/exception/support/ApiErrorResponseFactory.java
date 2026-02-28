@@ -17,11 +17,11 @@ public class ApiErrorResponseFactory {
 
     private final RestApiController restApiController;
 
-    public ResponseEntity<ApiErrorResponse> toResponse(ErrorCode errorCode, HttpStatus status) {
+    public ResponseEntity<ApiErrorResponse> toResponse(final ErrorCode errorCode, final HttpStatus status) {
         return toResponse(errorCode, status, List.of());
     }
 
-    public ResponseEntity<ApiErrorResponse> toResponse(ErrorCode errorCode, HttpStatus status, List<ApiErrorDetail> errors) {
+    public ResponseEntity<ApiErrorResponse> toResponse(final ErrorCode errorCode, final HttpStatus status, final List<ApiErrorDetail> errors) {
         final ApiErrorResponse body = ApiErrorResponse.from(errorCode, errors);
         return restApiController.fail(body, status);
     }

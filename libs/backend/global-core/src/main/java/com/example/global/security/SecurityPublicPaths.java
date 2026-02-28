@@ -38,7 +38,7 @@ public final class SecurityPublicPaths {
     private SecurityPublicPaths() {
     }
 
-    public static boolean isPublicApiPath(String path) {
+    public static boolean isPublicApiPath(final String path) {
         if (!StringUtils.hasText(path)) {
             return false;
         }

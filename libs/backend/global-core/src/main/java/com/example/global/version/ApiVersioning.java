@@ -59,7 +59,7 @@ public final class ApiVersioning {
     private ApiVersioning() {
     }
 
-    public static boolean isSupportedVersion(String version) {
+    public static boolean isSupportedVersion(final String version) {
         if (version == null || version.isBlank()) {
             return false;
         }

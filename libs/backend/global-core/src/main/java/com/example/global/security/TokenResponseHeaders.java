@@ -10,7 +10,7 @@ public final class TokenResponseHeaders {
     private TokenResponseHeaders() {
     }
 
-    public static HttpHeaders of(String accessToken, String refreshToken) {
+    public static HttpHeaders of(final String accessToken, final String refreshToken) {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(SecurityHeaders.AUTHORIZATION, SecurityHeaders.BEARER_PREFIX + accessToken);
         headers.add(SecurityHeaders.REFRESH_TOKEN, refreshToken);

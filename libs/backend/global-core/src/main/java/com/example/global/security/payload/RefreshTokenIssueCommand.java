@@ -7,7 +7,7 @@ public record RefreshTokenIssueCommand(
         String refreshToken
 ) {
 
-    public static RefreshTokenIssueCommand of(String refreshToken) {
+    public static RefreshTokenIssueCommand of(final String refreshToken) {
         return new RefreshTokenIssueCommand(refreshToken);
     }
 }

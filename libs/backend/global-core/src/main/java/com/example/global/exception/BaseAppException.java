@@ -21,42 +21,42 @@ public abstract class BaseAppException extends RuntimeException {
     private final String errorDetailMessage;
     private final String debugStackTrace;
 
-    protected BaseAppException(ErrorCode errorCode) {
+    protected BaseAppException(final ErrorCode errorCode) {
         super(resolveDetailMessage(errorCode, null));
         this.errorCode = errorCode;
         this.errorDetailMessage = resolveDetailMessage(errorCode, null);
         this.debugStackTrace = captureStackTrace(this);
     }
 
-    protected BaseAppException(ErrorCode errorCode, String errorDetailMessage) {
+    protected BaseAppException(final ErrorCode errorCode, final String errorDetailMessage) {
         super(resolveDetailMessage(errorCode, errorDetailMessage));
         this.errorCode = errorCode;
         this.errorDetailMessage = resolveDetailMessage(errorCode, errorDetailMessage);
         this.debugStackTrace = captureStackTrace(this);
     }
 
-    protected BaseAppException(ErrorCode errorCode, Exception exception) {
+    protected BaseAppException(final ErrorCode errorCode, final Exception exception) {
         super(exception);
         this.errorCode = errorCode;
         this.errorDetailMessage = resolveDetailMessage(errorCode, exception != null ? exception.getMessage() : null);
         this.debugStackTrace = captureStackTrace(exception);
     }
 
-    private static String resolveDetailMessage(ErrorCode errorCode, String detailMessage) {
+    private static String resolveDetailMessage(final ErrorCode errorCode, final String detailMessage) {
         if (detailMessage != null && !detailMessage.isBlank()) {
             return detailMessage;
         }
         return errorCode != null ? errorCode.getErrorMessage() : "";
     }
 
-    private static String captureStackTrace(Throwable exception) {
+    private static String captureStackTrace(final Throwable exception) {
         if (!CAPTURE_STACKTRACE) {
             return null;
         }
         return stackTraceOf(exception);
     }
 
-    private static String stackTraceOf(Throwable exception) {
+    private static String stackTraceOf(final Throwable exception) {
         if (exception == null) {
             return null;
         }

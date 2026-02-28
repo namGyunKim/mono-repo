@@ -12,6 +12,11 @@ import java.util.Set;
 @Component
 public class GoogleOauthAuthorizeUrlBuilder {
 
+    // OAuth 2.0 PKCE 표준 상수
+    private static final String CODE_CHALLENGE_METHOD_S256 = "S256";
+    private static final String ACCESS_TYPE_OFFLINE = "offline";
+    private static final String PROMPT_CONSENT = "consent";
+
     @Value("${social.google.baseUrl}")
     private String baseUrl;
     @Value("${social.google.clientId}")
@@ -34,9 +39,9 @@ public class GoogleOauthAuthorizeUrlBuilder {
                 .queryParam("state", oauthSession.state())
                 .queryParam("nonce", oauthSession.nonce())
                 .queryParam("code_challenge", oauthSession.codeChallenge())
-                .queryParam("code_challenge_method", "S256")
-                .queryParam("access_type", "offline")
-                .queryParam("prompt", "consent")
+                .queryParam("code_challenge_method", CODE_CHALLENGE_METHOD_S256)
+                .queryParam("access_type", ACCESS_TYPE_OFFLINE)
+                .queryParam("prompt", PROMPT_CONSENT)
                 .encode()
                 .toUriString();
     }

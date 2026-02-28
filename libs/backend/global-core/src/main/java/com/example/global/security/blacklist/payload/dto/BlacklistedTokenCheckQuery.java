@@ -7,7 +7,7 @@ public record BlacklistedTokenCheckQuery(
         String token
 ) {
 
-    public static BlacklistedTokenCheckQuery of(String token) {
+    public static BlacklistedTokenCheckQuery of(final String token) {
         return new BlacklistedTokenCheckQuery(token);
     }
 }

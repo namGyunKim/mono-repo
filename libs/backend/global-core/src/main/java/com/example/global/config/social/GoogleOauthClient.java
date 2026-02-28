@@ -15,6 +15,6 @@ public interface GoogleOauthClient {
      */
     @PostExchange(url = "/revoke", contentType = "application/x-www-form-urlencoded")
     ResponseEntity<Void> revokeToken(
-            @RequestParam("token") String token
+            @RequestParam("token") final String token
     );
 }

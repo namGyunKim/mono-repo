@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class LoginFailureLogWriter {
 
-    public void logMissingCredentials(HttpServletRequest request, String loginId, List<ApiErrorDetail> errors) {
+    public void logMissingCredentials(final HttpServletRequest request, final String loginId, final List<ApiErrorDetail> errors) {
         log.warn(
                 ExceptionLogTemplates.LOGIN_MISSING_CREDENTIAL_LOG_TEMPLATE.stripTrailing(),
                 TraceIdUtils.resolveTraceId(),
@@ -27,7 +27,7 @@ public class LoginFailureLogWriter {
         );
     }
 
-    public void logAuthFailure(HttpServletRequest request, String loginId, String detailMessage) {
+    public void logAuthFailure(final HttpServletRequest request, final String loginId, final String detailMessage) {
         log.warn(
                 ExceptionLogTemplates.LOGIN_AUTH_FAILURE_LOG_TEMPLATE.stripTrailing(),
                 TraceIdUtils.resolveTraceId(),

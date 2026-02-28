@@ -14,7 +14,7 @@ public class BlacklistedTokenQueryService {
     private final BlacklistedTokenChecker blacklistedTokenChecker;
 
     @Transactional(readOnly = true)
-    public boolean isBlacklisted(BlacklistedTokenCheckQuery query) {
+    public boolean isBlacklisted(final BlacklistedTokenCheckQuery query) {
         if (query == null || !StringUtils.hasText(query.token())) {
             return false;
         }

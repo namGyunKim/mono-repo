@@ -17,7 +17,7 @@ public final class RequestContextScope {
     private RequestContextScope() {
     }
 
-    public static ScopedValue.Carrier withRequest(HttpServletRequest request) {
+    public static ScopedValue.Carrier withRequest(final HttpServletRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request는 필수입니다.");
         }

@@ -19,7 +19,7 @@ public final class DateTimeFormatUtils {
     private DateTimeFormatUtils() {
     }
 
-    public static String formatKoreanDateTime(LocalDateTime localDateTime) {
+    public static String formatKoreanDateTime(final LocalDateTime localDateTime) {
         Objects.requireNonNull(localDateTime, "localDateTime은 필수입니다.");
         return localDateTime.format(KOREAN_DATE_TIME_FORMATTER);
     }

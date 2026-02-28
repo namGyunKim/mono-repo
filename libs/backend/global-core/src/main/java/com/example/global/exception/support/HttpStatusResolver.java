@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HttpStatusResolver {
 
-    public HttpStatus resolve(ErrorCode errorCode) {
+    public HttpStatus resolve(final ErrorCode errorCode) {
         if (errorCode == null) {
             return HttpStatus.BAD_REQUEST;
         }

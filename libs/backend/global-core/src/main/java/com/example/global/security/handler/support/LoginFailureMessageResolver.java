@@ -1,11 +1,6 @@
 package com.example.global.security.handler.support;
 
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -13,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginFailureMessageResolver {
 
-    public String resolve(AuthenticationException exception) {
+    public String resolve(final AuthenticationException exception) {
         if (exception == null) {
             return "로그인 실패";
         }

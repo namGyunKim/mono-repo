@@ -15,7 +15,7 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
 
     // P6spy 포맷 메시지 설정
     @Override
-    public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {
+    public String formatMessage(final int connectionId, final String now, final long elapsed, final String category, final String prepared, final String sql, final String url) {
         final String formattedSql = formatSql(category, sql);
         final String logTime = LocalDateTime.now().format(LOG_TIME_FORMATTER);
 
@@ -24,7 +24,7 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
     }
 
     // P6spy 포맷 메시지 설정 구현부
-    private String formatSql(String category, String sql) {
+    private String formatSql(final String category, final String sql) {
         if (sql == null || sql.trim().isEmpty()) {
             return sql;
         }
@@ -32,17 +32,18 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
         // Statement 범주만 포맷팅하며, DDL/DML을 구분합니다.
         if (Category.STATEMENT.getName().equals(category)) {
             final String normalizedSql = sql.trim().toLowerCase(Locale.ROOT);
+            final String formatted;
             if (normalizedSql.startsWith("create") || normalizedSql.startsWith("alter") || normalizedSql.startsWith("comment")) {
-                sql = FormatStyle.DDL.getFormatter().format(sql);
+                formatted = FormatStyle.DDL.getFormatter().format(sql);
             } else {
-                sql = FormatStyle.BASIC.getFormatter().format(sql);
+                formatted = FormatStyle.BASIC.getFormatter().format(sql);
             }
 
             // [주의] 멀티라인 문자열은 text block을 사용합니다. (개행 하드코딩 금지)
-            sql = """
+            return """
                     |
                     HeFormatSql(P6Spy sql,Hibernate format):%s
-                    """.formatted(sql);
+                    """.formatted(formatted);
         }
 
         return sql;

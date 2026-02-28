@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class ValidationErrorMapper {
 
-    public List<ApiErrorDetail> resolveValidationErrors(Exception e) {
+    public List<ApiErrorDetail> resolveValidationErrors(final Exception e) {
         final BindingResult bindingResult = extractBindingResult(e);
         if (bindingResult == null) {
             return List.of();
@@ -24,7 +24,7 @@ public class ValidationErrorMapper {
                 .toList();
     }
 
-    public String resolveValidationDetailMessage(Exception e, String fallback) {
+    public String resolveValidationDetailMessage(final Exception e, final String fallback) {
         final BindingResult bindingResult = extractBindingResult(e);
         if (bindingResult == null) {
             return fallback;
@@ -45,7 +45,7 @@ public class ValidationErrorMapper {
         return "요청 값 검증 실패: %s".formatted(joinedDetails);
     }
 
-    private BindingResult extractBindingResult(Exception e) {
+    private BindingResult extractBindingResult(final Exception e) {
         if (e instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
             return methodArgumentNotValidException.getBindingResult();
         }
@@ -55,14 +55,14 @@ public class ValidationErrorMapper {
         return null;
     }
 
-    private ApiErrorDetail toApiErrorDetail(ObjectError error) {
+    private ApiErrorDetail toApiErrorDetail(final ObjectError error) {
         if (error instanceof FieldError fieldError) {
             return ApiErrorDetail.of(fieldError.getField(), resolveErrorMessage(fieldError));
         }
         return ApiErrorDetail.of(error.getObjectName(), resolveErrorMessage(error));
     }
 
-    private String resolveErrorMessage(ObjectError error) {
+    private String resolveErrorMessage(final ObjectError error) {
         if (error == null) {
             return "";
         }

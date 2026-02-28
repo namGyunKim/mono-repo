@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Component
 public class BlacklistedTokenCleanupLogWriter {
 
-    public void logCleanup(LocalDateTime cutoffAt, long deletedCount, long elapsedMs) {
+    public void logCleanup(final LocalDateTime cutoffAt, final long deletedCount, final long elapsedMs) {
         log.info(
                 """
                         [BLACKLIST_CLEANUP]

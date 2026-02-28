@@ -27,7 +27,7 @@ public record RootInfoResponse(
         }
     }
 
-    public static RootInfoResponse of(boolean swaggerUiEnabled) {
+    public static RootInfoResponse of(final boolean swaggerUiEnabled) {
         final String swaggerUiUrl = swaggerUiEnabled ? "/swagger-ui.html" : "";
 
         return of(
@@ -37,7 +37,7 @@ public record RootInfoResponse(
         );
     }
 
-    public static RootInfoResponse of(String message, String swaggerUiUrl, String healthCheckUrl) {
+    public static RootInfoResponse of(final String message, final String swaggerUiUrl, final String healthCheckUrl) {
         return new RootInfoResponse(message, swaggerUiUrl, healthCheckUrl);
     }
 }

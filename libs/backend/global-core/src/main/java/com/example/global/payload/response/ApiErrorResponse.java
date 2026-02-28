@@ -37,15 +37,15 @@ public record ApiErrorResponse(
         }
     }
 
-    public static ApiErrorResponse of(String code, String message, String requestId, List<ApiErrorDetail> errors) {
+    public static ApiErrorResponse of(final String code, final String message, final String requestId, final List<ApiErrorDetail> errors) {
         return new ApiErrorResponse(code, message, requestId, errors);
     }
 
-    public static ApiErrorResponse from(ErrorCode errorCode) {
+    public static ApiErrorResponse from(final ErrorCode errorCode) {
         return from(errorCode, List.of());
     }
 
-    public static ApiErrorResponse from(ErrorCode errorCode, List<ApiErrorDetail> errors) {
+    public static ApiErrorResponse from(final ErrorCode errorCode, final List<ApiErrorDetail> errors) {
         if (errorCode == null) {
             return of("", "", TraceIdUtils.resolveTraceId(), errors);
         }

@@ -13,7 +13,7 @@ public class BlacklistedTokenChecker {
 
     private final BlacklistedTokenRepository blacklistedTokenRepository;
 
-    public boolean isBlacklisted(String token) {
+    public boolean isBlacklisted(final String token) {
         if (!StringUtils.hasText(token)) {
             return false;
         }

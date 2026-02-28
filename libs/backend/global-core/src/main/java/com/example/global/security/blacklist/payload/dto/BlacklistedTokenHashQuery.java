@@ -7,7 +7,7 @@ public record BlacklistedTokenHashQuery(
         String tokenHash
 ) {
 
-    public static BlacklistedTokenHashQuery of(String tokenHash) {
+    public static BlacklistedTokenHashQuery of(final String tokenHash) {
         if (tokenHash == null || tokenHash.isBlank()) {
             throw new IllegalArgumentException("tokenHash는 필수입니다.");
         }

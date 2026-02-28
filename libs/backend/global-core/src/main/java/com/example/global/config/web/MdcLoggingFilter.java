@@ -2,11 +2,7 @@ package com.example.global.config.web;
 
 import com.example.global.logging.RequestContextScope;
 import com.example.global.utils.TraceIdUtils;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
@@ -27,7 +23,7 @@ import java.io.IOException;
 public class MdcLoggingFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         final String traceId = resolveTraceId(request);
 
         // MDC에 traceId 저장 (Logback 설정이나 application.yml logging.pattern에서 %X{traceId}로 사용 가능)
@@ -45,9 +41,9 @@ public class MdcLoggingFilter implements Filter {
     }
 
     private void doFilterWithRequestScope(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain
+            final ServletRequest request,
+            final ServletResponse response,
+            final FilterChain chain
     ) throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest httpServletRequest)) {
             chain.doFilter(request, response);
@@ -59,16 +55,16 @@ public class MdcLoggingFilter implements Filter {
                 chain.doFilter(request, response);
                 return null;
             });
-        } catch (IOException | ServletException e) {
+        } catch (final IOException | ServletException e) {
             throw e;
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new ServletException("요청 컨텍스트 바인딩 중 오류가 발생했습니다.", e);
         }
     }
 
-    private String resolveTraceId(ServletRequest request) {
+    private String resolveTraceId(final ServletRequest request) {
         if (request instanceof HttpServletRequest httpServletRequest) {
             return TraceIdUtils.resolveTraceIdFromRequest(httpServletRequest);
         }

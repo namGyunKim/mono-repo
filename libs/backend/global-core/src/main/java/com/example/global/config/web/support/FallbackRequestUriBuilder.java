@@ -9,7 +9,7 @@ import java.util.Enumeration;
 @Component
 public class FallbackRequestUriBuilder {
 
-    public String buildUriWithQuery(HttpServletRequest request) {
+    public String buildUriWithQuery(final HttpServletRequest request) {
         if (request == null) {
             return "";
         }
@@ -23,7 +23,7 @@ public class FallbackRequestUriBuilder {
         return uri + "?" + query;
     }
 
-    private String buildSanitizedQueryString(HttpServletRequest request) {
+    private String buildSanitizedQueryString(final HttpServletRequest request) {
         if (request == null) {
             return "";
         }
@@ -46,14 +46,14 @@ public class FallbackRequestUriBuilder {
                 continue;
             }
 
-            for (String value : values) {
+            for (final String value : values) {
                 appendQueryPair(sb, name, maskIfSensitive(name, value));
             }
         }
         return sb.toString();
     }
 
-    private void appendQueryPair(StringBuilder sb, String name, String value) {
+    private void appendQueryPair(final StringBuilder sb, final String name, final String value) {
         if (sb.length() > 0) {
             sb.append('&');
         }
@@ -61,25 +61,25 @@ public class FallbackRequestUriBuilder {
         sb.append(maskedName).append('=').append(safe(value));
     }
 
-    private String maskIfSensitive(String name, String value) {
+    private String maskIfSensitive(final String name, final String value) {
         if (LoggingSanitizerPolicy.isSensitiveField(name)) {
             return "***";
         }
         return value;
     }
 
-    private String maskKeyIfSensitive(String name) {
+    private String maskKeyIfSensitive(final String name) {
         if (LoggingSanitizerPolicy.isSensitiveField(name)) {
             return "***";
         }
         return safe(name);
     }
 
-    private String safe(String value) {
+    private String safe(final String value) {
         return value == null ? "" : value;
     }
 
-    private boolean hasText(String value) {
+    private boolean hasText(final String value) {
         return value != null && !value.trim().isEmpty();
     }
 }

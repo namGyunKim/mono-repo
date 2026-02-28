@@ -22,7 +22,7 @@ public final class EnumParser {
      * - Key는 대소문자 무시 비교를 위해 Locale.ROOT 기준 대문자로 정규화하여 저장합니다.
      * - null/빈 배열이면 빈 Map을 반환합니다.
      */
-    public static <E extends Enum<E>> Map<String, E> toNameMap(E[] values) {
+    public static <E extends Enum<E>> Map<String, E> toNameMap(final E[] values) {
         if (values == null || values.length == 0) {
             return Map.of();
         }
@@ -40,7 +40,7 @@ public final class EnumParser {
      * toNameMap(...)으로 만들어진 Map 기반으로 name()을 대소문자 무시(Trim 포함)하여 파싱합니다.
      * - raw가 null/blank이거나 매칭 실패 시 defaultValue를 반환합니다.
      */
-    public static <E extends Enum<E>> E fromNameIgnoreCase(Map<String, E> nameMap, String raw, E defaultValue) {
+    public static <E extends Enum<E>> E fromNameIgnoreCase(final Map<String, E> nameMap, final String raw, final E defaultValue) {
         if (nameMap == null || raw == null) {
             return defaultValue;
         }
@@ -54,7 +54,7 @@ public final class EnumParser {
         return (found != null) ? found : defaultValue;
     }
 
-    public static <E extends Enum<E>> E fromNameIgnoreCase(Class<E> enumType, String raw) {
+    public static <E extends Enum<E>> E fromNameIgnoreCase(final Class<E> enumType, final String raw) {
         if (enumType == null || raw == null) {
             return null;
         }

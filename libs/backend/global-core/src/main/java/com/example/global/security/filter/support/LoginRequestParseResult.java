@@ -8,20 +8,20 @@ public record LoginRequestParseResult(
         Object loginRequest,
         List<ApiErrorDetail> errors
 ) {
-    public static LoginRequestParseResult success(Object loginRequest) {
+    public static LoginRequestParseResult success(final Object loginRequest) {
         return new LoginRequestParseResult(loginRequest, List.of());
     }
 
-    public static LoginRequestParseResult of(Object loginRequest) {
+    public static LoginRequestParseResult of(final Object loginRequest) {
         return success(loginRequest);
     }
 
-    public static LoginRequestParseResult failure(List<ApiErrorDetail> errors) {
+    public static LoginRequestParseResult failure(final List<ApiErrorDetail> errors) {
         final List<ApiErrorDetail> safeErrors = (errors == null) ? List.of() : List.copyOf(errors);
         return new LoginRequestParseResult(null, safeErrors);
     }
 
-    public static LoginRequestParseResult from(List<ApiErrorDetail> errors) {
+    public static LoginRequestParseResult from(final List<ApiErrorDetail> errors) {
         return failure(errors);
     }
 

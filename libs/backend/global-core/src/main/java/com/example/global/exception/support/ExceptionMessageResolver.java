@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionMessageResolver {
 
-    public String resolveMessage(Exception e, String fallback) {
+    public String resolveMessage(final Exception e, final String fallback) {
         if (e == null) {
             return fallback;
         }
@@ -17,7 +17,7 @@ public class ExceptionMessageResolver {
         return msg;
     }
 
-    public String resolveDetailMessage(Exception e, ErrorCode errorCode) {
+    public String resolveDetailMessage(final Exception e, final ErrorCode errorCode) {
         if (errorCode == null) {
             return resolveMessage(e, "");
         }

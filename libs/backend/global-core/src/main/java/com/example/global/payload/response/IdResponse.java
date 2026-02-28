@@ -7,7 +7,7 @@ public record IdResponse(
         long id
 ) {
 
-    public static IdResponse of(long id) {
+    public static IdResponse of(final long id) {
         return new IdResponse(id);
     }
 }

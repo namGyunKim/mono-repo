@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApiVersionErrorResolver {
 
-    public ErrorCode resolve(HttpServletRequest request, ErrorCode fallback) {
+    public ErrorCode resolve(final HttpServletRequest request, final ErrorCode fallback) {
         if (request == null) {
             return fallback;
         }

@@ -16,7 +16,7 @@ public class LocalTokenHeaderLoggingSupport {
 
     private final Environment environment;
 
-    public void logResponseTokenHeaders(String flow, String accessToken, String refreshToken) {
+    public void logResponseTokenHeaders(final String flow, final String accessToken, final String refreshToken) {
         if (!isLocalProfileActive()) {
             return;
         }
@@ -40,6 +40,6 @@ public class LocalTokenHeaderLoggingSupport {
 
     private boolean isLocalProfileActive() {
         return Arrays.stream(environment.getActiveProfiles())
-                .anyMatch(profile -> profile.equalsIgnoreCase("local"));
+                .anyMatch("local"::equalsIgnoreCase);
     }
 }

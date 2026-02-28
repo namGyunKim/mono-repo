@@ -22,7 +22,7 @@ public record ApiErrorDetail(
         }
     }
 
-    public static ApiErrorDetail of(String field, String reason) {
+    public static ApiErrorDetail of(final String field, final String reason) {
         return new ApiErrorDetail(field, reason);
     }
 }

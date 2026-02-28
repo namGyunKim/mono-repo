@@ -20,7 +20,7 @@ public final class RequestPathVariableUtils {
     private RequestPathVariableUtils() {
     }
 
-    public static Optional<String> findPathVariable(HttpServletRequest request, String name) {
+    public static Optional<String> findPathVariable(final HttpServletRequest request, final String name) {
         if (request == null || name == null || name.isBlank()) {
             return Optional.empty();
         }
@@ -43,11 +43,11 @@ public final class RequestPathVariableUtils {
         return Optional.of(stringValue);
     }
 
-    public static Optional<Long> findPathVariableAsLong(HttpServletRequest request, String name) {
+    public static Optional<Long> findPathVariableAsLong(final HttpServletRequest request, final String name) {
         return findPathVariable(request, name).flatMap(raw -> {
             try {
                 return Optional.of(Long.parseLong(raw));
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 return Optional.empty();
             }
         });

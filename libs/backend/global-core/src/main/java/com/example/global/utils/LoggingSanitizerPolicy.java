@@ -42,7 +42,7 @@ public final class LoggingSanitizerPolicy {
     private LoggingSanitizerPolicy() {
     }
 
-    public static boolean isSensitiveField(String fieldName) {
+    public static boolean isSensitiveField(final String fieldName) {
         if (fieldName == null) {
             return false;
         }
@@ -63,14 +63,14 @@ public final class LoggingSanitizerPolicy {
         return SENSITIVE_FIELD_NAMES;
     }
 
-    private static boolean matchesKeyword(String lower) {
+    private static boolean matchesKeyword(final String lower) {
         if (lower == null || lower.isBlank()) {
             return false;
         }
         if (lower.endsWith("token")) {
             return true;
         }
-        for (String keyword : SENSITIVE_FIELD_KEYWORDS) {
+        for (final String keyword : SENSITIVE_FIELD_KEYWORDS) {
             if (keyword.equals("secret") && isSecretBoundary(lower)) {
                 return true;
             }
@@ -81,7 +81,7 @@ public final class LoggingSanitizerPolicy {
         return false;
     }
 
-    private static boolean isSecretBoundary(String lower) {
+    private static boolean isSecretBoundary(final String lower) {
         return lower.startsWith("secret") || lower.endsWith("secret");
     }
 }

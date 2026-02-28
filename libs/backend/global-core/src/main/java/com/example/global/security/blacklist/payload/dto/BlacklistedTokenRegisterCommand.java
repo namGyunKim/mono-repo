@@ -7,7 +7,7 @@ public record BlacklistedTokenRegisterCommand(
         String token
 ) {
 
-    public static BlacklistedTokenRegisterCommand of(String token) {
+    public static BlacklistedTokenRegisterCommand of(final String token) {
         return new BlacklistedTokenRegisterCommand(token);
     }
 }

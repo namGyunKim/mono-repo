@@ -28,18 +28,18 @@ public final class PaginationUtils {
     private PaginationUtils() {
     }
 
-    public static int normalizePage(Integer page) {
+    public static int normalizePage(final Integer page) {
         if (page == null || page < 1) {
             return DEFAULT_PAGE;
         }
         return page;
     }
 
-    public static int normalizeSize(Integer size, int defaultSize) {
+    public static int normalizeSize(final Integer size, final int defaultSize) {
         return normalizeSize(size, defaultSize, DEFAULT_MAX_SIZE);
     }
 
-    public static int normalizeSize(Integer size, int defaultSize, int maxSize) {
+    public static int normalizeSize(final Integer size, final int defaultSize, final int maxSize) {
         if (size == null || size < 1) {
             return defaultSize;
         }
@@ -50,21 +50,21 @@ public final class PaginationUtils {
         return Math.min(size, maxSize);
     }
 
-    public static Pageable toPageable(Integer page, Integer size, int defaultSize, Sort sort) {
+    public static Pageable toPageable(final Integer page, final Integer size, final int defaultSize, final Sort sort) {
         return toPageable(page, size, defaultSize, DEFAULT_MAX_SIZE, sort);
     }
 
-    public static Pageable toPageable(Integer page, Integer size, int defaultSize, int maxSize, Sort sort) {
+    public static Pageable toPageable(final Integer page, final Integer size, final int defaultSize, final int maxSize, final Sort sort) {
         final int normalizedPage = normalizePage(page);
         final int normalizedSize = normalizeSize(size, defaultSize, maxSize);
         return PageRequest.of(normalizedPage - 1, normalizedSize, sort);
     }
 
-    public static Pageable toPageable(Integer page, Integer size, int defaultSize) {
+    public static Pageable toPageable(final Integer page, final Integer size, final int defaultSize) {
         return toPageable(page, size, defaultSize, DEFAULT_MAX_SIZE);
     }
 
-    public static Pageable toPageable(Integer page, Integer size, int defaultSize, int maxSize) {
+    public static Pageable toPageable(final Integer page, final Integer size, final int defaultSize, final int maxSize) {
         final int normalizedPage = normalizePage(page);
         final int normalizedSize = normalizeSize(size, defaultSize, maxSize);
         return PageRequest.of(normalizedPage - 1, normalizedSize);

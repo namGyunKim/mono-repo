@@ -22,17 +22,17 @@ public final class SensitiveLogMessageSanitizer {
     private SensitiveLogMessageSanitizer() {
     }
 
-    public static String sanitize(String message) {
+    public static String sanitize(final String message) {
         if (message == null || message.isBlank()) {
             return message;
         }
 
-        String masked = maskJsonPairs(message);
-        masked = maskKeyValuePairs(masked);
-        return maskBearerToken(masked);
+        final String jsonMasked = maskJsonPairs(message);
+        final String kvMasked = maskKeyValuePairs(jsonMasked);
+        return maskBearerToken(kvMasked);
     }
 
-    private static String maskJsonPairs(String message) {
+    private static String maskJsonPairs(final String message) {
         final Matcher matcher = JSON_PAIR_PATTERN.matcher(message);
         final StringBuilder buffer = new StringBuilder();
 
@@ -51,7 +51,7 @@ public final class SensitiveLogMessageSanitizer {
         return buffer.toString();
     }
 
-    private static String maskKeyValuePairs(String message) {
+    private static String maskKeyValuePairs(final String message) {
         final Matcher matcher = KEY_VALUE_PATTERN.matcher(message);
         final StringBuilder buffer = new StringBuilder();
 
@@ -70,7 +70,7 @@ public final class SensitiveLogMessageSanitizer {
         return buffer.toString();
     }
 
-    private static String maskBearerToken(String message) {
+    private static String maskBearerToken(final String message) {
         final Matcher matcher = BEARER_PATTERN.matcher(message);
         final StringBuilder buffer = new StringBuilder();
 

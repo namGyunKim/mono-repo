@@ -8,12 +8,7 @@ import com.example.domain.member.payload.dto.MemberDeactivateCommand;
 import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.repository.MemberRepository;
-import com.example.domain.member.support.MemberImageStoragePort;
-import com.example.domain.member.support.MemberPermissionCheckPort;
-import com.example.domain.member.support.MemberActivityPublishPort;
-import com.example.domain.member.support.MemberSocialCleanupPort;
-import com.example.domain.member.support.MemberTokenRevocationPort;
-import com.example.domain.member.support.MemberUniquenessSupport;
+import com.example.domain.member.support.*;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -108,29 +103,17 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
 
     @Override
     public void updateMemberRole(MemberRoleUpdateCommand command) {
-        if (command == null || command.role() == null || command.memberId() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "변경할 권한 값은 필수입니다.");
-        }
-        if (command.role() == AccountRole.GUEST) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "GUEST 권한은 설정할 수 없습니다.");
-        }
-        if (memberPermissionCheckPort.isSameMember(command.memberId())) {
+        validateRoleUpdateCommand(command);
+        validateNotSelfRoleChange(command.memberId());
+
+        final Member member = findAdminMember(command.memberId());
+        applyRoleChange(member, command.role(), memberActivityPublishPort);
+    }
+
+    private void validateNotSelfRoleChange(final Long memberId) {
+        if (memberPermissionCheckPort.isSameMember(memberId)) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "자신의 등급은 변경할 수 없습니다.");
         }
-
-        final AccountRole newRole = command.role();
-        final Member member = findAdminMember(command.memberId());
-        final AccountRole oldRole = member.getRole();
-        member.changeRole(newRole);
-        member.rotateTokenVersion();
-        member.invalidateRefreshTokenEncrypted();
-
-        memberActivityPublishPort.publishMemberActivity(
-                member.getLoginId(),
-                member.getId(),
-                LogType.UPDATE,
-                "관리자 권한 변경: %s -> %s".formatted(oldRole, newRole)
-        );
     }
 
     private Member findAdminMember(Long memberId) {

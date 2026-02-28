@@ -33,11 +33,11 @@ public class RefreshTokenCrypto {
     private final SecretKey secretKey;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public RefreshTokenCrypto(JwtProperties jwtProperties) {
+    public RefreshTokenCrypto(final JwtProperties jwtProperties) {
         this.secretKey = new SecretKeySpec(deriveKeyMaterial(jwtProperties.secret()), AES_ALGORITHM);
     }
 
-    private static byte[] deriveKeyMaterial(String secret) {
+    private static byte[] deriveKeyMaterial(final String secret) {
         if (!StringUtils.hasText(secret)) {
             throw new IllegalStateException("리프레시 토큰 암호화 키 시드(secret)가 비어 있습니다.");
         }
@@ -50,12 +50,12 @@ public class RefreshTokenCrypto {
 
             final KDF kdf = KDF.getInstance(KDF_ALGORITHM);
             return kdf.deriveData(parameters);
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
+        } catch (final NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
             throw new IllegalStateException("리프레시 토큰 암호화 키 생성에 실패했습니다.", e);
         }
     }
 
-    public String encrypt(String refreshToken) {
+    public String encrypt(final String refreshToken) {
         if (!StringUtils.hasText(refreshToken)) {
             return "";
         }
@@ -73,12 +73,12 @@ public class RefreshTokenCrypto {
             buffer.put(cipherText);
 
             return Base64.getEncoder().encodeToString(buffer.array());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalStateException("리프레시 토큰 암호화에 실패했습니다.", e);
         }
     }
 
-    public String decrypt(String encryptedRefreshToken) {
+    public String decrypt(final String encryptedRefreshToken) {
         if (!StringUtils.hasText(encryptedRefreshToken)) {
             return "";
         }
@@ -97,9 +97,9 @@ public class RefreshTokenCrypto {
             final byte[] plainText = cipher.doFinal(cipherText);
 
             return new String(plainText, StandardCharsets.UTF_8);
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalStateException("리프레시 토큰 복호화에 실패했습니다.", e);
         }
     }

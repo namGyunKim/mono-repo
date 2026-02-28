@@ -16,17 +16,17 @@ public class LogEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
-    public void onLogEventCommitted(LogEvent logEvent) {
+    public void onLogEventCommitted(final LogEvent logEvent) {
         logSimpleEvent(logEvent, TX_STATUS_COMMITTED);
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-    public void onLogEventRolledBack(LogEvent logEvent) {
+    public void onLogEventRolledBack(final LogEvent logEvent) {
         logSimpleEvent(logEvent, TX_STATUS_ROLLED_BACK);
     }
 
-    private void logSimpleEvent(LogEvent logEvent, String txStatus) {
+    private void logSimpleEvent(final LogEvent logEvent, final String txStatus) {
         if (logEvent == null) {
             return;
         }
@@ -34,7 +34,7 @@ public class LogEventListener {
         log.info("traceId={}, txStatus={}, {}", logEvent.traceId(), resolvedTxStatus, logEvent.message());
     }
 
-    private String resolveTxStatus(String txStatus) {
+    private String resolveTxStatus(final String txStatus) {
         if (txStatus == null || txStatus.isBlank()) {
             return TX_STATUS_COMMITTED;
         }

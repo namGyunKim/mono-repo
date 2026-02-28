@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 public class AccessTokenResolver {
 
-    public Optional<String> resolveAccessToken(HttpServletRequest request) {
+    public Optional<String> resolveAccessToken(final HttpServletRequest request) {
         if (request == null) {
             return Optional.empty();
         }

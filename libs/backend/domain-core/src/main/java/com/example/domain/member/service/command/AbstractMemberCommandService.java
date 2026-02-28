@@ -10,11 +10,9 @@ import com.example.domain.member.payload.dto.MemberNickNameExclusiveDuplicateChe
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.support.MemberActivityPublishPort;
 import com.example.domain.member.support.MemberImageStoragePort;
-import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -138,6 +136,50 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
                 member.getId(),
                 LogType.INACTIVE,
                 inactiveMessage
+        );
+    }
+
+    // ========== Role Update Common Logic ==========
+
+    /**
+     * 권한 변경 요청의 기본 검증을 수행합니다.
+     *
+     * @param command 권한 변경 요청
+     * @throws GlobalException 검증 실패 시
+     */
+    protected void validateRoleUpdateCommand(
+            final com.example.domain.member.payload.dto.MemberRoleUpdateCommand command
+    ) {
+        if (command == null || command.role() == null || command.memberId() == null) {
+            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "변경할 권한 값은 필수입니다.");
+        }
+        if (command.role() == AccountRole.GUEST) {
+            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "GUEST 권한은 설정할 수 없습니다.");
+        }
+    }
+
+    /**
+     * 회원의 권한을 변경하고 관련 보안 토큰을 무효화합니다.
+     *
+     * @param member                    대상 회원
+     * @param newRole                   새 권한
+     * @param memberActivityPublishPort 활동 로그 발행 포트
+     */
+    protected void applyRoleChange(
+            final Member member,
+            final AccountRole newRole,
+            final MemberActivityPublishPort memberActivityPublishPort
+    ) {
+        final AccountRole oldRole = member.getRole();
+        member.changeRole(newRole);
+        member.rotateTokenVersion();
+        member.invalidateRefreshTokenEncrypted();
+
+        memberActivityPublishPort.publishMemberActivity(
+                member.getLoginId(),
+                member.getId(),
+                LogType.UPDATE,
+                "권한 변경: %s -> %s".formatted(oldRole, newRole)
         );
     }
 }

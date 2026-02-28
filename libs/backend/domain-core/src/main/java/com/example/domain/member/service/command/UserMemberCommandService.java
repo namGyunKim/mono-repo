@@ -9,8 +9,8 @@ import com.example.domain.member.payload.dto.MemberDeactivateCommand;
 import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.repository.MemberRepository;
-import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberActivityPublishPort;
+import com.example.domain.member.support.MemberImageStoragePort;
 import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
 import com.example.global.exception.GlobalException;
@@ -92,25 +92,10 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
 
     @Override
     public void updateMemberRole(MemberRoleUpdateCommand command) {
-        if (command == null || command.role() == null || command.memberId() == null) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "변경할 권한 값은 필수입니다.");
-        }
-        if (command.role() == AccountRole.GUEST) {
-            throw new GlobalException(ErrorCode.INVALID_PARAMETER, "GUEST 권한은 설정할 수 없습니다.");
-        }
+        validateRoleUpdateCommand(command);
 
-        final AccountRole newRole = command.role();
         final Member member = findUserMember(command.memberId());
-        final AccountRole oldRole = member.getRole();
-        member.changeRole(newRole);
-        member.rotateTokenVersion();
-        member.invalidateRefreshTokenEncrypted();
-        memberActivityPublishPort.publishMemberActivity(
-                member.getLoginId(),
-                member.getId(),
-                LogType.UPDATE,
-                "권한 변경: %s -> %s".formatted(oldRole, newRole)
-        );
+        applyRoleChange(member, command.role(), memberActivityPublishPort);
     }
 
     private Member findUserMember(Long memberId) {

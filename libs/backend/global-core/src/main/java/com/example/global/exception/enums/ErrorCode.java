@@ -68,12 +68,12 @@ public enum ErrorCode {
     private final String code;
     private final String errorMessage;
 
-    ErrorCode(String code, String msg) {
+    ErrorCode(final String code, final String msg) {
         this.code = code;
         this.errorMessage = msg;
     }
 
-    public static ErrorCode getByCode(String code) {
+    public static ErrorCode getByCode(final String code) {
         return errorMap.get(code);
     }
 

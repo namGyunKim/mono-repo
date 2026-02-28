@@ -58,46 +58,7 @@ public class SwaggerConfig {
             if (openApi == null || openApi.getPaths() == null) {
                 return;
             }
-
-            openApi.getPaths().forEach((path, pathItem) -> {
-                if (path == null || pathItem == null) {
-                    return;
-                }
-
-                // /api/** 에만 적용
-                if (!path.startsWith("/api/")) {
-                    return;
-                }
-
-                // 헬스체크/소셜 로그인은 버전 헤더 없이 접근 가능해야 합니다.
-                if (HEALTH_CHECK_PATH.equals(path)
-                        || SOCIAL_API_BASE_PATH.equals(path)
-                        || path.startsWith(SOCIAL_API_BASE_PATH + "/")) {
-                    return;
-                }
-
-                pathItem.readOperations().forEach(operation -> {
-                    if (operation == null) {
-                        return;
-                    }
-
-                    final boolean alreadyAdded = operation.getParameters() != null
-                            && operation.getParameters().stream().anyMatch(p -> p != null
-                            && "header".equalsIgnoreCase(p.getIn())
-                            && ApiVersioning.HEADER_NAME.equalsIgnoreCase(p.getName()));
-
-                    if (alreadyAdded) {
-                        return;
-                    }
-
-                    operation.addParametersItem(new Parameter()
-                            .in("header")
-                            .name(ApiVersioning.HEADER_NAME)
-                            .required(true)
-                            .schema(new StringSchema())
-                            .description("API 버전 (예: 0.0, 1.0, 2.0). 미지정 시 기본값: " + ApiVersioning.DEFAULT_VERSION + " (유효하지 않음, 프론트에서 1.0 명시 필요)"));
-                });
-            });
+            openApi.getPaths().forEach(this::addApiVersionHeaderIfRequired);
         };
     }
 
@@ -111,36 +72,85 @@ public class SwaggerConfig {
             if (openApi == null || openApi.getPaths() == null) {
                 return;
             }
-
-            openApi.getPaths().forEach((path, pathItem) -> {
-                if (path == null || pathItem == null) {
-                    return;
-                }
-
-                if (!path.startsWith("/api/")) {
-                    return;
-                }
-
-                if (SecurityPublicPaths.isPublicApiPath(path)) {
-                    return;
-                }
-
-                pathItem.readOperations().forEach(operation -> {
-                    if (operation == null) {
-                        return;
-                    }
-
-                    final boolean alreadyAdded = operation.getSecurity() != null
-                            && operation.getSecurity().stream().anyMatch(requirement -> requirement != null
-                            && requirement.containsKey(BEARER_SECURITY_SCHEME));
-
-                    if (alreadyAdded) {
-                        return;
-                    }
-
-                    operation.addSecurityItem(new SecurityRequirement().addList(BEARER_SECURITY_SCHEME));
-                });
-            });
+            openApi.getPaths().forEach(this::addBearerSecurityIfRequired);
         };
+    }
+
+    // ========================================================================
+    // apiVersionHeaderCustomizer 헬퍼
+    // ========================================================================
+
+    private void addApiVersionHeaderIfRequired(final String path, final io.swagger.v3.oas.models.PathItem pathItem) {
+        if (path == null || pathItem == null) {
+            return;
+        }
+        if (!path.startsWith("/api/")) {
+            return;
+        }
+        if (isVersionExemptPath(path)) {
+            return;
+        }
+        pathItem.readOperations().forEach(this::addApiVersionParameter);
+    }
+
+    private boolean isVersionExemptPath(final String path) {
+        return HEALTH_CHECK_PATH.equals(path)
+                || SOCIAL_API_BASE_PATH.equals(path)
+                || path.startsWith(SOCIAL_API_BASE_PATH + "/");
+    }
+
+    private void addApiVersionParameter(final io.swagger.v3.oas.models.Operation operation) {
+        if (operation == null) {
+            return;
+        }
+
+        final boolean alreadyAdded = operation.getParameters() != null
+                && operation.getParameters().stream().anyMatch(p -> p != null
+                && "header".equalsIgnoreCase(p.getIn())
+                && ApiVersioning.HEADER_NAME.equalsIgnoreCase(p.getName()));
+
+        if (alreadyAdded) {
+            return;
+        }
+
+        operation.addParametersItem(new Parameter()
+                .in("header")
+                .name(ApiVersioning.HEADER_NAME)
+                .required(true)
+                .schema(new StringSchema())
+                .description("API 버전 (예: 0.0, 1.0, 2.0). 미지정 시 기본값: " + ApiVersioning.DEFAULT_VERSION + " (유효하지 않음, 프론트에서 1.0 명시 필요)"));
+    }
+
+    // ========================================================================
+    // bearerAuthCustomizer 헬퍼
+    // ========================================================================
+
+    private void addBearerSecurityIfRequired(final String path, final io.swagger.v3.oas.models.PathItem pathItem) {
+        if (path == null || pathItem == null) {
+            return;
+        }
+        if (!path.startsWith("/api/")) {
+            return;
+        }
+        if (SecurityPublicPaths.isPublicApiPath(path)) {
+            return;
+        }
+        pathItem.readOperations().forEach(this::addBearerSecurityItem);
+    }
+
+    private void addBearerSecurityItem(final io.swagger.v3.oas.models.Operation operation) {
+        if (operation == null) {
+            return;
+        }
+
+        final boolean alreadyAdded = operation.getSecurity() != null
+                && operation.getSecurity().stream().anyMatch(requirement -> requirement != null
+                && requirement.containsKey(BEARER_SECURITY_SCHEME));
+
+        if (alreadyAdded) {
+            return;
+        }
+
+        operation.addSecurityItem(new SecurityRequirement().addList(BEARER_SECURITY_SCHEME));
     }
 }

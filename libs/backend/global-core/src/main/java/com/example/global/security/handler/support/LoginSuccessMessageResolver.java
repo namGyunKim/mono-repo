@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginSuccessMessageResolver {
 
-    public String resolve(HttpServletRequest request) {
+    public String resolve(final HttpServletRequest request) {
         if (request == null) {
             return "로그인 성공";
         }
@@ -14,9 +14,11 @@ public class LoginSuccessMessageResolver {
         final String requestUri = request.getRequestURI();
         final String contextPath = request.getContextPath();
 
-        String normalizedUri = requestUri;
+        final String normalizedUri;
         if (contextPath != null && !contextPath.isBlank() && requestUri != null && requestUri.startsWith(contextPath)) {
             normalizedUri = requestUri.substring(contextPath.length());
+        } else {
+            normalizedUri = requestUri;
         }
 
         if (normalizedUri != null && normalizedUri.startsWith("/api/admin")) {

@@ -25,11 +25,11 @@ public record LogEvent(
         message = SensitiveLogMessageSanitizer.sanitize(message);
     }
 
-    public static LogEvent of(String message) {
+    public static LogEvent of(final String message) {
         return of(TraceIdUtils.resolveTraceId(), message);
     }
 
-    public static LogEvent of(String traceId, String message) {
+    public static LogEvent of(final String traceId, final String message) {
         final String resolvedTraceId = (traceId == null || traceId.isBlank())
                 ? TraceIdUtils.resolveTraceId()
                 : traceId;

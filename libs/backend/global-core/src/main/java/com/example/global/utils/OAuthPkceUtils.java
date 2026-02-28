@@ -46,7 +46,7 @@ public final class OAuthPkceUtils {
     /**
      * PKCE code_challenge(S256) 생성
      */
-    public static String createCodeChallengeS256(String codeVerifier) {
+    public static String createCodeChallengeS256(final String codeVerifier) {
         if (codeVerifier == null || codeVerifier.isBlank()) {
             throw new IllegalArgumentException("codeVerifier는 필수입니다.");
         }
@@ -55,13 +55,13 @@ public final class OAuthPkceUtils {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             final byte[] hashed = digest.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(hashed);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             // Java 25 환경에서는 사실상 발생하지 않지만, 명시적으로 실패 원인을 드러냅니다.
             throw new IllegalStateException("SHA-256 알고리즘을 사용할 수 없습니다.", e);
         }
     }
 
-    private static String randomBase64Url(int byteLength) {
+    private static String randomBase64Url(final int byteLength) {
         final byte[] bytes = new byte[byteLength];
         SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);

@@ -26,7 +26,7 @@ public final class ClientIpExtractor {
      * 가능한 경우 실제 클라이언트 IP를 반환합니다.
      * - 값이 없거나 파싱 실패 시 request.getRemoteAddr()로 폴백합니다.
      */
-    public static String extract(HttpServletRequest request) {
+    public static String extract(final HttpServletRequest request) {
         if (request == null) {
             return "UNKNOWN";
         }
@@ -42,12 +42,12 @@ public final class ClientIpExtractor {
 
             final String remoteAddr = request.getRemoteAddr();
             return hasText(remoteAddr) ? remoteAddr.trim() : "UNKNOWN";
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return "UNKNOWN";
         }
     }
 
-    private static String parse(String headerName, String raw) {
+    private static String parse(final String headerName, final String raw) {
         if (!hasText(raw)) {
             return null;
         }
@@ -69,7 +69,7 @@ public final class ClientIpExtractor {
      * - Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43
      * - Forwarded: for="[2001:db8:cafe::17]:4711"
      */
-    private static String parseForwardedFor(String forwarded) {
+    private static String parseForwardedFor(final String forwarded) {
         if (!hasText(forwarded)) {
             return null;
         }
@@ -87,8 +87,7 @@ public final class ClientIpExtractor {
             }
 
             if (p.regionMatches(true, 0, "for=", 0, 4)) {
-                String value = p.substring(4).trim();
-                value = stripQuotes(value);
+                final String value = stripQuotes(p.substring(4).trim());
 
                 // IPv6: [....] 형태 처리
                 if (value.startsWith("[")) {
@@ -107,7 +106,7 @@ public final class ClientIpExtractor {
         return null;
     }
 
-    private static String normalizeIp(String raw) {
+    private static String normalizeIp(final String raw) {
         if (!hasText(raw)) {
             return null;
         }
@@ -135,7 +134,7 @@ public final class ClientIpExtractor {
         return v;
     }
 
-    private static boolean looksLikeIpv4WithPort(String v) {
+    private static boolean looksLikeIpv4WithPort(final String v) {
         if (!hasText(v)) {
             return false;
         }
@@ -151,7 +150,7 @@ public final class ClientIpExtractor {
         return v.contains(".");
     }
 
-    private static String firstToken(String raw, String delimiter) {
+    private static String firstToken(final String raw, final String delimiter) {
         if (!hasText(raw)) {
             return null;
         }
@@ -165,7 +164,7 @@ public final class ClientIpExtractor {
         return hasText(first) ? first : null;
     }
 
-    private static String stripQuotes(String v) {
+    private static String stripQuotes(final String v) {
         if (!hasText(v)) {
             return v;
         }
@@ -181,7 +180,7 @@ public final class ClientIpExtractor {
         return s;
     }
 
-    private static boolean hasText(String s) {
+    private static boolean hasText(final String s) {
         return s != null && !s.trim().isEmpty();
     }
 }

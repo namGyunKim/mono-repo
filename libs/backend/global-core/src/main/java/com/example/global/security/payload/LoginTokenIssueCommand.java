@@ -9,7 +9,7 @@ public record LoginTokenIssueCommand(
         Long memberId
 ) {
 
-    public static LoginTokenIssueCommand of(Long memberId) {
+    public static LoginTokenIssueCommand of(final Long memberId) {
         return new LoginTokenIssueCommand(memberId);
     }
 }

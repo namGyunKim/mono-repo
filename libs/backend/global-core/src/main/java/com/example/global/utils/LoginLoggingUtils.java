@@ -16,7 +16,7 @@ public final class LoginLoggingUtils {
     private LoginLoggingUtils() {
     }
 
-    public static Optional<String> extractLoginId(HttpServletRequest request, String paramName, String attributeName) {
+    public static Optional<String> extractLoginId(final HttpServletRequest request, final String paramName, final String attributeName) {
         if (request == null) {
             return Optional.empty();
         }
@@ -35,15 +35,15 @@ public final class LoginLoggingUtils {
     }
 
     public static String resolveLoginIdOrDefault(
-            HttpServletRequest request,
-            String paramName,
-            String attributeName,
-            String defaultValue
+            final HttpServletRequest request,
+            final String paramName,
+            final String attributeName,
+            final String defaultValue
     ) {
         return extractLoginId(request, paramName, attributeName).orElse(defaultValue);
     }
 
-    public static String formatErrors(List<ApiErrorDetail> errors) {
+    public static String formatErrors(final List<ApiErrorDetail> errors) {
         if (errors == null || errors.isEmpty()) {
             return "[]";
         }
@@ -73,11 +73,11 @@ public final class LoginLoggingUtils {
         return sb.toString();
     }
 
-    public static String safe(String value) {
+    public static String safe(final String value) {
         return value == null ? "" : value;
     }
 
-    private static boolean hasText(String value) {
+    private static boolean hasText(final String value) {
         return value != null && !value.isBlank();
     }
 }

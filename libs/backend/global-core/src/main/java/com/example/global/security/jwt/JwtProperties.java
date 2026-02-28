@@ -17,10 +17,10 @@ public record JwtProperties(
         @NotNull Duration refreshTokenTtl
 ) {
     public static JwtProperties of(
-            String issuer,
-            String secret,
-            Duration accessTokenTtl,
-            Duration refreshTokenTtl
+            final String issuer,
+            final String secret,
+            final Duration accessTokenTtl,
+            final Duration refreshTokenTtl
     ) {
         return new JwtProperties(issuer, secret, accessTokenTtl, refreshTokenTtl);
     }

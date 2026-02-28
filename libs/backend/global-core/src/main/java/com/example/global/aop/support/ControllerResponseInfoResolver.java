@@ -7,7 +7,7 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 @Component
 public class ControllerResponseInfoResolver {
 
-    public String getResponseStatus(HttpServletResponse response) {
+    public String getResponseStatus(final HttpServletResponse response) {
         if (response == null) {
             return "알 수 없음";
         }
@@ -15,7 +15,7 @@ public class ControllerResponseInfoResolver {
         return String.valueOf(response.getStatus());
     }
 
-    public String getResponseSize(HttpServletResponse response) {
+    public String getResponseSize(final HttpServletResponse response) {
         if (response == null) {
             return "알 수 없음";
         }

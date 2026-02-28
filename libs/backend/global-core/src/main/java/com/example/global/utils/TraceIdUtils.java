@@ -17,19 +17,21 @@ public final class TraceIdUtils {
     }
 
     public static String resolveTraceId() {
-        String traceId = MDC.get(TRACE_ID_KEY);
-        if (traceId == null || traceId.isBlank()) {
-            traceId = createTraceId();
-            MDC.put(TRACE_ID_KEY, traceId);
+        final String existing = MDC.get(TRACE_ID_KEY);
+        if (existing != null && !existing.isBlank()) {
+            return existing;
         }
-        return traceId;
+
+        final String newTraceId = createTraceId();
+        MDC.put(TRACE_ID_KEY, newTraceId);
+        return newTraceId;
     }
 
     public static String createTraceId() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    public static String resolveTraceIdFromRequest(jakarta.servlet.http.HttpServletRequest request) {
+    public static String resolveTraceIdFromRequest(final jakarta.servlet.http.HttpServletRequest request) {
         if (request == null) {
             return createTraceId();
         }
