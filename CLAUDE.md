@@ -113,6 +113,38 @@ GRANT pg_read_all_data TO claude_readonly;
 5. 연결된 DB의 **스키마 정보(테이블, 컬럼, 타입, FK, 인덱스)가 리소스로 자동 노출**되어 에이전트가 참조할 수 있다
 6. 에이전트는 `query` 도구를 통해 `SELECT` 쿼리를 직접 실행하고 결과를 받을 수 있다
 
+### MCP 도구 명령
+
+PostgreSQL MCP 서버는 두 가지 방식으로 DB 정보에 접근한다.
+
+#### 1. `query` — SQL 쿼리 직접 실행
+
+읽기 전용 `SELECT` 쿼리를 실행하고 결과를 받는다.
+
+```
+mcp__postgres__query(sql="SELECT ...")
+```
+
+자주 쓰는 쿼리:
+
+| 목적 | SQL |
+|------|-----|
+| 전체 테이블 목록 | `SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename` |
+| 테이블 컬럼 구조 | `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = '테이블명' ORDER BY ordinal_position` |
+| FK 관계 확인 | `SELECT tc.constraint_name, kcu.column_name, ccu.table_name AS foreign_table, ccu.column_name AS foreign_column FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name JOIN information_schema.constraint_column_usage ccu ON tc.constraint_name = ccu.constraint_name WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = '테이블명'` |
+| 인덱스 목록 | `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = '테이블명'` |
+| 쿼리 성능 분석 | `EXPLAIN ANALYZE SELECT ...` |
+| 데이터 샘플 조회 | `SELECT * FROM 테이블명 ORDER BY id DESC LIMIT 10` |
+
+#### 2. `ListMcpResourcesTool` / `ReadMcpResourceTool` — 스키마 리소스 조회
+
+MCP 서버가 자동 노출하는 DB 스키마 리소스를 읽는다. SQL 없이 테이블/컬럼/타입 정보를 확인할 때 유용하다.
+
+```
+ListMcpResourcesTool(server="postgres")       # 사용 가능한 리소스 목록
+ReadMcpResourceTool(server="postgres", uri=...)  # 특정 리소스 내용 읽기
+```
+
 ### 사용 예시
 
 | 요청 | 에이전트 동작 |
