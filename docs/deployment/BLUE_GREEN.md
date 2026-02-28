@@ -13,7 +13,7 @@
 # 1. Docker 설치
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
-# ※ 여기서 재로그인 (newgrp docker 또는 SSH 재접속)
+newgrp docker
 
 # 2. Nginx 설치
 sudo apt update && sudo apt install -y nginx
@@ -160,6 +160,7 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 # Docker
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
+newgrp docker
 
 # Nginx
 sudo apt update && sudo apt install -y nginx
