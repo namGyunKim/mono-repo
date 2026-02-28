@@ -395,3 +395,11 @@ docker image prune -a --filter "until=168h" -f
             ├── docker stop user-api-blue
             └── echo "green" > user-api.active
 ```
+
+---
+
+## TODO
+
+- [ ] `/app/logs`에 프로그램 실행 시 `app.log`로 로그 남기기 및 매일 백업 전략 수립
+- [ ] 배포 실패 시 알림/대응 전략 수립 (Slack 알림, 자동 롤백 등)
+- [ ] 배포 성공 시 후속 전략 수립 (배포 이력 기록, 알림 등)
