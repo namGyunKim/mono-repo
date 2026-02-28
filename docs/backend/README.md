@@ -287,6 +287,7 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 - 이 문서: 구조/실행/운영 기준(개요)
 - [RULES.md](./RULES.md): 코드 작성 및 리뷰 시 반드시 지켜야 하는 세부 규칙
+- [docs/deployment/](../deployment/): 배포 전략 (Blue/Green 무중단 배포, 서버 세팅, CI/CD)
 
 충돌 시 최신 정책은 `RULES.md`를 우선 기준으로 하고, 필요한 경우 두 문서를 함께 갱신합니다.
 

@@ -1,0 +1,20 @@
+# 실제 배치 위치: .github/workflows/deploy-user-api.yml
+#
+# deploy/user-api 브랜치에 push하면 user-api가 배포된다.
+# 어떤 파일이 변경되었는지와 무관하게 항상 배포된다.
+
+name: Deploy user-api
+
+on:
+  push:
+    branches:
+      - deploy/user-api
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-backend.yml
+    with:
+      project: user-api
+      gradle-module: ':apps:user-api'
+    secrets: inherit
