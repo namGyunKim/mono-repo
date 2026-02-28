@@ -27,12 +27,12 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        final PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
 
-        LoginTokenResponse loginTokenResponse = loginTokenCommandService.issueTokens(
+        final LoginTokenResponse loginTokenResponse = loginTokenCommandService.issueTokens(
                 LoginTokenIssueCommand.of(principal.getId())
         );
-        String message = loginSuccessMessageResolver.resolve(request);
+        final String message = loginSuccessMessageResolver.resolve(request);
         loginSuccessEventPublisher.publish(principal, message);
         loginSuccessResponseWriter.writeSuccess(response, loginTokenResponse);
     }

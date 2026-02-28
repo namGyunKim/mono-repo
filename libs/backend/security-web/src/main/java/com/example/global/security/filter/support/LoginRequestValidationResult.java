@@ -19,7 +19,7 @@ public record LoginRequestValidationResult(
             String password,
             List<ApiErrorDetail> errors
     ) {
-        List<ApiErrorDetail> safeErrors = (errors == null) ? List.of() : List.copyOf(errors);
+        final List<ApiErrorDetail> safeErrors = (errors == null) ? List.of() : List.copyOf(errors);
         return new LoginRequestValidationResult(loginRequest, strategy, loginId, password, safeErrors);
     }
 

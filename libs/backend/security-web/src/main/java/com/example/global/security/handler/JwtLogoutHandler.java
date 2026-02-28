@@ -21,7 +21,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
+        final String accessToken = accessTokenResolver.resolveAccessToken(request).orElse(null);
         memberGuard.getCurrentAccount()
                 .map(account -> account.id())
                 .ifPresent(memberId -> jwtTokenRevocationCommandService.revokeOnLogout(

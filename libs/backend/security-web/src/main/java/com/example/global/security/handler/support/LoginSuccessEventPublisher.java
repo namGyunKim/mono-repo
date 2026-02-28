@@ -20,7 +20,7 @@ public class LoginSuccessEventPublisher {
             return;
         }
 
-        String resolvedMessage = (message == null || message.isBlank()) ? DEFAULT_MESSAGE : message;
+        final String resolvedMessage = (message == null || message.isBlank()) ? DEFAULT_MESSAGE : message;
         activityEventPublisher.publishMemberActivity(
                 MemberActivityCommand.of(
                         principal.getUsername(),
