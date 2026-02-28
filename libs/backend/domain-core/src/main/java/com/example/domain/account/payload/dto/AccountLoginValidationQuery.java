@@ -12,7 +12,7 @@ public record AccountLoginValidationQuery(
         List<AccountRole> allowedRoles
 ) {
     public static AccountLoginValidationQuery of(String loginId, List<AccountRole> allowedRoles) {
-        List<AccountRole> safeAllowedRoles = allowedRoles == null ? List.of() : List.copyOf(allowedRoles);
+        final List<AccountRole> safeAllowedRoles = allowedRoles == null ? List.of() : List.copyOf(allowedRoles);
         return new AccountLoginValidationQuery(loginId, safeAllowedRoles);
     }
 }

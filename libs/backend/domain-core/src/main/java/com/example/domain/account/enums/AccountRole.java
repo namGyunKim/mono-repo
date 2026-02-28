@@ -32,7 +32,7 @@ public enum AccountRole {
     }
 
     public static AccountRole fromRequired(String requestValue) {
-        AccountRole role = from(requestValue);
+        final AccountRole role = from(requestValue);
         if (role == null) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "유효하지 않은 role 값입니다: %s".formatted(requestValue));
         }

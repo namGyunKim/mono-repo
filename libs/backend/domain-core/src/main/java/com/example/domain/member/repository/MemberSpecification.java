@@ -57,7 +57,7 @@ public final class MemberSpecification {
         }
 
         final MemberFilterType resolvedFilter = filter != null ? filter : MemberFilterType.ALL;
-        Function<String, Predicate> resolver = FILTER_PREDICATE_RESOLVERS.getOrDefault(
+        final Function<String, Predicate> resolver = FILTER_PREDICATE_RESOLVERS.getOrDefault(
                 resolvedFilter,
                 FILTER_PREDICATE_RESOLVERS.get(MemberFilterType.ALL)
         );
