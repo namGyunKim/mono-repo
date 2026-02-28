@@ -44,3 +44,22 @@
 | 백엔드 (Spring Boot) | `docs/backend/README.md`, `docs/backend/RULES.md` |
 
 > **백엔드 코드를 생성/수정할 때는 반드시 `docs/backend/RULES.md`를 먼저 읽고 모든 규칙을 준수한다.**
+
+---
+
+# MCP 서버 (Serena, Context7)
+
+이 워크스페이스에는 두 개의 MCP 서버가 연결되어 있다.
+
+## Serena — 시맨틱 코드 분석/편집
+
+- 심볼(클래스, 메서드, 필드) 단위로 코드를 탐색·편집한다
+- 파일 전체를 읽기보다 `get_symbols_overview` → `find_symbol(include_body=True)` 순서로 필요한 부분만 읽는다
+- 심볼 본문 교체(`replace_symbol_body`), 삽입(`insert_before/after_symbol`), 리네임(`rename_symbol`) 을 활용한다
+- 참조 추적이 필요하면 `find_referencing_symbols`를 사용한다
+- 프로젝트 활성화: 대화 시작 시 `activate_project`로 이 워크스페이스를 활성화한다
+
+## Context7 — 최신 라이브러리 문서 조회
+
+- `resolve-library-id`로 라이브러리 ID를 먼저 확인한 뒤 `query-docs`로 문서를 조회한다
+- 학습 데이터 컷오프 이후 변경된 API나 최신 버전 문서 확인 시 사용한다
