@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,31 +24,14 @@ public class GoogleOauthTokenRevoker {
     private final RefreshTokenCrypto refreshTokenCrypto;
 
     public void revoke(SocialAccount socialAccount, Long memberId, String loginId) {
-        String refreshTokenEncrypted = socialAccount != null ? socialAccount.getRefreshTokenEncrypted() : null;
-        if (!StringUtils.hasText(refreshTokenEncrypted)) {
-            log.info(
-                    "traceId={}, 구글 토큰 revoke 스킵: refresh_token_encrypted 없음 memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
-                    memberId,
-                    loginId
-            );
-            return;
-        }
-
-        String refreshToken = refreshTokenCrypto.decrypt(refreshTokenEncrypted);
-        if (!StringUtils.hasText(refreshToken)) {
-            log.warn(
-                    "traceId={}, 구글 토큰 revoke 스킵: refresh_token 복호화 실패 memberId={}, loginId={}",
-                    TraceIdUtils.resolveTraceId(),
-                    memberId,
-                    loginId
-            );
+        Optional<String> decryptedToken = resolveDecryptedRefreshToken(socialAccount, memberId, loginId);
+        if (decryptedToken.isEmpty()) {
             return;
         }
 
         long startNanos = System.nanoTime();
         try {
-            ResponseEntity<Void> response = googleOauthClient.revokeToken(refreshToken);
+            ResponseEntity<Void> response = googleOauthClient.revokeToken(decryptedToken.get());
             log.info(
                     "traceId={}, 구글 토큰 revoke 호출 완료: status={}, elapsedMs={}, memberId={}, loginId={}",
                     TraceIdUtils.resolveTraceId(),
@@ -62,6 +47,32 @@ public class GoogleOauthTokenRevoker {
         } catch (Exception e) {
             logRevokeFailure(null, startNanos, memberId, loginId, e);
         }
+    }
+
+    private Optional<String> resolveDecryptedRefreshToken(SocialAccount socialAccount, Long memberId, String loginId) {
+        String refreshTokenEncrypted = socialAccount != null ? socialAccount.getRefreshTokenEncrypted() : null;
+        if (!StringUtils.hasText(refreshTokenEncrypted)) {
+            log.info(
+                    "traceId={}, 구글 토큰 revoke 스킵: refresh_token_encrypted 없음 memberId={}, loginId={}",
+                    TraceIdUtils.resolveTraceId(),
+                    memberId,
+                    loginId
+            );
+            return Optional.empty();
+        }
+
+        String refreshToken = refreshTokenCrypto.decrypt(refreshTokenEncrypted);
+        if (!StringUtils.hasText(refreshToken)) {
+            log.warn(
+                    "traceId={}, 구글 토큰 revoke 스킵: refresh_token 복호화 실패 memberId={}, loginId={}",
+                    TraceIdUtils.resolveTraceId(),
+                    memberId,
+                    loginId
+            );
+            return Optional.empty();
+        }
+
+        return Optional.of(refreshToken);
     }
 
     private void logRevokeFailure(String statusInfo, long startNanos, Long memberId, String loginId, Exception e) {

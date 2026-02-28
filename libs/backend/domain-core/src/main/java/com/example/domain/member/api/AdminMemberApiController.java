@@ -68,9 +68,9 @@ public class AdminMemberApiController {
     public ResponseEntity<RestApiResponse<IdResponse>> createMember(
             @Valid @RequestBody MemberCreateRequest memberCreateRequest
     ) {
-        MemberCommandService service = memberStrategyFactory.getCommandService(memberCreateRequest.toDomainRole());
-        Long createdId = service.createMember(MemberCreateCommand.from(memberCreateRequest));
-        IdResponse createResponse = IdResponse.of(createdId);
+        final MemberCommandService service = memberStrategyFactory.getCommandService(memberCreateRequest.toDomainRole());
+        final Long createdId = service.createMember(MemberCreateCommand.from(memberCreateRequest));
+        final IdResponse createResponse = IdResponse.of(createdId);
 
         return restApiController.created(
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -87,8 +87,8 @@ public class AdminMemberApiController {
     public ResponseEntity<RestApiResponse<Page<MemberListResponse>>> getMemberList(
             @Valid @ModelAttribute("memberListRequest") MemberListRequest memberListRequest
     ) {
-        MemberQueryService service = memberStrategyFactory.getQueryService(memberListRequest.toDomainRole());
-        Page<MemberListResponse> memberPage = service.getList(MemberListQuery.from(memberListRequest));
+        final MemberQueryService service = memberStrategyFactory.getQueryService(memberListRequest.toDomainRole());
+        final Page<MemberListResponse> memberPage = service.getList(MemberListQuery.from(memberListRequest));
 
         return restApiController.ok(memberPage);
     }
@@ -99,8 +99,8 @@ public class AdminMemberApiController {
     public ResponseEntity<RestApiResponse<DetailMemberResponse>> getMemberDetail(
             @PathVariable Long id
     ) {
-        MemberQueryService service = memberStrategyFactory.getQueryServiceByMemberId(id);
-        DetailMemberResponse response = service.getDetail(MemberDetailQuery.of(id));
+        final MemberQueryService service = memberStrategyFactory.getQueryServiceByMemberId(id);
+        final DetailMemberResponse response = service.getDetail(MemberDetailQuery.of(id));
 
         return restApiController.ok(response);
     }
@@ -112,11 +112,11 @@ public class AdminMemberApiController {
             @PathVariable Long id,
             @Valid @RequestBody MemberUpdateRequest memberUpdateRequest
     ) {
-        MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
-        Long updatedId = commandService.updateMember(
+        final MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
+        final Long updatedId = commandService.updateMember(
                 MemberUpdateCommand.from(memberUpdateRequest, id)
         );
-        IdResponse updateResponse = IdResponse.of(updatedId);
+        final IdResponse updateResponse = IdResponse.of(updatedId);
 
         return restApiController.ok(updateResponse);
     }
@@ -129,8 +129,8 @@ public class AdminMemberApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             HttpServletRequest request
     ) {
-        MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
-        MemberDeactivateCommand deactivateCommand = accessTokenResolver.resolveAccessToken(request)
+        final MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
+        final MemberDeactivateCommand deactivateCommand = accessTokenResolver.resolveAccessToken(request)
                 .map(accessToken -> MemberDeactivateCommand.of(
                         id,
                         currentAccount.id(),
@@ -148,7 +148,7 @@ public class AdminMemberApiController {
             @PathVariable Long id,
             @Valid @RequestBody MemberRoleUpdateRequest memberRoleUpdateRequest
     ) {
-        MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
+        final MemberCommandService commandService = memberStrategyFactory.getCommandServiceByMemberId(id);
         commandService.updateMemberRole(MemberRoleUpdateCommand.from(id, memberRoleUpdateRequest));
 
         return restApiController.ok(IdResponse.of(id));

@@ -92,7 +92,7 @@ public abstract class AbstractS3ServiceSupport {
 
     protected String buildContentDisposition(String originalFilename) {
         String encodedOriginalFilename = encodeFilename(originalFilename);
-        return "attachment; filename*=\"UTF-8''" + encodedOriginalFilename + "\"";
+        return "attachment; filename*=\"UTF-8''%s\"".formatted(encodedOriginalFilename);
     }
 
     protected String encodeFilename(String originalFilename) {

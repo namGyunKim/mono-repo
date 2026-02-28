@@ -48,14 +48,14 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
         // [보안]
         // /member/user/create 요청에서 role 파라미터가 변조되더라도,
         // USER CommandService에서는 항상 USER 권한으로만 생성되도록 강제합니다.
-        MemberCreateCommand safeCommand = command.withRole(AccountRole.USER);
+        final MemberCreateCommand safeCommand = command.withRole(AccountRole.USER);
 
         // [중요]
         // GenerationType.IDENTITY 환경에서는 save 시점에 insert가 즉시 발생할 수 있어,
         // save 이후에 비밀번호를 암호화하면 "평문 insert -> 암호화 update"가 발생할 수 있습니다.
         // 따라서 저장 전에 반드시 비밀번호를 암호화하여 Member를 생성합니다.
-        String encodedPassword = passwordEncoder.encode(safeCommand.password());
-        Member member = memberRepository.save(Member.from(safeCommand, encodedPassword));
+        final String encodedPassword = passwordEncoder.encode(safeCommand.password());
+        final Member member = memberRepository.save(Member.from(safeCommand, encodedPassword));
 
         memberActivityPublishPort.publishMemberActivity(member.getLoginId(), member.getId(), LogType.JOIN, "일반 회원 가입");
         return member.getId();
@@ -67,8 +67,8 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "회원 수정 요청 값은 필수입니다.");
         }
 
-        Member member = findUserMember(command.memberId());
-        boolean allowPasswordChange = member.getMemberType() == MemberType.GENERAL;
+        final Member member = findUserMember(command.memberId());
+        final boolean allowPasswordChange = member.getMemberType() == MemberType.GENERAL;
         updateMemberCommon(member, command, MemberUpdateContext.of(
                 memberUniquenessSupport, passwordEncoder, memberActivityPublishPort,
                 allowPasswordChange, "비밀번호 변경", "회원 정보 수정"
@@ -83,7 +83,7 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "탈퇴 요청 값은 필수입니다.");
         }
 
-        Member member = findUserMember(command.memberId());
+        final Member member = findUserMember(command.memberId());
         deactivateMemberCommon(member, MemberDeactivateContext.of(
                 memberImageStoragePort, memberSocialCleanupPort, memberActivityPublishPort, "회원 탈퇴 처리"
         ));
@@ -99,9 +99,9 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "GUEST 권한은 설정할 수 없습니다.");
         }
 
-        AccountRole newRole = command.role();
-        Member member = findUserMember(command.memberId());
-        AccountRole oldRole = member.getRole();
+        final AccountRole newRole = command.role();
+        final Member member = findUserMember(command.memberId());
+        final AccountRole oldRole = member.getRole();
         member.changeRole(newRole);
         member.rotateTokenVersion();
         member.invalidateRefreshTokenEncrypted();
@@ -118,13 +118,11 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "memberId는 필수입니다.");
         }
 
-        Member member = memberRepository.findByIdAndRoleIn(
+        return memberRepository.findByIdAndRoleIn(
                         memberId,
                         List.of(AccountRole.USER)
                 )
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
-
-        return member;
     }
 
 }

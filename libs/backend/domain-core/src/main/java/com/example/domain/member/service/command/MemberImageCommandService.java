@@ -28,10 +28,10 @@ public class MemberImageCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "회원 이미지 등록 요청 값이 비어있습니다.");
         }
 
-        Member member = memberRepository.findById(command.memberId())
+        final Member member = memberRepository.findById(command.memberId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
-        MemberImage image = MemberImage.from(command.uploadDirect(), command.fileName(), member);
+        final MemberImage image = MemberImage.from(command.uploadDirect(), command.fileName(), member);
         member.addMemberImage(image);
         memberRepository.flush();
 
@@ -43,10 +43,10 @@ public class MemberImageCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "회원 이미지 삭제 요청 값이 비어있습니다.");
         }
 
-        MemberImage image = memberImageRepository.findById(command.memberImageId())
+        final MemberImage image = memberImageRepository.findById(command.memberImageId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.FILE_NOT_FOUND));
 
-        Member member = image.getMember();
+        final Member member = image.getMember();
         if (member == null) {
             throw new GlobalException(ErrorCode.MEMBER_NOT_EXIST);
         }

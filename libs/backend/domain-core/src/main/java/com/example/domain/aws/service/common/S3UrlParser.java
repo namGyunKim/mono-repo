@@ -21,8 +21,9 @@ public class S3UrlParser {
             String path = url.getPath();
             String key = path.substring(1);
 
+            String s3Suffix = ".s3.%s.amazonaws.com".formatted(region);
             String bucket;
-            int s3Index = host.indexOf(".s3." + region + ".amazonaws.com");
+            int s3Index = host.indexOf(s3Suffix);
             if (s3Index != -1) {
                 bucket = host.substring(0, s3Index);
             } else {
@@ -36,35 +37,56 @@ public class S3UrlParser {
 
     public String extractFilenameFromContentDisposition(String contentDisposition) {
         if (contentDisposition == null) {
-            return "cloned-file-" + System.currentTimeMillis();
+            return generateFallbackFilename();
         }
 
+        String utf8Result = tryParseUtf8Filename(contentDisposition);
+        if (utf8Result != null) {
+            return utf8Result;
+        }
+
+        String plainResult = tryParsePlainFilename(contentDisposition);
+        if (plainResult != null) {
+            return plainResult;
+        }
+
+        return generateFallbackFilename();
+    }
+
+    private String tryParseUtf8Filename(String contentDisposition) {
         String prefix = "filename*=\"UTF-8''";
         int startIndex = contentDisposition.indexOf(prefix);
-        if (startIndex != -1) {
-            String encodedName = contentDisposition.substring(startIndex + prefix.length());
-            if (encodedName.endsWith("\"")) {
-                encodedName = encodedName.substring(0, encodedName.length() - 1);
-            }
-            try {
-                return URLDecoder.decode(encodedName, StandardCharsets.UTF_8);
-            } catch (Exception e) {
-                return "cloned-file-" + System.currentTimeMillis();
-            }
+        if (startIndex == -1) {
+            return null;
         }
+        String encodedName = contentDisposition.substring(startIndex + prefix.length());
+        if (encodedName.endsWith("\"")) {
+            encodedName = encodedName.substring(0, encodedName.length() - 1);
+        }
+        try {
+            return URLDecoder.decode(encodedName, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return generateFallbackFilename();
+        }
+    }
 
+    private String tryParsePlainFilename(String contentDisposition) {
         String fnPrefix = "filename=";
-        startIndex = contentDisposition.indexOf(fnPrefix);
-        if (startIndex != -1) {
-            String name = contentDisposition.substring(startIndex + fnPrefix.length());
-            if (name.startsWith("\"")) {
-                name = name.substring(1);
-            }
-            if (name.endsWith("\"")) {
-                name = name.substring(0, name.length() - 1);
-            }
-            return name.replace("+", "%20");
+        int startIndex = contentDisposition.indexOf(fnPrefix);
+        if (startIndex == -1) {
+            return null;
         }
-        return "cloned-file-" + System.currentTimeMillis();
+        String name = contentDisposition.substring(startIndex + fnPrefix.length());
+        if (name.startsWith("\"")) {
+            name = name.substring(1);
+        }
+        if (name.endsWith("\"")) {
+            name = name.substring(0, name.length() - 1);
+        }
+        return name.replace("+", "%20");
+    }
+
+    private String generateFallbackFilename() {
+        return "cloned-file-%d".formatted(System.currentTimeMillis());
     }
 }

@@ -61,11 +61,11 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         // GenerationType.IDENTITY 환경에서는 save 시점에 insert가 즉시 발생할 수 있어,
         // save 이후에 비밀번호를 암호화하면 "평문 insert -> 암호화 update"가 발생할 수 있습니다.
         // 따라서 저장 전에 반드시 비밀번호를 암호화하여 Member를 생성합니다.
-        String encodedPassword = passwordEncoder.encode(command.password());
-        Member member = memberRepository.save(Member.from(command, encodedPassword));
+        final String encodedPassword = passwordEncoder.encode(command.password());
+        final Member member = memberRepository.save(Member.from(command, encodedPassword));
 
-        AccountRole role = member.getRole();
-        String details = (role == AccountRole.SUPER_ADMIN) ? "최고 관리자 계정 생성" : "관리자 계정 생성";
+        final AccountRole role = member.getRole();
+        final String details = (role == AccountRole.SUPER_ADMIN) ? "최고 관리자 계정 생성" : "관리자 계정 생성";
         memberActivityPublishPort.publishMemberActivity(member.getLoginId(), member.getId(), LogType.JOIN, details);
 
         return member.getId();
@@ -77,7 +77,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "회원 수정 요청 값은 필수입니다.");
         }
 
-        Member member = findAdminMember(command.memberId());
+        final Member member = findAdminMember(command.memberId());
         updateMemberCommon(member, command, MemberUpdateContext.of(
                 memberUniquenessSupport, passwordEncoder, memberActivityPublishPort,
                 true, "관리자 비밀번호 변경", "관리자 정보 수정"
@@ -97,7 +97,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "탈퇴 요청 값은 필수입니다.");
         }
 
-        Member member = findAdminMember(command.memberId());
+        final Member member = findAdminMember(command.memberId());
         deactivateMemberCommon(member, MemberDeactivateContext.of(
                 memberImageStoragePort, memberSocialCleanupPort, memberActivityPublishPort, "관리자 탈퇴/비활성화 처리"
         ));
@@ -118,9 +118,9 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "자신의 등급은 변경할 수 없습니다.");
         }
 
-        AccountRole newRole = command.role();
-        Member member = findAdminMember(command.memberId());
-        AccountRole oldRole = member.getRole();
+        final AccountRole newRole = command.role();
+        final Member member = findAdminMember(command.memberId());
+        final AccountRole oldRole = member.getRole();
         member.changeRole(newRole);
         member.rotateTokenVersion();
         member.invalidateRefreshTokenEncrypted();
@@ -149,8 +149,8 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         if (command == null) {
             return;
         }
-        Long memberId = command.memberId();
-        Long currentAccountId = command.currentAccountId();
+        final Long memberId = command.memberId();
+        final Long currentAccountId = command.currentAccountId();
         if (memberId == null || currentAccountId == null) {
             return;
         }

@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -26,7 +27,7 @@ public class JwtTokenCommandService {
         return generateToken(memberInfo, JwtTokenType.REFRESH, keyProvider.getProperties().refreshTokenTtl());
     }
 
-    private String generateToken(SecurityMemberTokenInfo memberInfo, JwtTokenType tokenType, java.time.Duration ttl) {
+    private String generateToken(SecurityMemberTokenInfo memberInfo, JwtTokenType tokenType, Duration ttl) {
         validateTtl(ttl, tokenType.name().toLowerCase());
         Instant now = Instant.now();
         Instant expiresAt = now.plus(ttl);
@@ -44,9 +45,9 @@ public class JwtTokenCommandService {
                 .compact();
     }
 
-    private void validateTtl(java.time.Duration ttl, String tokenLabel) {
+    private void validateTtl(Duration ttl, String tokenLabel) {
         if (ttl == null || ttl.isZero() || ttl.isNegative()) {
-            throw new IllegalArgumentException("JWT " + tokenLabel + " TTL은 0보다 커야 합니다.");
+            throw new IllegalArgumentException("JWT %s TTL은 0보다 커야 합니다.".formatted(tokenLabel));
         }
     }
 }

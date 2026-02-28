@@ -89,7 +89,8 @@ public enum ImageType {
 
         if (!match) {
             String allowed = String.join(", ", this.allowedExtensions);
-            throw new GlobalException(ErrorCode.UNSUPPORTED_FILE_EXTENSION, "허용되지 않는 파일 확장자입니다. (" + extension + "). 허용된 확장자: " + allowed);
+            throw new GlobalException(ErrorCode.UNSUPPORTED_FILE_EXTENSION,
+                    "허용되지 않는 파일 확장자입니다. (%s). 허용된 확장자: %s".formatted(extension, allowed));
         }
     }
 }

@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class S3KeyBuilder {
 
     public String generateFinalUploadFileName(ImageType imageType, String originalFilename) {
-        return imageType.name() + "_" + originalFilename.replaceAll("\\s", "");
+        return "%s_%s".formatted(imageType.name(), originalFilename.replaceAll("\\s", ""));
     }
 
     public String generateS3Key(String fileName, ImageType imageType, Long entityId) {

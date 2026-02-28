@@ -54,15 +54,15 @@ public abstract class AbstractQueryDslMemberQueryService extends AbstractMemberQ
             sort = Sort.by(Sort.Direction.ASC, "createdAt");
         }
 
-        Pageable pageable = PaginationUtils.toPageable(
+        final Pageable pageable = PaginationUtils.toPageable(
                 request.page(),
                 request.size(),
                 PaginationUtils.DEFAULT_SIZE,
                 sort
         );
 
-        List<AccountRole> roles = getSupportedRoles();
-        Predicate predicate = MemberSpecification.searchMember(request, roles);
+        final List<AccountRole> roles = getSupportedRoles();
+        final Predicate predicate = MemberSpecification.searchMember(request, roles);
         return memberRepository.findAll(predicate, pageable).map(MemberListResponse::from);
     }
 
@@ -72,7 +72,7 @@ public abstract class AbstractQueryDslMemberQueryService extends AbstractMemberQ
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "회원 식별자는 필수입니다.");
         }
 
-        Member member = memberRepository.findByIdAndRoleIn(query.id(), getSupportedRoles())
+        final Member member = memberRepository.findByIdAndRoleIn(query.id(), getSupportedRoles())
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
 
         return DetailMemberResponse.from(member);

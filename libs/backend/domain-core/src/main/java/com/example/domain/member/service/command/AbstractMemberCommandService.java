@@ -29,7 +29,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     protected void updateMemberCommon(Member member, MemberUpdateCommand command, MemberUpdateContext context) {
         validateUpdateMemberInput(member, command);
 
-        String loginId = member.getLoginId();
+        final String loginId = member.getLoginId();
         validateNickNameUniqueness(command, loginId, context.memberUniquenessSupport());
         member.changeNickName(command.nickName());
         updatePasswordIfAllowed(member, command, context, loginId);
@@ -39,7 +39,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     protected void deactivateMemberCommon(Member member, MemberDeactivateContext context) {
         validateDeactivateMemberInput(member);
 
-        String loginId = member.getLoginId();
+        final String loginId = member.getLoginId();
         member.withdraw();
         context.memberSocialCleanupPort().cleanupOnWithdraw(member.getId(), loginId);
         deleteMemberProfileImages(member, context.memberImageStoragePort());
@@ -110,7 +110,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
             return;
         }
 
-        List<String> fileNames = member.getMemberImages().stream()
+        final List<String> fileNames = member.getMemberImages().stream()
                 .filter(mi -> mi.getUploadDirect() == MemberUploadDirect.MEMBER_PROFILE)
                 .map(MemberImage::getFileName)
                 .toList();

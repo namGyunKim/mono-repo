@@ -43,21 +43,21 @@ public class MemberStrategyFactory {
     }
 
     private void initializeCommandServices() {
-        Map<String, MemberCommandService> beans = applicationContext.getBeansOfType(MemberCommandService.class);
+        final Map<String, MemberCommandService> beans = applicationContext.getBeansOfType(MemberCommandService.class);
 
         for (MemberCommandService service : beans.values()) {
             // [중요]
             // - 서비스가 @Transactional 등으로 프록시(JDK Dynamic Proxy)로 감싸질 수 있습니다.
             // - 프록시 객체는 구체 클래스(AbstractMemberCommandService)의 인스턴스가 아닐 수 있으므로
             //   instanceof 기반 분기 대신, 인터페이스에 정의된 getSupportedRoles()를 사용합니다.
-            List<AccountRole> supportedRoles = service.getSupportedRoles();
+            final List<AccountRole> supportedRoles = service.getSupportedRoles();
             if (supportedRoles == null || supportedRoles.isEmpty()) {
                 log.warn("traceId={}, MemberCommandService 구현체가 지원 Role을 반환하지 않습니다: {}", TraceIdUtils.resolveTraceId(), service.getClass().getName());
                 continue;
             }
 
             for (AccountRole role : supportedRoles) {
-                MemberCommandService existing = commandServiceMap.put(role, service);
+                final MemberCommandService existing = commandServiceMap.put(role, service);
                 if (existing != null && existing != service) {
                     // 동일 Role에 대해 2개 이상의 구현체가 등록되면, 런타임에서 어떤 서비스가 선택될지 보장되지 않습니다.
                     // 베이스 프로젝트에서는 "fail-fast"로 오류를 노출하여 설정/확장 실수를 조기에 발견하도록 합니다.
@@ -69,18 +69,18 @@ public class MemberStrategyFactory {
     }
 
     private void initializeQueryServices() {
-        Map<String, MemberQueryService> beans = applicationContext.getBeansOfType(MemberQueryService.class);
+        final Map<String, MemberQueryService> beans = applicationContext.getBeansOfType(MemberQueryService.class);
 
         for (MemberQueryService service : beans.values()) {
             // Command와 동일한 이유로, 프록시 안정성을 위해 인터페이스 메서드 사용
-            List<AccountRole> supportedRoles = service.getSupportedRoles();
+            final List<AccountRole> supportedRoles = service.getSupportedRoles();
             if (supportedRoles == null || supportedRoles.isEmpty()) {
                 log.warn("traceId={}, MemberQueryService 구현체가 지원 Role을 반환하지 않습니다: {}", TraceIdUtils.resolveTraceId(), service.getClass().getName());
                 continue;
             }
 
             for (AccountRole role : supportedRoles) {
-                MemberQueryService existing = queryServiceMap.put(role, service);
+                final MemberQueryService existing = queryServiceMap.put(role, service);
                 if (existing != null && existing != service) {
                     throw new IllegalStateException("MemberQueryService 중복 등록: role=%s".formatted(role));
                 }
@@ -96,7 +96,7 @@ public class MemberStrategyFactory {
         if (role == null) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "role은 필수입니다.");
         }
-        MemberCommandService service = commandServiceMap.get(role);
+        final MemberCommandService service = commandServiceMap.get(role);
         if (service == null) {
             throw new GlobalException(ErrorCode.INPUT_VALUE_INVALID, "지원하지 않는 권한 타입입니다(Command): %s".formatted(role));
         }
@@ -117,7 +117,7 @@ public class MemberStrategyFactory {
         if (role == null) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "role은 필수입니다.");
         }
-        MemberQueryService service = queryServiceMap.get(role);
+        final MemberQueryService service = queryServiceMap.get(role);
         if (service == null) {
             throw new GlobalException(ErrorCode.INPUT_VALUE_INVALID, "지원하지 않는 권한 타입입니다(Query): %s".formatted(role));
         }
