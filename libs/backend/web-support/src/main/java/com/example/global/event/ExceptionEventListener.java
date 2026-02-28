@@ -47,7 +47,7 @@ public class ExceptionEventListener {
         if (exceptionEvent == null) {
             return;
         }
-        String resolvedTxStatus = resolveTxStatus(txStatus);
+        final String resolvedTxStatus = resolveTxStatus(txStatus);
 
         log.error(
                 ExceptionLogTemplates.EXCEPTION_EVENT_LOG_TEMPLATE.stripTrailing(),
@@ -57,7 +57,7 @@ public class ExceptionEventListener {
         );
 
         if (structuredExceptionLoggingEnabled) {
-            String structuredPayload = toStructuredPayload(exceptionEvent, resolvedTxStatus);
+            final String structuredPayload = toStructuredPayload(exceptionEvent, resolvedTxStatus);
             if (structuredPayload != null) {
                 log.error(
                         ExceptionLogTemplates.EXCEPTION_EVENT_STRUCTURED_LOG_TEMPLATE.stripTrailing(),
@@ -71,7 +71,7 @@ public class ExceptionEventListener {
 
     private String toStructuredPayload(ExceptionEvent exceptionEvent, String txStatus) {
         try {
-            java.util.Map<String, Object> payload = new java.util.LinkedHashMap<>(exceptionEvent.getStructuredLog());
+            final java.util.Map<String, Object> payload = new java.util.LinkedHashMap<>(exceptionEvent.getStructuredLog());
             payload.put("txStatus", txStatus);
             return objectMapper.writeValueAsString(payload);
         } catch (JacksonException e) {

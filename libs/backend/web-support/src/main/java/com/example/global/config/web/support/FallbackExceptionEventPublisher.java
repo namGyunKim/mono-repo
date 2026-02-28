@@ -22,10 +22,10 @@ public class FallbackExceptionEventPublisher {
             return;
         }
 
-        Exception exception = (thrown instanceof Exception casted) ? casted : new RuntimeException("Unhandled error", thrown);
-        CurrentAccountDTO account = memberGuard.getCurrentAccountOrGuest();
-        String detailMessage = thrown.getMessage() != null ? thrown.getMessage() : "필터 처리 중 예외 발생";
-        String sanitizedDetailMessage = SensitiveLogMessageSanitizer.sanitize(detailMessage);
+        final Exception exception = (thrown instanceof Exception casted) ? casted : new RuntimeException("Unhandled error", thrown);
+        final CurrentAccountDTO account = memberGuard.getCurrentAccountOrGuest();
+        final String detailMessage = thrown.getMessage() != null ? thrown.getMessage() : "필터 처리 중 예외 발생";
+        final String sanitizedDetailMessage = SensitiveLogMessageSanitizer.sanitize(detailMessage);
 
         applicationEventPublisher.publishEvent(ExceptionEvent.from(
                 exception,

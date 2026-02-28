@@ -22,7 +22,7 @@ public class ExceptionLogWriter {
     public void logTypeMismatch(RequestMeta meta, MethodArgumentTypeMismatchException e, ErrorCode errorCode) {
         String value = null;
         if (e != null && e.getName() != null) {
-            String raw = e.getValue() != null ? String.valueOf(e.getValue()) : "";
+            final String raw = e.getValue() != null ? String.valueOf(e.getValue()) : "";
             value = LoggingSanitizerPolicy.isSensitiveField(e.getName()) ? "***" : raw;
         }
         log.warn(
@@ -53,7 +53,7 @@ public class ExceptionLogWriter {
     }
 
     public void logMessageOnly(RequestMeta meta, ErrorCode errorCode, String message) {
-        String sanitizedMessage = sanitizeMessage(message);
+        final String sanitizedMessage = sanitizeMessage(message);
         log.warn(
                 ExceptionLogTemplates.MESSAGE_ONLY_LOG_TEMPLATE.stripTrailing(),
                 meta.traceId(),
@@ -67,7 +67,7 @@ public class ExceptionLogWriter {
     }
 
     public void logAccessDenied(RequestMeta meta, ErrorCode errorCode, String message) {
-        String sanitizedMessage = sanitizeMessage(message);
+        final String sanitizedMessage = sanitizeMessage(message);
         log.warn(
                 ExceptionLogTemplates.ACCESS_DENIED_LOG_TEMPLATE.stripTrailing(),
                 meta.traceId(),

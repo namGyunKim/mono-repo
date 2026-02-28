@@ -38,15 +38,15 @@ public class ControllerParamsFormatter {
      * - LinkedHashMap을 사용하여 파라미터 순서 보장
      */
     public String formatParams(ProceedingJoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
+        final Object[] args = joinPoint.getArgs();
         if (args == null || args.length == 0) {
             return "파라미터 없음";
         }
 
         try {
             // 순서를 보장하기 위해 LinkedHashMap 사용
-            Map<String, Object> loggableArgs = new LinkedHashMap<>();
-            String[] parameterNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
+            final Map<String, Object> loggableArgs = new LinkedHashMap<>();
+            final String[] parameterNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
 
             for (int i = 0; i < args.length; i++) {
                 Object arg = args[i];
@@ -63,7 +63,7 @@ public class ControllerParamsFormatter {
             }
 
             // JSON Pretty Print 적용 (줄바꿈 및 들여쓰기)
-            String formatted = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loggableArgs);
+            final String formatted = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loggableArgs);
             return truncateLog(formatted);
 
         } catch (Exception e) {
@@ -115,7 +115,7 @@ public class ControllerParamsFormatter {
         }
 
         try {
-            JsonNode node = objectMapper.valueToTree(arg);
+            final JsonNode node = objectMapper.valueToTree(arg);
             maskSensitive(node);
             return node;
         } catch (Exception e) {

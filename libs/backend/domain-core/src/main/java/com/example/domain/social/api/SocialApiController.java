@@ -27,7 +27,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "SocialApiController", description = "소셜 로그인 REST API")
 @RestController
@@ -53,8 +57,8 @@ public class SocialApiController {
     @GetMapping(value = "/google/login")
     public ResponseEntity<RestApiResponse<SocialRedirectResponse>> googleLogin() {
         googleSocialLoginStartCommandService.prepareLoginSession();
-        String redirectUrl = googleSocialLoginStartQueryService.getRedirectUrl();
-        SocialRedirectResponse response = SocialRedirectResponse.of(redirectUrl);
+        final String redirectUrl = googleSocialLoginStartQueryService.getRedirectUrl();
+        final SocialRedirectResponse response = SocialRedirectResponse.of(redirectUrl);
         return restApiController.ok(response);
     }
 
@@ -101,14 +105,14 @@ public class SocialApiController {
     public ResponseEntity<RestApiResponse<SocialLoginSuccessResponse>> googleRedirect(
             @Valid @ModelAttribute("googleRedirectRequest") GoogleRedirectRequest googleRedirectRequest
     ) {
-        GoogleSocialRedirectCommand command = GoogleSocialRedirectCommand.from(googleRedirectRequest);
-        LoginTokenResponse response = googleSocialRedirectCommandService.loginByRedirect(command);
+        final GoogleSocialRedirectCommand command = GoogleSocialRedirectCommand.from(googleRedirectRequest);
+        final LoginTokenResponse response = googleSocialRedirectCommandService.loginByRedirect(command);
         localTokenHeaderLoggingSupport.logResponseTokenHeaders(
                 "social-google-redirect",
                 response.accessToken(),
                 response.refreshToken()
         );
-        HttpHeaders headers = TokenResponseHeaders.of(response.accessToken(), response.refreshToken());
+        final HttpHeaders headers = TokenResponseHeaders.of(response.accessToken(), response.refreshToken());
         return restApiController.okWithHeaders(SocialLoginSuccessResponse.ok(), headers);
     }
 }

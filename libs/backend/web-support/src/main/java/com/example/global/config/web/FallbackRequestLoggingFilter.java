@@ -67,7 +67,7 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        long startedAt = System.currentTimeMillis();
+        final long startedAt = System.currentTimeMillis();
         Throwable thrown = null;
         try {
             filterChain.doFilter(request, response);
@@ -102,15 +102,15 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String traceId = TraceIdUtils.resolveTraceId();
-        String ip = ClientIpExtractor.extract(request);
-        String loginId = loggingSupport.resolveLoginIdForLog(request);
+        final String traceId = TraceIdUtils.resolveTraceId();
+        final String ip = ClientIpExtractor.extract(request);
+        final String loginId = loggingSupport.resolveLoginIdForLog(request);
 
-        String method = safe(request.getMethod());
-        String uri = loggingSupport.buildUriWithQuery(request);
+        final String method = safe(request.getMethod());
+        final String uri = loggingSupport.buildUriWithQuery(request);
 
-        int status = response != null ? response.getStatus() : 0;
-        long elapsedMs = Math.max(0, System.currentTimeMillis() - startedAt);
+        final int status = response != null ? response.getStatus() : 0;
+        final long elapsedMs = Math.max(0, System.currentTimeMillis() - startedAt);
 
         // 이 필터가 로그를 남겼음을 표시(동일 요청에서 중복 로그 방지 목적)
         request.setAttribute(RequestLoggingAttributes.FILTER_LOGGED, Boolean.TRUE);

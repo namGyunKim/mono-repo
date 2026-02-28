@@ -52,27 +52,27 @@ public class ControllerLoggingAspect {
             return joinPoint.proceed();
         }
 
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
         // Filter 레벨의 fallback 로깅과 중복되지 않도록 "컨트롤러에서 로깅 완료" 플래그를 남깁니다.
         request.setAttribute(RequestLoggingAttributes.CONTROLLER_LOGGED, Boolean.TRUE);
 
         // Trace ID 처리: 공통 유틸을 통해 항상 일관된 requestId를 유지합니다.
-        String traceId = TraceIdUtils.resolveTraceId();
+        final String traceId = TraceIdUtils.resolveTraceId();
 
-        String ip = ClientIpExtractor.extract(request);
-        String method = request.getMethod();
-        String uri = request.getRequestURI();
-        String loginId = getLoginIdFromSecurityContext();
+        final String ip = ClientIpExtractor.extract(request);
+        final String method = request.getMethod();
+        final String uri = request.getRequestURI();
+        final String loginId = getLoginIdFromSecurityContext();
 
         // 파라미터 정보 포맷팅 (변수명: 값)
-        String params = loggingSupport.formatParams(joinPoint);
+        final String params = loggingSupport.formatParams(joinPoint);
 
         // [REQ] 로그 출력
         // 로그 템플릿은 단일 라인보다 Java 텍스트 블록(""" """)을 사용해 멀티라인을 강조합니다.
         log.info(loggingSupport.buildRequestLog(traceId, ip, loginId, method, uri, params));
 
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Object result;
@@ -81,9 +81,9 @@ public class ControllerLoggingAspect {
             result = joinPoint.proceed();
         } finally {
             stopWatch.stop();
-            HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
-            String responseStatus = loggingSupport.getResponseStatus(response);
-            String responseSize = loggingSupport.getResponseSize(response);
+            final HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+            final String responseStatus = loggingSupport.getResponseStatus(response);
+            final String responseSize = loggingSupport.getResponseSize(response);
             // [RES] 로그 출력 (수행 시간 포함)
             // 멀티라인 로그는 텍스트 블록(""" """)으로 일관되게 관리합니다.
             log.info(loggingSupport.buildResponseLog(traceId, stopWatch.getTotalTimeMillis(), responseStatus, responseSize));

@@ -17,7 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "AdminLogApiController", description = "관리자 전용 시스템 로그 REST API")
 @RestController
@@ -41,7 +45,7 @@ public class AdminLogApiController {
     public ResponseEntity<RestApiResponse<Page<MemberLogResponse>>> memberLogList(
             @Valid @ModelAttribute("memberLogRequest") MemberLogRequest memberLogRequest
     ) {
-        Page<MemberLogResponse> logPage = memberLogQueryService.getMemberLogs(MemberLogQuery.from(memberLogRequest));
+        final Page<MemberLogResponse> logPage = memberLogQueryService.getMemberLogs(MemberLogQuery.from(memberLogRequest));
         return restApiController.ok(logPage);
     }
 

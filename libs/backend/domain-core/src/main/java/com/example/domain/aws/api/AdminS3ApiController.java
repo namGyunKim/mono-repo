@@ -23,7 +23,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Tag(name = "AdminS3ApiController", description = "관리자 전용 S3 업로드/삭제 테스트 REST API")
@@ -43,11 +48,11 @@ public class AdminS3ApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             @Valid @ModelAttribute("s3ImageUploadRequest") S3ImageUploadRequest s3ImageUploadRequest
     ) {
-        S3ImageUploadResult result = adminS3CommandService.uploadProfileImage(
+        final S3ImageUploadResult result = adminS3CommandService.uploadProfileImage(
                 AdminS3ImageUploadCommand.of(currentAccount.id(), s3ImageUploadRequest.file())
         );
 
-        S3ImageUploadResponse response = S3ImageUploadResponse.from(result);
+        final S3ImageUploadResponse response = S3ImageUploadResponse.from(result);
 
         return restApiController.created(
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -64,7 +69,7 @@ public class AdminS3ApiController {
             @CurrentAccount CurrentAccountDTO currentAccount,
             @Valid @ModelAttribute("s3ImagesUploadRequest") S3ImagesUploadRequest s3ImagesUploadRequest
     ) {
-        S3ImagesUploadResponse response = S3ImagesUploadResponse.from(
+        final S3ImagesUploadResponse response = S3ImagesUploadResponse.from(
                 adminS3CommandService.uploadProfileImages(
                         AdminS3ImagesUploadCommand.of(currentAccount.id(), s3ImagesUploadRequest.files())
                 )
