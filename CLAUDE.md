@@ -92,15 +92,16 @@
 
 ### 최초 설정 방법 (새 팀원용)
 
-PostgreSQL에서 아래 SQL을 실행하여 읽기 전용 계정을 생성한다:
+PostgreSQL(14 이상)에서 아래 SQL을 실행하여 읽기 전용 계정을 생성한다:
 
 ```sql
 CREATE USER claude_readonly WITH PASSWORD 'readonly_pass';
 GRANT CONNECT ON DATABASE base_project TO claude_readonly;
-GRANT USAGE ON SCHEMA public TO claude_readonly;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO claude_readonly;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO claude_readonly;
+GRANT pg_read_all_data TO claude_readonly;
 ```
+
+> `pg_read_all_data`는 PostgreSQL 14+에서 제공하는 내장 롤로, 모든 스키마·테이블에 대해 `SELECT` 권한을 자동 부여한다.
+> 테이블 생성 시점이나 소유자와 무관하게 항상 적용된다.
 
 이후 Claude Code를 재시작하면 `.mcp.json`이 자동으로 로드되어 DB MCP가 활성화된다.
 
