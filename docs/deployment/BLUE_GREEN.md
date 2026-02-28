@@ -289,7 +289,7 @@ git push origin deploy/user-api
 
 ```bash
 # 이전 이미지 태그 확인
-docker images ghcr.io/<OWNER>/mono-repo/user-api --format "{{.Tag}}\t{{.CreatedAt}}"
+docker images ghcr.io/namgyunkim/mono-repo/user-api --format "{{.Tag}}\t{{.CreatedAt}}"
 
 # 롤백 실행
 /opt/deploy/deploy.sh user-api <이전-태그>
