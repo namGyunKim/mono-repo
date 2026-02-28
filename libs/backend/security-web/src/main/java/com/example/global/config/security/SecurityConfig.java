@@ -165,7 +165,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        List<String> normalizedOrigins = allowedOrigins == null ? List.of() : allowedOrigins.stream()
+        final List<String> normalizedOrigins = allowedOrigins == null ? List.of() : allowedOrigins.stream()
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();

@@ -5,6 +5,7 @@ import com.example.domain.log.payload.dto.MemberActivityCommand;
 import com.example.domain.log.service.command.LogActivityPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class LoginFailureEventPublisher {
     private final LogActivityPublisher activityEventPublisher;
 
     public void publishLoginFailEvent(String loginId, Long memberId, String detailMessage) {
-        String resolvedLoginId = hasText(loginId) ? loginId : DEFAULT_LOGIN_ID;
+        final String resolvedLoginId = StringUtils.hasText(loginId) ? loginId : DEFAULT_LOGIN_ID;
         activityEventPublisher.publishMemberActivity(
                 MemberActivityCommand.of(
                         resolvedLoginId,
@@ -24,9 +25,5 @@ public class LoginFailureEventPublisher {
                         detailMessage != null ? detailMessage : "로그인 실패"
                 )
         );
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.isBlank();
     }
 }

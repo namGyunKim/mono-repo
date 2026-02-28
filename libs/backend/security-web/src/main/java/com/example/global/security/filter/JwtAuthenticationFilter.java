@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = tokenOptional.get();
+        final String token = tokenOptional.get();
         if (blacklistedTokenQueryService.isBlacklisted(BlacklistedTokenCheckQuery.of(token))) {
             securityContextManager.clearContext();
             filterChain.doFilter(request, response);
@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        JwtTokenPayload payload = payloadOptional.get();
+        final JwtTokenPayload payload = payloadOptional.get();
         if (payload.tokenType() != JwtTokenType.ACCESS || !StringUtils.hasText(payload.subject())) {
             return false;
         }
@@ -84,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        Member member = memberOptional.get();
+        final Member member = memberOptional.get();
         if (member.getTokenVersion() != payload.tokenVersion()) {
             return false;
         }

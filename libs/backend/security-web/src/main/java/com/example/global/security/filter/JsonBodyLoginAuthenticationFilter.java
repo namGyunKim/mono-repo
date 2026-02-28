@@ -2,7 +2,11 @@ package com.example.global.security.filter;
 
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.payload.response.ApiErrorDetail;
-import com.example.global.security.filter.support.*;
+import com.example.global.security.filter.support.JsonBodyLoginErrorWriter;
+import com.example.global.security.filter.support.JsonBodyLoginRequestParser;
+import com.example.global.security.filter.support.JsonBodyLoginRequestValidator;
+import com.example.global.security.filter.support.LoginRequestParseResult;
+import com.example.global.security.filter.support.LoginRequestValidationResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -77,16 +81,16 @@ public class JsonBodyLoginAuthenticationFilter extends UsernamePasswordAuthentic
             return null;
         }
 
-        LoginRequestParseResult parseResult = requestParser.parse(request);
+        final LoginRequestParseResult parseResult = requestParser.parse(request);
         if (parseResult.hasErrors()) {
             errorWriter.writeBadRequest(request, response, ErrorCode.INVALID_PARAMETER, parseResult.errors());
             return null;
         }
 
-        Object loginRequest = parseResult.loginRequest();
-        LoginRequestValidationResult validationResult = requestValidator.validate(loginRequest);
-        String loginId = validationResult.loginId();
-        String password = validationResult.password();
+        final Object loginRequest = parseResult.loginRequest();
+        final LoginRequestValidationResult validationResult = requestValidator.validate(loginRequest);
+        final String loginId = validationResult.loginId();
+        final String password = validationResult.password();
 
         // 로그인 실패 로그에서 loginId 식별이 가능하도록 attribute에 보관합니다.
         if (loginId != null) {
@@ -98,7 +102,7 @@ public class JsonBodyLoginAuthenticationFilter extends UsernamePasswordAuthentic
             return null;
         }
 
-        UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
+        final UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginId,
                 password
         );

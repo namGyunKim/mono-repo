@@ -4,7 +4,11 @@ import com.example.domain.member.payload.dto.MemberLoginIdQuery;
 import com.example.global.config.web.RequestLoggingAttributes;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.payload.response.ApiErrorDetail;
-import com.example.global.security.handler.support.*;
+import com.example.global.security.handler.support.LoginFailureEventPublisher;
+import com.example.global.security.handler.support.LoginFailureLogWriter;
+import com.example.global.security.handler.support.LoginFailureMessageResolver;
+import com.example.global.security.handler.support.LoginFailureRequestResolver;
+import com.example.global.security.handler.support.LoginFailureResponseWriter;
 import com.example.global.security.service.query.MemberAuthQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,10 +49,10 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
             return;
         }
 
-        String loginIdForEvent = loginFailureRequestResolver.resolveLoginIdOrDefault(request, DEFAULT_LOGIN_ID);
+        final String loginIdForEvent = loginFailureRequestResolver.resolveLoginIdOrDefault(request, DEFAULT_LOGIN_ID);
 
         // 1) 폼 로그인 입력값 누락은 400으로 분리 (JSON 로그인은 Filter 단계에서 이미 400 처리됨)
-        List<ApiErrorDetail> missingCredentialErrors = loginFailureRequestResolver.resolveMissingCredentialErrors(request);
+        final List<ApiErrorDetail> missingCredentialErrors = loginFailureRequestResolver.resolveMissingCredentialErrors(request);
         if (!missingCredentialErrors.isEmpty()) {
             loginFailureEventPublisher.publishLoginFailEvent(loginIdForEvent, null, "로그인 요청 값 누락");
             markFilterLogged(request);
@@ -63,14 +67,13 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
         }
 
         // 2) 인증 실패(401)
-        String loginId = loginFailureRequestResolver.resolveLoginId(request).orElse(null);
+        final String loginId = loginFailureRequestResolver.resolveLoginId(request).orElse(null);
 
-        Long memberId = null;
-        if (loginId != null && !loginId.isBlank()) {
-            memberId = memberAuthQueryService.findMemberIdByLoginId(MemberLoginIdQuery.of(loginId)).orElse(null);
-        }
+        final Long memberId = (loginId != null && !loginId.isBlank())
+                ? memberAuthQueryService.findMemberIdByLoginId(MemberLoginIdQuery.of(loginId)).orElse(null)
+                : null;
 
-        String detailMessage = loginFailureMessageResolver.resolve(exception);
+        final String detailMessage = loginFailureMessageResolver.resolve(exception);
         loginFailureEventPublisher.publishLoginFailEvent(loginIdForEvent, memberId, detailMessage);
         markFilterLogged(request);
         loginFailureLogWriter.logAuthFailure(request, loginId, detailMessage);

@@ -50,7 +50,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=" + StandardCharsets.UTF_8.name());
 
-        ApiErrorResponse body = ApiErrorResponse.from(ErrorCode.ACCESS_DENIED);
+        final ApiErrorResponse body = ApiErrorResponse.from(ErrorCode.ACCESS_DENIED);
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
@@ -59,7 +59,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             return;
         }
 
-        CurrentAccountDTO currentAccount = resolveCurrentAccount();
+        final CurrentAccountDTO currentAccount = resolveCurrentAccount();
         applicationEventPublisher.publishEvent(
                 ExceptionEvent.from(e, ErrorCode.ACCESS_DENIED, message, currentAccount, request)
         );
@@ -73,7 +73,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         if (e == null) {
             return "권한이 없습니다.";
         }
-        String msg = e.getMessage();
+        final String msg = e.getMessage();
         if (msg == null || msg.isBlank()) {
             return "권한이 없습니다.";
         }
