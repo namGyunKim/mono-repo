@@ -55,7 +55,7 @@
 - 파일 읽기/탐색/검색은 자율 진행
 ---
 
-# MCP 서버 (Serena, Context7, PostgreSQL)
+# MCP 서버 (Serena, Context7, Postgres)
 
 이 워크스페이스에는 세 개의 MCP 서버가 연결되어 있다.
 
