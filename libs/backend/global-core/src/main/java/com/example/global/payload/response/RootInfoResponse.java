@@ -28,7 +28,7 @@ public record RootInfoResponse(
     }
 
     public static RootInfoResponse of(boolean swaggerUiEnabled) {
-        String swaggerUiUrl = swaggerUiEnabled ? "/swagger-ui.html" : "";
+        final String swaggerUiUrl = swaggerUiEnabled ? "/swagger-ui.html" : "";
 
         return of(
                 "REST API 서버가 실행 중입니다.",

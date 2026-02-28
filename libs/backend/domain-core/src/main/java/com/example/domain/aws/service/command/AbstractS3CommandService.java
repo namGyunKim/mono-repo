@@ -40,9 +40,9 @@ public abstract class AbstractS3CommandService extends AbstractS3ServiceSupport 
     @Override
     public String uploadImage(S3ImageUploadCommand command) {
         validateUploadCommand(command);
-        MultipartFile file = command.file();
-        ImageType imageType = command.imageType();
-        Long entityId = command.entityId();
+        final MultipartFile file = command.file();
+        final ImageType imageType = command.imageType();
+        final Long entityId = command.entityId();
         validateImageType(imageType);
         return s3UploadSupport.upload(file, imageType, entityId);
     }
@@ -70,8 +70,8 @@ public abstract class AbstractS3CommandService extends AbstractS3ServiceSupport 
     @Override
     public String cloneImageFromUrl(S3ImageCloneCommand command) {
         validateCloneCommand(command);
-        ImageType destinationImageType = command.destinationImageType();
-        Long destinationEntityId = command.destinationEntityId();
+        final ImageType destinationImageType = command.destinationImageType();
+        final Long destinationEntityId = command.destinationEntityId();
         validateImageType(destinationImageType);
         return s3CloneSupport.cloneFromUrl(command.sourceS3Url(), destinationImageType, destinationEntityId);
     }

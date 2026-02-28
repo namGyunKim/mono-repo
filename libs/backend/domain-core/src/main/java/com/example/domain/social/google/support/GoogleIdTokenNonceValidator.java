@@ -33,7 +33,7 @@ public class GoogleIdTokenNonceValidator {
             return;
         }
 
-        String idToken = tokenResponse != null ? tokenResponse.idToken() : null;
+        final String idToken = tokenResponse != null ? tokenResponse.idToken() : null;
         if (!StringUtils.hasText(idToken)) {
             throw new SocialException(
                     ErrorCode.GOOGLE_OAUTH_ID_TOKEN_MISSING,
@@ -41,7 +41,7 @@ public class GoogleIdTokenNonceValidator {
             );
         }
 
-        String nonceFromToken = extractNonceFromIdToken(idToken)
+        final String nonceFromToken = extractNonceFromIdToken(idToken)
                 .orElseThrow(() -> new SocialException(
                         ErrorCode.GOOGLE_OAUTH_INVALID_ID_TOKEN,
                         "id_token에 nonce가 존재하지 않습니다."
@@ -54,14 +54,14 @@ public class GoogleIdTokenNonceValidator {
 
     private Optional<String> extractNonceFromIdToken(String idToken) {
         try {
-            String[] parts = idToken.split("\\.");
+            final String[] parts = idToken.split("\\.");
             if (parts.length < 2) {
                 throw new SocialException(ErrorCode.GOOGLE_OAUTH_INVALID_ID_TOKEN, "id_token 형식이 올바르지 않습니다.");
             }
 
-            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
-            JsonNode payload = objectMapper.readTree(payloadJson);
-            JsonNode nonceNode = payload.get("nonce");
+            final String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+            final JsonNode payload = objectMapper.readTree(payloadJson);
+            final JsonNode nonceNode = payload.get("nonce");
             if (nonceNode == null || nonceNode.isNull() || nonceNode.isMissingNode()) {
                 return Optional.empty();
             }

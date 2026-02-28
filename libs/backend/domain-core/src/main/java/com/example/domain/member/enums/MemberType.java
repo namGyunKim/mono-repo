@@ -1,6 +1,5 @@
 package com.example.domain.member.enums;
 
-import com.example.domain.account.enums.AccountRole;
 import com.example.global.utils.EnumParser;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
@@ -44,10 +43,5 @@ public enum MemberType {
 
     public boolean checkSocialType() {
         return this == GOOGLE;
-    }
-
-    // 소셜 타입의 기본 권한을 반환하는 메서드 추가
-    public AccountRole getDefaultRole() {
-        return AccountRole.USER;
     }
 }

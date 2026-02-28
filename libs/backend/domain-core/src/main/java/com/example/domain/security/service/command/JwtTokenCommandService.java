@@ -7,6 +7,7 @@ import com.example.global.security.jwt.JwtTokenType;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JwtTokenCommandService {
 
@@ -29,8 +31,8 @@ public class JwtTokenCommandService {
 
     private String generateToken(SecurityMemberTokenInfo memberInfo, JwtTokenType tokenType, Duration ttl) {
         validateTtl(ttl, tokenType.name().toLowerCase());
-        Instant now = Instant.now();
-        Instant expiresAt = now.plus(ttl);
+        final Instant now = Instant.now();
+        final Instant expiresAt = now.plus(ttl);
 
         return Jwts.builder()
                 .issuer(keyProvider.getProperties().issuer())

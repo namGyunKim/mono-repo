@@ -29,7 +29,7 @@ public class GoogleSocialCommandService {
      * PKCE + nonce 검증을 포함한 구글 소셜 로그인 처리
      */
     public Long registerOrLoginBySocialCode(GoogleOauthLoginCommand command) {
-        GoogleOauthResult result = googleOauthProcessor.authenticate(command);
+        final GoogleOauthResult result = googleOauthProcessor.authenticate(command);
         return googleSocialMemberRegistrar.registerOrLogin(result.userInfo(), result.refreshToken()).getId();
     }
 

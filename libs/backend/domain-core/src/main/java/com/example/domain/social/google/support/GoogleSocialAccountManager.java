@@ -51,7 +51,7 @@ public class GoogleSocialAccountManager {
         if (socialAccount == null || !StringUtils.hasText(refreshToken)) {
             return;
         }
-        String encrypted = refreshTokenCrypto.encrypt(refreshToken);
+        final String encrypted = refreshTokenCrypto.encrypt(refreshToken);
         socialAccount.updateRefreshTokenEncrypted(encrypted);
     }
 }

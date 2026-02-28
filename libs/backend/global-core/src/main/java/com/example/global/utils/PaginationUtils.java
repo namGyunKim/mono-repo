@@ -55,8 +55,8 @@ public final class PaginationUtils {
     }
 
     public static Pageable toPageable(Integer page, Integer size, int defaultSize, int maxSize, Sort sort) {
-        int normalizedPage = normalizePage(page);
-        int normalizedSize = normalizeSize(size, defaultSize, maxSize);
+        final int normalizedPage = normalizePage(page);
+        final int normalizedSize = normalizeSize(size, defaultSize, maxSize);
         return PageRequest.of(normalizedPage - 1, normalizedSize, sort);
     }
 
@@ -65,8 +65,8 @@ public final class PaginationUtils {
     }
 
     public static Pageable toPageable(Integer page, Integer size, int defaultSize, int maxSize) {
-        int normalizedPage = normalizePage(page);
-        int normalizedSize = normalizeSize(size, defaultSize, maxSize);
+        final int normalizedPage = normalizePage(page);
+        final int normalizedSize = normalizeSize(size, defaultSize, maxSize);
         return PageRequest.of(normalizedPage - 1, normalizedSize);
     }
 }

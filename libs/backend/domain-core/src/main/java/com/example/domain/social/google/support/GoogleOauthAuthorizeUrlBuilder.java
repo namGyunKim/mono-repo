@@ -51,29 +51,38 @@ public class GoogleOauthAuthorizeUrlBuilder {
     }
 
     private String normalizeScope(String rawScope) {
-        Set<String> scopes = new LinkedHashSet<>();
-
-        if (StringUtils.hasText(rawScope)) {
-            String[] tokens = rawScope.replace(",", " ").trim().split("\\s+");
-            for (String token : tokens) {
-                if (StringUtils.hasText(token)) {
-                    scopes.add(token.trim());
-                }
-            }
-        }
-
-        // [표준] nonce/id_token 검증을 위해 openid는 강제 포함
-        if (!scopes.contains("openid")) {
-            LinkedHashSet<String> withOpenId = new LinkedHashSet<>();
-            withOpenId.add("openid");
-            withOpenId.addAll(scopes);
-            scopes = withOpenId;
-        }
+        final Set<String> parsed = parseRawScope(rawScope);
+        final LinkedHashSet<String> scopes = ensureOpenIdFirst(parsed);
 
         // [기본] userinfo 호출에서 필요한 값
         scopes.add("email");
         scopes.add("profile");
 
         return String.join(" ", scopes);
+    }
+
+    private Set<String> parseRawScope(String rawScope) {
+        if (!StringUtils.hasText(rawScope)) {
+            return new LinkedHashSet<>();
+        }
+        final Set<String> scopes = new LinkedHashSet<>();
+        final String[] tokens = rawScope.replace(",", " ").trim().split("\\s+");
+        for (final String token : tokens) {
+            if (StringUtils.hasText(token)) {
+                scopes.add(token.trim());
+            }
+        }
+        return scopes;
+    }
+
+    private LinkedHashSet<String> ensureOpenIdFirst(Set<String> scopes) {
+        if (scopes.contains("openid")) {
+            return new LinkedHashSet<>(scopes);
+        }
+        // [표준] nonce/id_token 검증을 위해 openid는 강제 포함
+        final LinkedHashSet<String> withOpenId = new LinkedHashSet<>();
+        withOpenId.add("openid");
+        withOpenId.addAll(scopes);
+        return withOpenId;
     }
 }

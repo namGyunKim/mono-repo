@@ -24,25 +24,25 @@ public class GoogleSocialMemberRegistrar {
     private final GoogleSocialActivityPublisher activityPublisher;
 
     public Member registerOrLogin(GoogleUserInfoResponse userInfo, String refreshToken) {
-        String socialKey = requireSocialKey(userInfo);
-        Optional<SocialAccount> socialAccount = socialAccountManager.findBySocialKey(socialKey);
+        final String socialKey = requireSocialKey(userInfo);
+        final Optional<SocialAccount> socialAccount = socialAccountManager.findBySocialKey(socialKey);
 
-        Optional<Member> activeMember = resolveActiveUserMember(socialAccount);
+        final Optional<Member> activeMember = resolveActiveUserMember(socialAccount);
         if (activeMember.isPresent()) {
-            Member existingMember = activeMember.get();
+            final Member existingMember = activeMember.get();
             socialAccount.ifPresent(account -> socialAccountManager.updateRefreshTokenIfPresent(account, refreshToken));
-            activityPublisher.publishLogin(existingMember);
+            activityPublisher.publishLogin(existingMember.getLoginId(), existingMember.getId());
             return existingMember;
         }
 
         socialAccount.ifPresent(socialAccountManager::deleteIfExists);
 
-        Member savedMember = memberCreator.register(userInfo, socialKey);
-        SocialAccount newSocialAccount = socialAccountManager.create(savedMember, socialKey);
+        final Member savedMember = memberCreator.register(userInfo, socialKey);
+        final SocialAccount newSocialAccount = socialAccountManager.create(savedMember, socialKey);
         socialAccountManager.updateRefreshTokenIfPresent(newSocialAccount, refreshToken);
         socialAccountManager.save(newSocialAccount);
 
-        activityPublisher.publishJoin(savedMember);
+        activityPublisher.publishJoin(savedMember.getLoginId(), savedMember.getId());
         return savedMember;
     }
 

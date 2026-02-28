@@ -1,5 +1,7 @@
 package com.example.global.version;
 
+import java.util.List;
+
 /**
  * API Versioning 공통 상수
  *
@@ -52,7 +54,7 @@ public final class ApiVersioning {
     /**
      * 지원하는 API 버전 목록
      */
-    public static final java.util.List<String> SUPPORTED_VERSIONS = java.util.List.of(V1, V2, V3);
+    public static final List<String> SUPPORTED_VERSIONS = List.of(V1, V2, V3);
 
     private ApiVersioning() {
     }

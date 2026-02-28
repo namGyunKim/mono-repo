@@ -47,12 +47,12 @@ public final class LoggingSanitizerPolicy {
             return false;
         }
 
-        String key = fieldName.trim();
+        final String key = fieldName.trim();
         if (SENSITIVE_FIELD_NAMES.contains(key)) {
             return true;
         }
 
-        String lower = key.toLowerCase(Locale.ROOT);
+        final String lower = key.toLowerCase(Locale.ROOT);
         if (SENSITIVE_FIELD_NAMES.contains(lower)) {
             return true;
         }

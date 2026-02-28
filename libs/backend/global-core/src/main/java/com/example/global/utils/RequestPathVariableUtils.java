@@ -25,17 +25,17 @@ public final class RequestPathVariableUtils {
             return Optional.empty();
         }
 
-        Object attribute = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+        final Object attribute = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (!(attribute instanceof Map<?, ?> map)) {
             return Optional.empty();
         }
 
-        Object value = map.get(name);
+        final Object value = map.get(name);
         if (value == null) {
             return Optional.empty();
         }
 
-        String stringValue = String.valueOf(value).trim();
+        final String stringValue = String.valueOf(value).trim();
         if (stringValue.isEmpty()) {
             return Optional.empty();
         }

@@ -47,7 +47,7 @@ public class SocialAccount extends BaseTimeEntity implements Serializable {
     private String refreshTokenEncrypted;
 
     public static SocialAccount from(Member member, SocialProvider provider, String socialKey) {
-        SocialAccount account = new SocialAccount();
+        final SocialAccount account = new SocialAccount();
         account.member = member;
         account.provider = provider;
         account.socialKey = socialKey;

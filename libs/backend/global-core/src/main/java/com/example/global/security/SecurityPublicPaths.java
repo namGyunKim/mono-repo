@@ -43,7 +43,7 @@ public final class SecurityPublicPaths {
             return false;
         }
 
-        String normalizedPath = path.trim();
+        final String normalizedPath = path.trim();
         if (HEALTH_CHECK_PATH.equals(normalizedPath)) {
             return true;
         }

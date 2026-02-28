@@ -35,9 +35,9 @@ public class JwtTokenRefreshCommandService {
     private final RefreshTokenCrypto refreshTokenCrypto;
 
     public RefreshTokenResponse refreshTokens(RefreshTokenIssueCommand command) {
-        String refreshToken = resolveRefreshToken(command);
-        JwtTokenPayload payload = parseRefreshToken(refreshToken);
-        SecurityMemberTokenInfo memberInfo = loadMemberInfoForRefresh(payload);
+        final String refreshToken = resolveRefreshToken(command);
+        final JwtTokenPayload payload = parseRefreshToken(refreshToken);
+        final SecurityMemberTokenInfo memberInfo = loadMemberInfoForRefresh(payload);
         validateTokenVersion(memberInfo, payload);
         validateNotBlacklisted(memberInfo, refreshToken);
         validateStoredRefreshToken(memberInfo, refreshToken);
@@ -52,7 +52,7 @@ public class JwtTokenRefreshCommandService {
     }
 
     private JwtTokenPayload parseRefreshToken(String refreshToken) {
-        JwtTokenParseResult parseResult = jwtTokenParser.parseTokenResult(refreshToken);
+        final JwtTokenParseResult parseResult = jwtTokenParser.parseTokenResult(refreshToken);
         if (parseResult.status() == JwtTokenParseStatus.EXPIRED) {
             throw new GlobalException(ErrorCode.REFRESH_TOKEN_EXPIRED, "리프레시 토큰이 만료되었습니다.");
         }
@@ -60,7 +60,7 @@ public class JwtTokenRefreshCommandService {
             throw new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
         }
 
-        JwtTokenPayload payload = parseResult.payload();
+        final JwtTokenPayload payload = parseResult.payload();
         if (payload == null || payload.tokenType() != JwtTokenType.REFRESH || !StringUtils.hasText(payload.subject())) {
             throw new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
         }
@@ -68,7 +68,7 @@ public class JwtTokenRefreshCommandService {
     }
 
     private SecurityMemberTokenInfo loadMemberInfoForRefresh(JwtTokenPayload payload) {
-        SecurityMemberTokenInfo memberInfo = securityMemberTokenPort.findTokenInfoByLoginId(payload.subject())
+        final SecurityMemberTokenInfo memberInfo = securityMemberTokenPort.findTokenInfoByLoginId(payload.subject())
                 .orElseThrow(() -> new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다."));
 
         if (memberInfo.active() != MemberActiveStatus.ACTIVE) {
@@ -91,8 +91,8 @@ public class JwtTokenRefreshCommandService {
     }
 
     private void validateStoredRefreshToken(SecurityMemberTokenInfo memberInfo, String refreshToken) {
-        String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
-        String storedRefreshToken;
+        final String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
+        final String storedRefreshToken;
         try {
             storedRefreshToken = refreshTokenCrypto.decrypt(storedRefreshTokenEncrypted);
         } catch (IllegalStateException e) {
@@ -105,9 +105,9 @@ public class JwtTokenRefreshCommandService {
     }
 
     private RefreshTokenResponse reissueTokens(SecurityMemberTokenInfo memberInfo, String refreshToken) {
-        String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
-        String newRefreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
-        String newRefreshTokenEncrypted = refreshTokenCrypto.encrypt(newRefreshToken);
+        final String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
+        final String newRefreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
+        final String newRefreshTokenEncrypted = refreshTokenCrypto.encrypt(newRefreshToken);
 
         blacklistedTokenCommandService.blacklistToken(BlacklistedTokenRegisterCommand.of(refreshToken));
         securityMemberTokenPort.updateRefreshTokenEncrypted(memberInfo.id(), newRefreshTokenEncrypted);

@@ -9,9 +9,9 @@ public record RequestMeta(
         String path
 ) {
     public static RequestMeta from(HttpServletRequest request) {
-        String traceId = TraceIdUtils.resolveTraceId();
-        String method = request != null ? request.getMethod() : "";
-        String path = request != null ? request.getRequestURI() : "";
+        final String traceId = TraceIdUtils.resolveTraceId();
+        final String method = request != null ? request.getMethod() : "";
+        final String path = request != null ? request.getRequestURI() : "";
         return new RequestMeta(traceId, method, path);
     }
 }

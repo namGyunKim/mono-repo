@@ -33,17 +33,17 @@ public final class SensitiveLogMessageSanitizer {
     }
 
     private static String maskJsonPairs(String message) {
-        Matcher matcher = JSON_PAIR_PATTERN.matcher(message);
-        StringBuffer buffer = new StringBuffer();
+        final Matcher matcher = JSON_PAIR_PATTERN.matcher(message);
+        final StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
-            String fieldName = matcher.group(1);
+            final String fieldName = matcher.group(1);
             if (!LoggingSanitizerPolicy.isSensitiveField(fieldName)) {
                 matcher.appendReplacement(buffer, Matcher.quoteReplacement(matcher.group(0)));
                 continue;
             }
 
-            String replacement = "\"%s\":\"%s\"".formatted(fieldName, MASKED_VALUE);
+            final String replacement = "\"%s\":\"%s\"".formatted(fieldName, MASKED_VALUE);
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
         }
 
@@ -52,17 +52,17 @@ public final class SensitiveLogMessageSanitizer {
     }
 
     private static String maskKeyValuePairs(String message) {
-        Matcher matcher = KEY_VALUE_PATTERN.matcher(message);
-        StringBuffer buffer = new StringBuffer();
+        final Matcher matcher = KEY_VALUE_PATTERN.matcher(message);
+        final StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
-            String fieldName = matcher.group(1);
+            final String fieldName = matcher.group(1);
             if (!LoggingSanitizerPolicy.isSensitiveField(fieldName)) {
                 matcher.appendReplacement(buffer, Matcher.quoteReplacement(matcher.group(0)));
                 continue;
             }
 
-            String replacement = "%s%s%s".formatted(fieldName, matcher.group(2), MASKED_VALUE);
+            final String replacement = "%s%s%s".formatted(fieldName, matcher.group(2), MASKED_VALUE);
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
         }
 
@@ -71,11 +71,11 @@ public final class SensitiveLogMessageSanitizer {
     }
 
     private static String maskBearerToken(String message) {
-        Matcher matcher = BEARER_PATTERN.matcher(message);
-        StringBuffer buffer = new StringBuffer();
+        final Matcher matcher = BEARER_PATTERN.matcher(message);
+        final StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
-            String replacement = "%s%s".formatted(matcher.group(1), MASKED_VALUE);
+            final String replacement = "%s%s".formatted(matcher.group(1), MASKED_VALUE);
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
         }
 

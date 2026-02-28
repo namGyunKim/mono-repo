@@ -43,12 +43,12 @@ public class RefreshTokenCrypto {
         }
 
         try {
-            HKDFParameterSpec parameters = HKDFParameterSpec.ofExtract()
+            final HKDFParameterSpec parameters = HKDFParameterSpec.ofExtract()
                     .addIKM(secret.getBytes(StandardCharsets.UTF_8))
                     .addSalt(KEY_DERIVATION_SALT)
                     .thenExpand(KEY_DERIVATION_INFO, KEY_LENGTH_BYTES);
 
-            KDF kdf = KDF.getInstance(KDF_ALGORITHM);
+            final KDF kdf = KDF.getInstance(KDF_ALGORITHM);
             return kdf.deriveData(parameters);
         } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
             throw new IllegalStateException("리프레시 토큰 암호화 키 생성에 실패했습니다.", e);
@@ -61,14 +61,14 @@ public class RefreshTokenCrypto {
         }
 
         try {
-            byte[] iv = new byte[IV_LENGTH];
+            final byte[] iv = new byte[IV_LENGTH];
             secureRandom.nextBytes(iv);
 
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
-            byte[] cipherText = cipher.doFinal(refreshToken.getBytes(StandardCharsets.UTF_8));
+            final byte[] cipherText = cipher.doFinal(refreshToken.getBytes(StandardCharsets.UTF_8));
 
-            ByteBuffer buffer = ByteBuffer.allocate(iv.length + cipherText.length);
+            final ByteBuffer buffer = ByteBuffer.allocate(iv.length + cipherText.length);
             buffer.put(iv);
             buffer.put(cipherText);
 
@@ -84,17 +84,17 @@ public class RefreshTokenCrypto {
         }
 
         try {
-            byte[] combined = Base64.getDecoder().decode(encryptedRefreshToken);
+            final byte[] combined = Base64.getDecoder().decode(encryptedRefreshToken);
             if (combined.length <= IV_LENGTH) {
                 throw new IllegalStateException("리프레시 토큰 암호문 형식이 올바르지 않습니다.");
             }
 
-            byte[] iv = Arrays.copyOfRange(combined, 0, IV_LENGTH);
-            byte[] cipherText = Arrays.copyOfRange(combined, IV_LENGTH, combined.length);
+            final byte[] iv = Arrays.copyOfRange(combined, 0, IV_LENGTH);
+            final byte[] cipherText = Arrays.copyOfRange(combined, IV_LENGTH, combined.length);
 
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(TAG_LENGTH_BIT, iv));
-            byte[] plainText = cipher.doFinal(cipherText);
+            final byte[] plainText = cipher.doFinal(cipherText);
 
             return new String(plainText, StandardCharsets.UTF_8);
         } catch (IllegalStateException e) {

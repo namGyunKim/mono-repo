@@ -19,12 +19,12 @@ public final class LoginLoggingUtils {
             return Optional.empty();
         }
 
-        String loginId = request.getParameter(paramName);
+        final String loginId = request.getParameter(paramName);
         if (hasText(loginId)) {
             return Optional.of(loginId);
         }
 
-        Object attribute = request.getAttribute(attributeName);
+        final Object attribute = request.getAttribute(attributeName);
         if (attribute instanceof String attrLoginId && hasText(attrLoginId)) {
             return Optional.of(attrLoginId);
         }
@@ -46,12 +46,12 @@ public final class LoginLoggingUtils {
             return "[]";
         }
 
-        int limit = Math.min(errors.size(), 5);
-        StringBuilder sb = new StringBuilder();
+        final int limit = Math.min(errors.size(), 5);
+        final StringBuilder sb = new StringBuilder();
         sb.append('[');
 
         for (int i = 0; i < limit; i++) {
-            ApiErrorDetail error = errors.get(i);
+            final ApiErrorDetail error = errors.get(i);
             if (error == null) {
                 continue;
             }

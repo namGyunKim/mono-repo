@@ -15,15 +15,15 @@ public class S3UrlParser {
 
     public S3UrlParts parseS3Url(String s3Url, String region) {
         try {
-            URI uri = URI.create(s3Url);
-            URL url = uri.toURL();
-            String host = url.getHost();
-            String path = url.getPath();
-            String key = path.substring(1);
+            final URI uri = URI.create(s3Url);
+            final URL url = uri.toURL();
+            final String host = url.getHost();
+            final String path = url.getPath();
+            final String key = path.substring(1);
 
-            String s3Suffix = ".s3.%s.amazonaws.com".formatted(region);
-            String bucket;
-            int s3Index = host.indexOf(s3Suffix);
+            final String s3Suffix = ".s3.%s.amazonaws.com".formatted(region);
+            final String bucket;
+            final int s3Index = host.indexOf(s3Suffix);
             if (s3Index != -1) {
                 bucket = host.substring(0, s3Index);
             } else {
@@ -40,12 +40,12 @@ public class S3UrlParser {
             return generateFallbackFilename();
         }
 
-        String utf8Result = tryParseUtf8Filename(contentDisposition);
+        final String utf8Result = tryParseUtf8Filename(contentDisposition);
         if (utf8Result != null) {
             return utf8Result;
         }
 
-        String plainResult = tryParsePlainFilename(contentDisposition);
+        final String plainResult = tryParsePlainFilename(contentDisposition);
         if (plainResult != null) {
             return plainResult;
         }
@@ -54,8 +54,8 @@ public class S3UrlParser {
     }
 
     private String tryParseUtf8Filename(String contentDisposition) {
-        String prefix = "filename*=\"UTF-8''";
-        int startIndex = contentDisposition.indexOf(prefix);
+        final String prefix = "filename*=\"UTF-8''";
+        final int startIndex = contentDisposition.indexOf(prefix);
         if (startIndex == -1) {
             return null;
         }
@@ -71,8 +71,8 @@ public class S3UrlParser {
     }
 
     private String tryParsePlainFilename(String contentDisposition) {
-        String fnPrefix = "filename=";
-        int startIndex = contentDisposition.indexOf(fnPrefix);
+        final String fnPrefix = "filename=";
+        final int startIndex = contentDisposition.indexOf(fnPrefix);
         if (startIndex == -1) {
             return null;
         }

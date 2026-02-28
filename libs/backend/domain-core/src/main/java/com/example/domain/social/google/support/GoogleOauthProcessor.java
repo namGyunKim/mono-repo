@@ -37,26 +37,26 @@ public class GoogleOauthProcessor {
     private String redirectUri;
 
     public GoogleOauthResult authenticate(GoogleOauthLoginCommand command) {
-        String code = requireAuthorizationCode(command);
-        String codeVerifier = command != null ? command.codeVerifier() : null;
-        String expectedNonce = command != null ? command.expectedNonce() : null;
+        final String code = requireAuthorizationCode(command);
+        final String codeVerifier = command != null ? command.codeVerifier() : null;
+        final String expectedNonce = command != null ? command.expectedNonce() : null;
 
-        GoogleTokenResponse tokenResponse = requireAccessToken(requestAccessToken(code, codeVerifier));
+        final GoogleTokenResponse tokenResponse = requireAccessToken(requestAccessToken(code, codeVerifier));
         idTokenNonceValidator.validate(tokenResponse, expectedNonce);
 
-        GoogleUserInfoResponse userInfo = requestUserInfo(tokenResponse.accessToken());
+        final GoogleUserInfoResponse userInfo = requestUserInfo(tokenResponse.accessToken());
         return GoogleOauthResult.of(userInfo, tokenResponse.refreshToken());
     }
 
     private GoogleTokenResponse requestAccessToken(String code, String codeVerifier) {
-        long startNanos = System.nanoTime();
-        GoogleTokenRequestCommand tokenRequest = GoogleTokenRequestCommand.ofAuthorizationCode(
+        final long startNanos = System.nanoTime();
+        final GoogleTokenRequestCommand tokenRequest = GoogleTokenRequestCommand.ofAuthorizationCode(
                 clientId, clientSecret, redirectUri, code, codeVerifier
         );
         try {
-            ResponseEntity<GoogleTokenResponse> response = googleApiClient.getToken(tokenRequest.toFormData());
-            long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
-            GoogleTokenResponse body = response.getBody();
+            final ResponseEntity<GoogleTokenResponse> response = googleApiClient.getToken(tokenRequest.toFormData());
+            final long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
+            final GoogleTokenResponse body = response.getBody();
             if (body == null) {
                 log.warn("traceId={}, 구글 토큰 API 응답 바디가 비어있습니다: status={}, elapsedMs={}",
                         TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs);
@@ -79,7 +79,7 @@ public class GoogleOauthProcessor {
     }
 
     private String requireAuthorizationCode(GoogleOauthLoginCommand command) {
-        String code = command != null ? command.code() : null;
+        final String code = command != null ? command.code() : null;
         if (!StringUtils.hasText(code)) {
             throw new SocialException(ErrorCode.GOOGLE_API_GET_CODE_ERROR, "구글 OAuth code가 누락되었습니다.");
         }
@@ -99,11 +99,11 @@ public class GoogleOauthProcessor {
     }
 
     private GoogleUserInfoResponse requestUserInfo(String accessToken) {
-        long startNanos = System.nanoTime();
+        final long startNanos = System.nanoTime();
         try {
-            ResponseEntity<GoogleUserInfoResponse> response = googleApiClient.getUserInfo(accessToken);
-            long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
-            GoogleUserInfoResponse body = response.getBody();
+            final ResponseEntity<GoogleUserInfoResponse> response = googleApiClient.getUserInfo(accessToken);
+            final long elapsedMs = GoogleOauthTimingSupport.elapsedMs(startNanos);
+            final GoogleUserInfoResponse body = response.getBody();
             if (body == null) {
                 log.warn("traceId={}, 구글 사용자 정보 API 응답 바디가 비어있습니다: status={}, elapsedMs={}, accessTokenPresent={}",
                         TraceIdUtils.resolveTraceId(), response.getStatusCode().value(), elapsedMs, StringUtils.hasText(accessToken));

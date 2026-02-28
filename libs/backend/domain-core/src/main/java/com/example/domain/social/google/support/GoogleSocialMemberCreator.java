@@ -26,10 +26,10 @@ public class GoogleSocialMemberCreator {
     private final PasswordEncoder passwordEncoder;
 
     public Member register(GoogleUserInfoResponse userInfo, String socialKey) {
-        String loginId = "google_%s".formatted(socialKey);
-        String nickName = createUniqueNickName(resolveBaseNickName(userInfo != null ? userInfo.name() : null));
+        final String loginId = "google_%s".formatted(socialKey);
+        final String nickName = createUniqueNickName(resolveBaseNickName(userInfo != null ? userInfo.name() : null));
 
-        Member newMember = Member.fromSocial(loginId, nickName, MemberType.GOOGLE);
+        final Member newMember = Member.fromSocial(loginId, nickName, MemberType.GOOGLE);
         newMember.updatePassword(passwordEncoder.encode(createRandomPassword()));
 
         return socialMemberRegistrationPort.saveSocialMember(newMember);

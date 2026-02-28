@@ -24,10 +24,10 @@ public class S3BucketResolver {
     }
 
     public S3BucketSelection resolve() {
-        boolean localProfileActive = Arrays.stream(environment.getActiveProfiles())
+        final boolean localProfileActive = Arrays.stream(environment.getActiveProfiles())
                 .anyMatch(profile -> profile.equalsIgnoreCase("local"));
-        boolean useLocalBucket = localProfileActive && localBucketName != null && !localBucketName.isBlank();
-        String bucketName = useLocalBucket ? localBucketName : defaultBucketName;
+        final boolean useLocalBucket = localProfileActive && localBucketName != null && !localBucketName.isBlank();
+        final String bucketName = useLocalBucket ? localBucketName : defaultBucketName;
         return S3BucketSelection.of(bucketName, useLocalBucket);
     }
 }

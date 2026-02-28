@@ -31,7 +31,7 @@ public class AsyncConfig {
     @Primary
     public AsyncTaskExecutor taskExecutor() {
         // 가상 스레드 기반의 Executor 생성
-        TaskExecutorAdapter adapter = new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
+        final TaskExecutorAdapter adapter = new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
 
         // 데코레이터를 통해 메인 스레드의 컨텍스트(로그, 인증)를 비동기 스레드로 복사
         adapter.setTaskDecorator(runnable -> {

@@ -37,13 +37,13 @@ public abstract class AbstractS3ServiceSupport {
 
     @PostConstruct
     public void init() {
-        S3BucketSelection selection = s3BucketResolver.resolve();
+        final S3BucketSelection selection = s3BucketResolver.resolve();
         this.bucketName = selection.bucketName();
         logBucket(selection.localBucket());
     }
 
     private void logBucket(boolean localBucket) {
-        String messageTemplate = localBucket ?
+        final String messageTemplate = localBucket ?
                 "traceId={}, 로컬 프로필이 감지되어 로컬 버킷({})을 사용합니다." :
                 "traceId={}, 운영 버킷({})을 사용합니다.";
         org.slf4j.LoggerFactory.getLogger(getClass())
@@ -55,7 +55,7 @@ public abstract class AbstractS3ServiceSupport {
     }
 
     protected void validateExtension(String originalFilename, ImageType imageType) {
-        String fileExtension = getFileExtension(originalFilename);
+        final String fileExtension = getFileExtension(originalFilename);
         imageType.validateExtension(fileExtension);
     }
 
@@ -63,8 +63,8 @@ public abstract class AbstractS3ServiceSupport {
         if (filename == null) {
             return "";
         }
-        String clean = filename.split("\\?")[0];
-        int lastDot = clean.lastIndexOf('.');
+        final String clean = filename.split("\\?")[0];
+        final int lastDot = clean.lastIndexOf('.');
         if (lastDot == -1 || lastDot == clean.length() - 1) {
             return "";
         }
@@ -91,7 +91,7 @@ public abstract class AbstractS3ServiceSupport {
     }
 
     protected String buildContentDisposition(String originalFilename) {
-        String encodedOriginalFilename = encodeFilename(originalFilename);
+        final String encodedOriginalFilename = encodeFilename(originalFilename);
         return "attachment; filename*=\"UTF-8''%s\"".formatted(encodedOriginalFilename);
     }
 

@@ -81,7 +81,7 @@ public class SwaggerConfig {
                         return;
                     }
 
-                    boolean alreadyAdded = operation.getParameters() != null
+                    final boolean alreadyAdded = operation.getParameters() != null
                             && operation.getParameters().stream().anyMatch(p -> p != null
                             && "header".equalsIgnoreCase(p.getIn())
                             && ApiVersioning.HEADER_NAME.equalsIgnoreCase(p.getName()));
@@ -130,7 +130,7 @@ public class SwaggerConfig {
                         return;
                     }
 
-                    boolean alreadyAdded = operation.getSecurity() != null
+                    final boolean alreadyAdded = operation.getSecurity() != null
                             && operation.getSecurity().stream().anyMatch(requirement -> requirement != null
                             && requirement.containsKey(BEARER_SECURITY_SCHEME));
 

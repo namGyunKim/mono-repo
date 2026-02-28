@@ -39,6 +39,35 @@ public record ExceptionEvent(
         debugStackTrace = sanitizeMessage(debugStackTrace);
     }
 
+    public static ExceptionEvent from(ExceptionContext context) {
+        return from(context, TraceIdUtils.resolveTraceId());
+    }
+
+    public static ExceptionEvent from(ExceptionContext context, String traceId) {
+        final Exception exception = context.exception();
+        final HttpServletRequest request = context.httpServletRequest();
+
+        final String requestPath = request != null ? request.getRequestURL().toString() : "";
+        final String requestMethod = request != null ? request.getMethod() : "";
+        final String clientIp = request != null ? ClientIpExtractor.extract(request) : "";
+
+        final String errorName = exception != null ? exception.getClass().getSimpleName() : "UnknownException";
+        final String debugStackTrace = resolveDebugStackTrace(exception);
+
+        return new ExceptionEvent(
+                traceId != null ? traceId : TraceIdUtils.resolveTraceId(),
+                requestPath,
+                requestMethod,
+                errorName,
+                context.errorCode(),
+                context.errorDetailMsg(),
+                debugStackTrace,
+                context.account(),
+                LocalDateTime.now(),
+                clientIp
+        );
+    }
+
     public static ExceptionEvent from(
             Exception exception,
             ErrorCode errorCode,
@@ -46,7 +75,7 @@ public record ExceptionEvent(
             CurrentAccountDTO account,
             HttpServletRequest httpServletRequest
     ) {
-        return from(exception, errorCode, errorDetailMsg, account, httpServletRequest, TraceIdUtils.resolveTraceId());
+        return from(ExceptionContext.of(exception, errorCode, errorDetailMsg, account, httpServletRequest));
     }
 
     public static ExceptionEvent from(
@@ -57,25 +86,7 @@ public record ExceptionEvent(
             HttpServletRequest httpServletRequest,
             String traceId
     ) {
-        String requestPath = httpServletRequest != null ? httpServletRequest.getRequestURL().toString() : "";
-        String requestMethod = httpServletRequest != null ? httpServletRequest.getMethod() : "";
-        String clientIp = httpServletRequest != null ? ClientIpExtractor.extract(httpServletRequest) : "";
-
-        String errorName = exception != null ? exception.getClass().getSimpleName() : "UnknownException";
-        String debugStackTrace = resolveDebugStackTrace(exception);
-
-        return new ExceptionEvent(
-                traceId != null ? traceId : TraceIdUtils.resolveTraceId(),
-                requestPath,
-                requestMethod,
-                errorName,
-                errorCode,
-                errorDetailMsg,
-                debugStackTrace,
-                account,
-                LocalDateTime.now(),
-                clientIp
-        );
+        return from(ExceptionContext.of(exception, errorCode, errorDetailMsg, account, httpServletRequest), traceId);
     }
 
     /**
@@ -86,8 +97,8 @@ public record ExceptionEvent(
             CurrentAccountDTO account,
             HttpServletRequest httpServletRequest
     ) {
-        ErrorMeta meta = ExceptionEventMapper.resolveErrorMeta(exception);
-        return from(exception, meta.errorCode(), meta.detailMessage(), account, httpServletRequest);
+        final ErrorMeta meta = ExceptionEventMapper.resolveErrorMeta(exception);
+        return from(ExceptionContext.of(exception, meta.errorCode(), meta.detailMessage(), account, httpServletRequest));
     }
 
     static String resolveDetailMessage(String message, ErrorCode fallbackErrorCode) {
@@ -182,7 +193,7 @@ public record ExceptionEvent(
      * 예외 이벤트를 구조화된(JSON) 로그용 Map으로 변환합니다.
      */
     public Map<String, Object> getStructuredLog() {
-        Map<String, Object> payload = new LinkedHashMap<>();
+        final Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("eventType", "exception");
         payload.put("traceId", traceId);
         payload.put("errorName", errorName);
@@ -202,7 +213,7 @@ public record ExceptionEvent(
         if (account == null) {
             return null;
         }
-        Map<String, Object> accountPayload = new LinkedHashMap<>();
+        final Map<String, Object> accountPayload = new LinkedHashMap<>();
         accountPayload.put("id", account.id());
         accountPayload.put("role", account.role() != null ? account.role().name() : null);
         accountPayload.put("loginId", account.loginId());

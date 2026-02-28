@@ -148,7 +148,7 @@ public class MemberGuard {
             Long targetId,
             MemberActiveStatus targetActive
     ) {
-        AccountRole currentRole = currentAccount.role();
+        final AccountRole currentRole = currentAccount.role();
         if (currentRole == null) {
             return false;
         }
@@ -201,12 +201,12 @@ public class MemberGuard {
             return false;
         }
 
-        Optional<AccountRole> currentRole = currentAccountProvider.getCurrentRole();
+        final Optional<AccountRole> currentRole = currentAccountProvider.getCurrentRole();
         if (currentRole.isEmpty()) {
             return false;
         }
 
-        AccountRole current = currentRole.get();
+        final AccountRole current = currentRole.get();
         return Arrays.stream(roles).anyMatch(role -> current == role);
     }
 }

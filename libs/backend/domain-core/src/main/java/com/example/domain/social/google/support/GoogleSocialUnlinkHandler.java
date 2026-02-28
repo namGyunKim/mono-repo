@@ -26,15 +26,15 @@ public class GoogleSocialUnlinkHandler {
             return;
         }
 
-        Long memberId = command.memberId();
-        String loginId = command.loginId();
+        final Long memberId = command.memberId();
+        final String loginId = command.loginId();
 
-        Optional<SocialAccount> socialAccount = findSocialAccountForUnlink(memberId, loginId);
+        final Optional<SocialAccount> socialAccount = findSocialAccountForUnlink(memberId, loginId);
         if (socialAccount.isEmpty()) {
             return;
         }
 
-        SocialAccount account = socialAccount.get();
+        final SocialAccount account = socialAccount.get();
         if (!hasRefreshTokenEncrypted(account, memberId, loginId)) {
             socialAccountManager.deleteIfExists(account);
             return;
@@ -49,7 +49,7 @@ public class GoogleSocialUnlinkHandler {
             return true;
         }
 
-        Long memberId = command.memberId();
+        final Long memberId = command.memberId();
         if (memberId == null || memberId <= 0) {
             log.warn("traceId={}, 구글 연동 해제 스킵: memberId 유효하지 않음", TraceIdUtils.resolveTraceId());
             return true;
@@ -59,7 +59,7 @@ public class GoogleSocialUnlinkHandler {
     }
 
     private Optional<SocialAccount> findSocialAccountForUnlink(Long memberId, String loginId) {
-        Optional<SocialAccount> socialAccount = socialAccountManager.findByMemberId(memberId);
+        final Optional<SocialAccount> socialAccount = socialAccountManager.findByMemberId(memberId);
         if (socialAccount.isEmpty()) {
             log.info(
                     "traceId={}, 구글 연동 해제 스킵: 소셜 계정 없음 memberId={}, loginId={}",
@@ -72,7 +72,7 @@ public class GoogleSocialUnlinkHandler {
     }
 
     private boolean hasRefreshTokenEncrypted(SocialAccount socialAccount, Long memberId, String loginId) {
-        String refreshTokenEncrypted = socialAccount.getRefreshTokenEncrypted();
+        final String refreshTokenEncrypted = socialAccount.getRefreshTokenEncrypted();
         if (StringUtils.hasText(refreshTokenEncrypted)) {
             return true;
         }

@@ -45,12 +45,12 @@ public final class EnumParser {
             return defaultValue;
         }
 
-        String normalized = raw.trim();
+        final String normalized = raw.trim();
         if (normalized.isEmpty()) {
             return defaultValue;
         }
 
-        E found = nameMap.get(normalized.toUpperCase(Locale.ROOT));
+        final E found = nameMap.get(normalized.toUpperCase(Locale.ROOT));
         return (found != null) ? found : defaultValue;
     }
 
@@ -59,12 +59,12 @@ public final class EnumParser {
             return null;
         }
 
-        String normalized = raw.trim();
+        final String normalized = raw.trim();
         if (normalized.isEmpty()) {
             return null;
         }
 
-        E[] constants = enumType.getEnumConstants();
+        final E[] constants = enumType.getEnumConstants();
         if (constants == null) {
             return null;
         }

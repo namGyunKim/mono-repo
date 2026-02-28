@@ -30,7 +30,7 @@ public class LogEventListener {
         if (logEvent == null) {
             return;
         }
-        String resolvedTxStatus = resolveTxStatus(txStatus);
+        final String resolvedTxStatus = resolveTxStatus(txStatus);
         log.info("traceId={}, txStatus={}, {}", logEvent.traceId(), resolvedTxStatus, logEvent.message());
     }
 

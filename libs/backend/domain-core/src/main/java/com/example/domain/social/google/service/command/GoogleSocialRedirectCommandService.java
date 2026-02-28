@@ -23,14 +23,14 @@ public class GoogleSocialRedirectCommandService {
     private final SocialLoginTokenPort socialLoginTokenPort;
 
     public LoginTokenResponse loginByRedirect(GoogleSocialRedirectCommand command) {
-        GoogleOauthSession oauthSession = googleOauthSessionResolver.resolveAndConsume(command);
+        final GoogleOauthSession oauthSession = googleOauthSessionResolver.resolveAndConsume(command);
 
-        Long memberId = googleSocialCommandService.registerOrLoginBySocialCode(
+        final Long memberId = googleSocialCommandService.registerOrLoginBySocialCode(
                 GoogleOauthLoginCommand.of(command.code(), oauthSession.codeVerifier(), oauthSession.nonce())
         );
         log.info("traceId={}, Google 소셜 로그인 성공: memberId={}", TraceIdUtils.resolveTraceId(), memberId);
 
-        LoginTokenResponse response = socialLoginTokenPort.issueTokens(memberId);
+        final LoginTokenResponse response = socialLoginTokenPort.issueTokens(memberId);
         log.info(
                 "traceId={}, Google 소셜 로그인 토큰 발급 완료: memberId={}, refreshTokenIssued={}",
                 TraceIdUtils.resolveTraceId(),

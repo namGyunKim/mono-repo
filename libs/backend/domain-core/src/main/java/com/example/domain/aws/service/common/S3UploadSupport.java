@@ -33,7 +33,7 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
     }
 
     public String upload(MultipartFile file, ImageType imageType, Long entityId) {
-        String originalFilename = resolveOriginalFilename(file);
+        final String originalFilename = resolveOriginalFilename(file);
         try {
             return uploadToS3Internal(file.getInputStream(), file.getSize(), originalFilename, imageType, entityId);
         } catch (IOException e) {
@@ -67,8 +67,8 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
             copyToTempFile(inputStream, tempFile);
             validateTempFileSize(tempFile, imageType);
             validateImageDimensions(tempFile, imageType);
-            String finalFileName = generateFinalUploadFileName(imageType, originalFilename);
-            PutObjectRequest putObjectRequest = buildPutObjectRequest(finalFileName, imageType, entityId, originalFilename);
+            final String finalFileName = generateFinalUploadFileName(imageType, originalFilename);
+            final PutObjectRequest putObjectRequest = buildPutObjectRequest(finalFileName, imageType, entityId, originalFilename);
             putObjectFromFile(putObjectRequest, tempFile);
             return finalFileName;
         } catch (IOException e) {
@@ -93,11 +93,11 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
 
     private String uploadDirectly(InputStream inputStream, long size, String originalFilename, ImageType imageType, Long entityId) {
         validateFileSize(size, imageType);
-        String finalFileName = generateFinalUploadFileName(imageType, originalFilename);
-        String s3Key = generateS3Key(finalFileName, imageType, entityId);
+        final String finalFileName = generateFinalUploadFileName(imageType, originalFilename);
+        final String s3Key = generateS3Key(finalFileName, imageType, entityId);
 
         try {
-            PutObjectRequest putObjectRequest = buildPutObjectRequest(s3Key, originalFilename);
+            final PutObjectRequest putObjectRequest = buildPutObjectRequest(s3Key, originalFilename);
             putObjectFromStream(putObjectRequest, inputStream, size);
             return finalFileName;
         } catch (Exception e) {
@@ -124,8 +124,8 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
     }
 
     private boolean requiresTempFile(ImageType imageType, long size) {
-        boolean needDimensionCheck = (imageType.getWidth() != null || imageType.getHeight() != null);
-        boolean sizeUnknown = (size == -1);
+        final boolean needDimensionCheck = (imageType.getWidth() != null || imageType.getHeight() != null);
+        final boolean sizeUnknown = (size == -1);
         return needDimensionCheck || sizeUnknown;
     }
 
@@ -147,20 +147,29 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
         if (imageType.getWidth() == null && imageType.getHeight() == null) {
             return;
         }
+        final BufferedImage image = readImage(tempFile);
+        validateDimensionMatch(image, imageType);
+    }
+
+    private BufferedImage readImage(File tempFile) {
         try {
-            BufferedImage image = ImageIO.read(tempFile);
+            final BufferedImage image = ImageIO.read(tempFile);
             if (image == null) {
                 throw new GlobalException(ErrorCode.INVALID_IMAGE_FILE);
             }
-            Integer width = image.getWidth();
-            Integer height = image.getHeight();
-
-            if ((imageType.getWidth() != null && !width.equals(imageType.getWidth())) ||
-                    (imageType.getHeight() != null && !height.equals(imageType.getHeight()))) {
-                throw new GlobalException(ErrorCode.INVALID_IMAGE_DIMENSIONS);
-            }
+            return image;
         } catch (IOException e) {
             throw new GlobalException(ErrorCode.INVALID_IMAGE_FILE);
+        }
+    }
+
+    private void validateDimensionMatch(BufferedImage image, ImageType imageType) {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+
+        if ((imageType.getWidth() != null && width != imageType.getWidth()) ||
+                (imageType.getHeight() != null && height != imageType.getHeight())) {
+            throw new GlobalException(ErrorCode.INVALID_IMAGE_DIMENSIONS);
         }
     }
 
@@ -171,7 +180,7 @@ public class S3UploadSupport extends AbstractS3ServiceSupport {
     }
 
     private PutObjectRequest buildPutObjectRequest(String finalFileName, ImageType imageType, Long entityId, String originalFilename) {
-        String s3Key = generateS3Key(finalFileName, imageType, entityId);
+        final String s3Key = generateS3Key(finalFileName, imageType, entityId);
         return buildPutObjectRequest(s3Key, originalFilename);
     }
 

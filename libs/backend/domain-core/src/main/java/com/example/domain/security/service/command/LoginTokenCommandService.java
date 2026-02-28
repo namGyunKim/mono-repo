@@ -26,14 +26,14 @@ public class LoginTokenCommandService {
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
 
     public LoginTokenResponse issueTokens(LoginTokenIssueCommand command) {
-        SecurityMemberTokenInfo memberInfo = findMemberTokenInfo(command);
+        final SecurityMemberTokenInfo memberInfo = findMemberTokenInfo(command);
         blacklistPreviousRefreshTokenIfPresent(memberInfo);
-        String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
-        String refreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
-        String refreshTokenEncrypted = refreshTokenCrypto.encrypt(refreshToken);
+        final String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
+        final String refreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
+        final String refreshTokenEncrypted = refreshTokenCrypto.encrypt(refreshToken);
         securityMemberTokenPort.updateRefreshTokenEncrypted(memberInfo.id(), refreshTokenEncrypted);
 
-        LoginMemberView memberView = LoginMemberView.of(
+        final LoginMemberView memberView = LoginMemberView.of(
                 memberInfo.id(),
                 memberInfo.loginId(),
                 memberInfo.role(),
@@ -48,13 +48,13 @@ public class LoginTokenCommandService {
         if (memberInfo == null) {
             return;
         }
-        String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
+        final String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
         if (!StringUtils.hasText(storedRefreshTokenEncrypted)) {
             return;
         }
 
         try {
-            String storedRefreshToken = refreshTokenCrypto.decrypt(storedRefreshTokenEncrypted);
+            final String storedRefreshToken = refreshTokenCrypto.decrypt(storedRefreshTokenEncrypted);
             if (StringUtils.hasText(storedRefreshToken)) {
                 blacklistedTokenCommandService.blacklistToken(BlacklistedTokenRegisterCommand.of(storedRefreshToken));
             }

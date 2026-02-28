@@ -23,7 +23,7 @@ public class JwtTokenParser {
     private final JwtTokenKeyProvider keyProvider;
 
     public Optional<JwtTokenPayload> parseToken(String token) {
-        JwtTokenParseResult result = parseTokenResult(token);
+        final JwtTokenParseResult result = parseTokenResult(token);
         if (result.status() != JwtTokenParseStatus.VALID) {
             return Optional.empty();
         }
@@ -36,7 +36,7 @@ public class JwtTokenParser {
         }
 
         try {
-            Claims claims = Jwts.parser()
+            final Claims claims = Jwts.parser()
                     .verifyWith(keyProvider.getSecretKey())
                     .build()
                     .parseSignedClaims(token)
@@ -51,15 +51,15 @@ public class JwtTokenParser {
     }
 
     private JwtTokenParseResult validateAndBuildResult(Claims claims) {
-        String subject = claims.getSubject();
-        String issuer = claims.getIssuer();
-        String tokenId = claims.getId();
-        String roleValue = claims.get(JwtTokenClaimKeys.ROLE, String.class);
-        String typeValue = claims.get(JwtTokenClaimKeys.TYPE, String.class);
-        Number versionValue = claims.get(JwtTokenClaimKeys.VERSION, Number.class);
-        Instant issuedAt = Optional.ofNullable(claims.getIssuedAt()).map(Date::toInstant).orElse(null);
-        Instant expiresAt = Optional.ofNullable(claims.getExpiration()).map(Date::toInstant).orElse(null);
-        Instant now = Instant.now();
+        final String subject = claims.getSubject();
+        final String issuer = claims.getIssuer();
+        final String tokenId = claims.getId();
+        final String roleValue = claims.get(JwtTokenClaimKeys.ROLE, String.class);
+        final String typeValue = claims.get(JwtTokenClaimKeys.TYPE, String.class);
+        final Number versionValue = claims.get(JwtTokenClaimKeys.VERSION, Number.class);
+        final Instant issuedAt = Optional.ofNullable(claims.getIssuedAt()).map(Date::toInstant).orElse(null);
+        final Instant expiresAt = Optional.ofNullable(claims.getExpiration()).map(Date::toInstant).orElse(null);
+        final Instant now = Instant.now();
 
         if (expiresAt != null && !expiresAt.isAfter(now)) {
             return JwtTokenParseResult.of(JwtTokenParseStatus.EXPIRED, null);
@@ -90,13 +90,13 @@ public class JwtTokenParser {
 
     private JwtTokenParseResult buildPayload(String subject, String roleValue, String typeValue,
                                              Number versionValue, Instant issuedAt, Instant expiresAt) {
-        AccountRole role = AccountRole.valueOf(roleValue);
-        JwtTokenType tokenType = JwtTokenType.valueOf(typeValue);
-        long tokenVersion = versionValue.longValue();
+        final AccountRole role = AccountRole.valueOf(roleValue);
+        final JwtTokenType tokenType = JwtTokenType.valueOf(typeValue);
+        final long tokenVersion = versionValue.longValue();
         if (tokenVersion < 0L) {
             return JwtTokenParseResult.of(JwtTokenParseStatus.INVALID, null);
         }
-        JwtTokenPayload payload = JwtTokenPayload.of(subject, role, tokenType, tokenVersion, issuedAt, expiresAt);
+        final JwtTokenPayload payload = JwtTokenPayload.of(subject, role, tokenType, tokenVersion, issuedAt, expiresAt);
         return JwtTokenParseResult.of(JwtTokenParseStatus.VALID, payload);
     }
 }

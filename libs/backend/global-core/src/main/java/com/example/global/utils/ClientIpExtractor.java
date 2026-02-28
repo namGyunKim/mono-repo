@@ -32,15 +32,15 @@ public final class ClientIpExtractor {
         }
 
         try {
-            for (String header : IP_HEADERS) {
-                String raw = request.getHeader(header);
-                String candidate = parse(header, raw);
+            for (final String header : IP_HEADERS) {
+                final String raw = request.getHeader(header);
+                final String candidate = parse(header, raw);
                 if (hasText(candidate)) {
                     return candidate;
                 }
             }
 
-            String remoteAddr = request.getRemoteAddr();
+            final String remoteAddr = request.getRemoteAddr();
             return hasText(remoteAddr) ? remoteAddr.trim() : "UNKNOWN";
         } catch (Exception e) {
             return "UNKNOWN";
@@ -52,7 +52,7 @@ public final class ClientIpExtractor {
             return null;
         }
 
-        String v = raw.trim();
+        final String v = raw.trim();
         if (!hasText(v) || "unknown".equalsIgnoreCase(v)) {
             return null;
         }
@@ -74,14 +74,14 @@ public final class ClientIpExtractor {
             return null;
         }
 
-        String first = firstToken(forwarded, ",");
+        final String first = firstToken(forwarded, ",");
         if (!hasText(first)) {
             return null;
         }
 
-        String[] parts = first.split(";");
-        for (String part : parts) {
-            String p = part.trim();
+        final String[] parts = first.split(";");
+        for (final String part : parts) {
+            final String p = part.trim();
             if (p.isEmpty()) {
                 continue;
             }
@@ -92,7 +92,7 @@ public final class ClientIpExtractor {
 
                 // IPv6: [....] 형태 처리
                 if (value.startsWith("[")) {
-                    int end = value.indexOf(']');
+                    final int end = value.indexOf(']');
                     if (end > 0) {
                         return value.substring(1, end);
                     }
@@ -112,14 +112,14 @@ public final class ClientIpExtractor {
             return null;
         }
 
-        String v = stripQuotes(raw.trim());
+        final String v = stripQuotes(raw.trim());
         if (!hasText(v) || "unknown".equalsIgnoreCase(v)) {
             return null;
         }
 
         // IPv6 bracket + port 형태: [2001:db8::1]:1234
         if (v.startsWith("[")) {
-            int end = v.indexOf(']');
+            final int end = v.indexOf(']');
             if (end > 0) {
                 return v.substring(1, end);
             }
@@ -141,7 +141,7 @@ public final class ClientIpExtractor {
         }
 
         // ':'가 1개이고, '.'를 포함하면 IPv4:port로 간주
-        int firstColon = v.indexOf(':');
+        final int firstColon = v.indexOf(':');
         if (firstColon < 0) {
             return false;
         }
@@ -156,12 +156,12 @@ public final class ClientIpExtractor {
             return null;
         }
 
-        String[] tokens = raw.split(delimiter);
+        final String[] tokens = raw.split(delimiter);
         if (tokens.length == 0) {
             return null;
         }
 
-        String first = tokens[0].trim();
+        final String first = tokens[0].trim();
         return hasText(first) ? first : null;
     }
 
@@ -170,10 +170,10 @@ public final class ClientIpExtractor {
             return v;
         }
 
-        String s = v.trim();
+        final String s = v.trim();
         if (s.length() >= 2) {
-            char first = s.charAt(0);
-            char last = s.charAt(s.length() - 1);
+            final char first = s.charAt(0);
+            final char last = s.charAt(s.length() - 1);
             if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
                 return s.substring(1, s.length() - 1).trim();
             }

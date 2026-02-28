@@ -31,13 +31,13 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
     public String cloneFromUrl(String sourceS3Url, ImageType destinationImageType, Long destinationEntityId) {
         final long startNanos = System.nanoTime();
         logCloneStart(sourceS3Url, destinationImageType, destinationEntityId);
-        S3UrlParts source = parseS3Url(sourceS3Url);
-        String originalFilename = fetchOriginalFilename(source, sourceS3Url);
-        String finalFileName = generateFinalUploadFileName(destinationImageType, originalFilename);
-        String destinationKey = generateS3Key(finalFileName, destinationImageType, destinationEntityId);
+        final S3UrlParts source = parseS3Url(sourceS3Url);
+        final String originalFilename = fetchOriginalFilename(source, sourceS3Url);
+        final String finalFileName = generateFinalUploadFileName(destinationImageType, originalFilename);
+        final String destinationKey = generateS3Key(finalFileName, destinationImageType, destinationEntityId);
 
         try {
-            CopyObjectRequest copyRequest = buildCopyRequest(source, destinationKey, originalFilename);
+            final CopyObjectRequest copyRequest = buildCopyRequest(source, destinationKey, originalFilename);
             executeCopy(copyRequest);
             logCloneSuccess(source, destinationKey, destinationImageType, destinationEntityId, elapsedMillis(startNanos));
         } catch (Exception e) {
@@ -89,8 +89,8 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
             long elapsedMs,
             Exception e
     ) {
-        String sourceBucket = source != null ? source.bucketName() : "UNKNOWN";
-        String sourceKey = source != null ? source.objectKey() : "UNKNOWN";
+        final String sourceBucket = source != null ? source.bucketName() : "UNKNOWN";
+        final String sourceKey = source != null ? source.objectKey() : "UNKNOWN";
         log.error(
                 """
                         traceId={}, errorCode={}, exceptionName={}, resultCode=FAILED, S3-to-S3 복사 실패: sourceUrl={}, sourceBucket={}, sourceKey={}, destinationBucket={}, destinationKey={}, destinationImageType={}, destinationEntityId={}, elapsedMs={}, errorMessage={}
@@ -117,11 +117,11 @@ public class S3CloneSupport extends AbstractS3ServiceSupport {
 
     private String fetchOriginalFilename(S3UrlParts source, String sourceS3Url) {
         try {
-            HeadObjectRequest headRequest = HeadObjectRequest.builder()
+            final HeadObjectRequest headRequest = HeadObjectRequest.builder()
                     .bucket(source.bucketName())
                     .key(source.objectKey())
                     .build();
-            HeadObjectResponse headResponse = s3Client.headObject(headRequest);
+            final HeadObjectResponse headResponse = s3Client.headObject(headRequest);
             return extractFilenameFromContentDisposition(headResponse.contentDisposition());
         } catch (Exception e) {
             log.warn(

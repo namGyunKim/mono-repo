@@ -24,14 +24,14 @@ public class GoogleOauthTokenRevoker {
     private final RefreshTokenCrypto refreshTokenCrypto;
 
     public void revoke(SocialAccount socialAccount, Long memberId, String loginId) {
-        Optional<String> decryptedToken = resolveDecryptedRefreshToken(socialAccount, memberId, loginId);
+        final Optional<String> decryptedToken = resolveDecryptedRefreshToken(socialAccount, memberId, loginId);
         if (decryptedToken.isEmpty()) {
             return;
         }
 
-        long startNanos = System.nanoTime();
+        final long startNanos = System.nanoTime();
         try {
-            ResponseEntity<Void> response = googleOauthClient.revokeToken(decryptedToken.get());
+            final ResponseEntity<Void> response = googleOauthClient.revokeToken(decryptedToken.get());
             log.info(
                     "traceId={}, 구글 토큰 revoke 호출 완료: status={}, elapsedMs={}, memberId={}, loginId={}",
                     TraceIdUtils.resolveTraceId(),
@@ -50,7 +50,7 @@ public class GoogleOauthTokenRevoker {
     }
 
     private Optional<String> resolveDecryptedRefreshToken(SocialAccount socialAccount, Long memberId, String loginId) {
-        String refreshTokenEncrypted = socialAccount != null ? socialAccount.getRefreshTokenEncrypted() : null;
+        final String refreshTokenEncrypted = socialAccount != null ? socialAccount.getRefreshTokenEncrypted() : null;
         if (!StringUtils.hasText(refreshTokenEncrypted)) {
             log.info(
                     "traceId={}, 구글 토큰 revoke 스킵: refresh_token_encrypted 없음 memberId={}, loginId={}",
@@ -61,7 +61,7 @@ public class GoogleOauthTokenRevoker {
             return Optional.empty();
         }
 
-        String refreshToken = refreshTokenCrypto.decrypt(refreshTokenEncrypted);
+        final String refreshToken = refreshTokenCrypto.decrypt(refreshTokenEncrypted);
         if (!StringUtils.hasText(refreshToken)) {
             log.warn(
                     "traceId={}, 구글 토큰 revoke 스킵: refresh_token 복호화 실패 memberId={}, loginId={}",
@@ -76,7 +76,7 @@ public class GoogleOauthTokenRevoker {
     }
 
     private void logRevokeFailure(String statusInfo, long startNanos, Long memberId, String loginId, Exception e) {
-        String message = statusInfo != null
+        final String message = statusInfo != null
                 ? "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 호출 실패: {}, elapsedMs={}, memberId={}, loginId={}"
                 : "traceId={}, errorCode={}, exceptionName={}, 구글 토큰 revoke 실패: memberId={}, loginId={}";
 

@@ -22,7 +22,7 @@ public class ApiErrorResponseFactory {
     }
 
     public ResponseEntity<ApiErrorResponse> toResponse(ErrorCode errorCode, HttpStatus status, List<ApiErrorDetail> errors) {
-        ApiErrorResponse body = ApiErrorResponse.from(errorCode, errors);
+        final ApiErrorResponse body = ApiErrorResponse.from(errorCode, errors);
         return restApiController.fail(body, status);
     }
 }

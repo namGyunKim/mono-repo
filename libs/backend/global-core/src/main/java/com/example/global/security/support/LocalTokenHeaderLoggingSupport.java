@@ -21,8 +21,8 @@ public class LocalTokenHeaderLoggingSupport {
             return;
         }
 
-        final String authorizationHeaderValue = SecurityHeaders.BEARER_PREFIX + String.valueOf(accessToken);
-        final String refreshHeaderValue = String.valueOf(refreshToken);
+        final String authorizationHeaderValue = SecurityHeaders.BEARER_PREFIX + accessToken;
+        final String refreshHeaderValue = refreshToken;
         log.info(
                 """
                         traceId={}, flow={}, local 프로필 토큰 헤더 로그

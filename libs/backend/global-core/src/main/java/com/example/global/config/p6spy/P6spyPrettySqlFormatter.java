@@ -16,10 +16,10 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
     // P6spy 포맷 메시지 설정
     @Override
     public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {
-        String formattedSql = formatSql(category, sql);
-        String logTime = LocalDateTime.now().format(LOG_TIME_FORMATTER);
+        final String formattedSql = formatSql(category, sql);
+        final String logTime = LocalDateTime.now().format(LOG_TIME_FORMATTER);
 
-        String safeSql = formattedSql == null ? "" : formattedSql;
+        final String safeSql = formattedSql == null ? "" : formattedSql;
         return "%s | OperationTime : %dms%s".formatted(logTime, elapsed, safeSql);
     }
 
@@ -31,8 +31,8 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
 
         // Statement 범주만 포맷팅하며, DDL/DML을 구분합니다.
         if (Category.STATEMENT.getName().equals(category)) {
-            String tmpsql = sql.trim().toLowerCase(Locale.ROOT);
-            if (tmpsql.startsWith("create") || tmpsql.startsWith("alter") || tmpsql.startsWith("comment")) {
+            final String normalizedSql = sql.trim().toLowerCase(Locale.ROOT);
+            if (normalizedSql.startsWith("create") || normalizedSql.startsWith("alter") || normalizedSql.startsWith("comment")) {
                 sql = FormatStyle.DDL.getFormatter().format(sql);
             } else {
                 sql = FormatStyle.BASIC.getFormatter().format(sql);

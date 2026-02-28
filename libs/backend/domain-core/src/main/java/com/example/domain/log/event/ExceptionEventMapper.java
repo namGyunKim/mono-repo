@@ -20,18 +20,18 @@ public final class ExceptionEventMapper {
             return ErrorMeta.of(appException.getErrorCode(), appException.getErrorDetailMessage());
         }
         if (exception instanceof AccessDeniedException accessDeniedException) {
-            String message = ExceptionEvent.resolveDetailMessage(accessDeniedException.getMessage(), ErrorCode.ACCESS_DENIED);
+            final String message = ExceptionEvent.resolveDetailMessage(accessDeniedException.getMessage(), ErrorCode.ACCESS_DENIED);
             return ErrorMeta.of(ErrorCode.ACCESS_DENIED, message);
         }
         if (exception instanceof NoHandlerFoundException noHandlerFoundException) {
-            String message = ExceptionEvent.resolveDetailMessage(noHandlerFoundException.getMessage(), ErrorCode.PAGE_NOT_EXIST);
+            final String message = ExceptionEvent.resolveDetailMessage(noHandlerFoundException.getMessage(), ErrorCode.PAGE_NOT_EXIST);
             return ErrorMeta.of(ErrorCode.PAGE_NOT_EXIST, message);
         }
         if (exception instanceof HttpRequestMethodNotSupportedException methodNotSupportedException) {
-            String message = ExceptionEvent.resolveDetailMessage(methodNotSupportedException.getMessage(), ErrorCode.METHOD_NOT_SUPPORTED);
+            final String message = ExceptionEvent.resolveDetailMessage(methodNotSupportedException.getMessage(), ErrorCode.METHOD_NOT_SUPPORTED);
             return ErrorMeta.of(ErrorCode.METHOD_NOT_SUPPORTED, message);
         }
-        String message = ExceptionEvent.resolveDetailMessage(exception != null ? exception.getMessage() : null, ErrorCode.FAILED);
+        final String message = ExceptionEvent.resolveDetailMessage(exception != null ? exception.getMessage() : null, ErrorCode.FAILED);
         return ErrorMeta.of(ErrorCode.FAILED, message);
     }
 }

@@ -3,10 +3,7 @@ package com.example.domain.aws.service.command;
 import com.example.domain.aws.enums.ImageType;
 import com.example.domain.aws.payload.dto.*;
 import com.example.domain.aws.service.common.S3ImageUrlSupport;
-import com.example.domain.member.enums.MemberUploadDirect;
-import com.example.domain.member.payload.dto.MemberImageDeleteCommand;
-import com.example.domain.member.payload.dto.MemberImageRegisterCommand;
-import com.example.domain.member.support.MemberImageCommandPort;
+import com.example.domain.aws.support.MemberImageCommandPort;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +18,7 @@ import java.util.List;
 public class AdminS3CommandService {
 
     private static final ImageType DEFAULT_IMAGE_TYPE = ImageType.MEMBER_PROFILE;
-    private static final MemberUploadDirect DEFAULT_UPLOAD_DIRECT = MemberUploadDirect.MEMBER_PROFILE;
+    private static final String DEFAULT_UPLOAD_DIRECT = "MEMBER_PROFILE";
 
     private final S3MemberCommandService s3MemberCommandService;
     private final S3ImageUrlSupport s3ImageUrlSupport;
@@ -29,17 +26,17 @@ public class AdminS3CommandService {
 
     public S3ImageUploadResult uploadProfileImage(AdminS3ImageUploadCommand command) {
         validateUploadCommand(command);
-        Long memberId = command.memberId();
-        String uploadedFileName = uploadProfileImageFile(command);
-        Long memberImageId = registerProfileImage(memberId, uploadedFileName);
-        String imageUrl = resolveImageUrl(memberId, uploadedFileName);
+        final Long memberId = command.memberId();
+        final String uploadedFileName = uploadProfileImageFile(command);
+        final Long memberImageId = registerProfileImage(memberId, uploadedFileName);
+        final String imageUrl = resolveImageUrl(memberId, uploadedFileName);
         return createUploadResult(memberImageId, uploadedFileName, imageUrl);
     }
 
     public List<S3ImageUploadResult> uploadProfileImages(AdminS3ImagesUploadCommand command) {
         validateUploadCommand(command);
-        Long memberId = command.memberId();
-        List<String> uploadedFileNames = s3MemberCommandService.uploadImages(
+        final Long memberId = command.memberId();
+        final List<String> uploadedFileNames = s3MemberCommandService.uploadImages(
                 S3ImagesUploadCommand.of(command.files(), DEFAULT_IMAGE_TYPE, memberId)
         );
 
@@ -50,9 +47,7 @@ public class AdminS3CommandService {
 
     public void deleteProfileImage(AdminS3ImageDeleteCommand command) {
         validateDeleteCommand(command);
-        memberImageCommandPort.deleteProfileImage(
-                MemberImageDeleteCommand.of(command.memberImageId())
-        );
+        memberImageCommandPort.deleteProfileImage(command.memberImageId());
     }
 
     private String uploadProfileImageFile(AdminS3ImageUploadCommand command) {
@@ -68,9 +63,7 @@ public class AdminS3CommandService {
     }
 
     private Long registerProfileImage(Long memberId, String uploadedFileName) {
-        return memberImageCommandPort.registerProfileImage(
-                MemberImageRegisterCommand.of(memberId, DEFAULT_UPLOAD_DIRECT, uploadedFileName)
-        );
+        return memberImageCommandPort.registerProfileImage(memberId, DEFAULT_UPLOAD_DIRECT, uploadedFileName);
     }
 
     private String resolveImageUrl(Long memberId, String uploadedFileName) {

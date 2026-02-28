@@ -20,7 +20,7 @@ public class ControllerResponseInfoResolver {
             return "알 수 없음";
         }
 
-        String contentLength = response.getHeader("Content-Length");
+        final String contentLength = response.getHeader("Content-Length");
         if (contentLength != null && !contentLength.isBlank()) {
             return contentLength + "B";
         }

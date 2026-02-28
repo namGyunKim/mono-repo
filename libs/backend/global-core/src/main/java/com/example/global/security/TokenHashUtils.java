@@ -18,8 +18,8 @@ public final class TokenHashUtils {
         }
 
         try {
-            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
-            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            final MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+            final byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException("지원하지 않는 해시 알고리즘입니다.", ex);

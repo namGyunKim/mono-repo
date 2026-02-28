@@ -2,7 +2,6 @@ package com.example.global.api;
 
 import com.example.global.payload.response.ApiErrorResponse;
 import com.example.global.payload.response.RestApiResponse;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import java.net.URI;
  * </p>
  */
 @Component
-@NoArgsConstructor
 public class RestApiController {
 
     // ========================================================================
@@ -112,7 +110,7 @@ public class RestApiController {
     }
 
     private HttpHeaders resolveHeaders(HttpHeaders headers) {
-        HttpHeaders responseHeaders = new HttpHeaders();
+        final HttpHeaders responseHeaders = new HttpHeaders();
         if (headers != null && !headers.isEmpty()) {
             responseHeaders.putAll(headers);
         }

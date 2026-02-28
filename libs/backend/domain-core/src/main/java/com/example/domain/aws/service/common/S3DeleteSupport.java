@@ -26,8 +26,8 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
     }
 
     public void deleteSingle(String fileName, ImageType imageType, Long entityId) {
-        String s3Key = generateS3Key(fileName, imageType, entityId);
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+        final String s3Key = generateS3Key(fileName, imageType, entityId);
+        final DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(s3Key)
                 .build();
@@ -39,14 +39,14 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
             return;
         }
 
-        List<ObjectIdentifier> objectsToDelete = buildObjectIdentifiers(fileNames, imageType, entityId);
+        final List<ObjectIdentifier> objectsToDelete = buildObjectIdentifiers(fileNames, imageType, entityId);
         executeDeleteObjects(objectsToDelete, imageType, entityId, fileNames.size());
     }
 
     private List<ObjectIdentifier> buildObjectIdentifiers(List<String> fileNames, ImageType imageType, Long entityId) {
-        List<ObjectIdentifier> identifiers = new ArrayList<>();
-        for (String fileName : fileNames) {
-            String key = generateS3Key(fileName, imageType, entityId);
+        final List<ObjectIdentifier> identifiers = new ArrayList<>();
+        for (final String fileName : fileNames) {
+            final String key = generateS3Key(fileName, imageType, entityId);
             identifiers.add(ObjectIdentifier.builder().key(key).build());
         }
         return identifiers;
@@ -54,12 +54,12 @@ public class S3DeleteSupport extends AbstractS3ServiceSupport {
 
     private void executeDeleteObjects(List<ObjectIdentifier> objectsToDelete, ImageType imageType, Long entityId, int fileCount) {
         try {
-            DeleteObjectsRequest request = DeleteObjectsRequest.builder()
+            final DeleteObjectsRequest request = DeleteObjectsRequest.builder()
                     .bucket(bucketName)
                     .delete(Delete.builder().objects(objectsToDelete).build())
                     .build();
 
-            DeleteObjectsResponse response = s3Client.deleteObjects(request);
+            final DeleteObjectsResponse response = s3Client.deleteObjects(request);
             if (response.hasErrors()) {
                 log.error(
                         """

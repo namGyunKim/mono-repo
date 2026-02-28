@@ -1,5 +1,8 @@
 package com.example.global.event;
 
+import com.example.global.utils.SensitiveLogMessageSanitizer;
+import com.example.global.utils.TraceIdUtils;
+
 /**
  * 단순 로그 이벤트 객체
  *
@@ -12,9 +15,6 @@ package com.example.global.event;
  * - of(...): 원시값/직접 값 기반 생성
  * </p>
  */
-
-import com.example.global.utils.SensitiveLogMessageSanitizer;
-import com.example.global.utils.TraceIdUtils;
 
 public record LogEvent(
         String traceId,
@@ -30,7 +30,7 @@ public record LogEvent(
     }
 
     public static LogEvent of(String traceId, String message) {
-        String resolvedTraceId = (traceId == null || traceId.isBlank())
+        final String resolvedTraceId = (traceId == null || traceId.isBlank())
                 ? TraceIdUtils.resolveTraceId()
                 : traceId;
         return new LogEvent(resolvedTraceId, message);

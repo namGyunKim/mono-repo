@@ -34,7 +34,7 @@ public final class TraceIdUtils {
             return createTraceId();
         }
 
-        String headerTraceId = request.getHeader(resolveTraceHeaderName());
+        final String headerTraceId = request.getHeader(resolveTraceHeaderName());
         if (headerTraceId != null && !headerTraceId.isBlank()) {
             return headerTraceId.trim();
         }

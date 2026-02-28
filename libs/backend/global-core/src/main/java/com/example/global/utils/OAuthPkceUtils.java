@@ -52,8 +52,8 @@ public final class OAuthPkceUtils {
         }
 
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashed = digest.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] hashed = digest.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(hashed);
         } catch (NoSuchAlgorithmException e) {
             // Java 25 환경에서는 사실상 발생하지 않지만, 명시적으로 실패 원인을 드러냅니다.
@@ -62,7 +62,7 @@ public final class OAuthPkceUtils {
     }
 
     private static String randomBase64Url(int byteLength) {
-        byte[] bytes = new byte[byteLength];
+        final byte[] bytes = new byte[byteLength];
         SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }

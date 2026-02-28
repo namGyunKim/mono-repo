@@ -16,8 +16,8 @@ public class GoogleSocialLoginStartCommandService {
     private final HttpServletRequest httpServletRequest;
 
     public void prepareLoginSession() {
-        GoogleOauthSession oauthSession = GoogleOauthSession.create();
-        HttpSession session = httpServletRequest.getSession(true);
+        final GoogleOauthSession oauthSession = GoogleOauthSession.create();
+        final HttpSession session = httpServletRequest.getSession(true);
         session.setAttribute(GoogleOauthSessionKeys.SESSION_KEY, oauthSession);
     }
 }
