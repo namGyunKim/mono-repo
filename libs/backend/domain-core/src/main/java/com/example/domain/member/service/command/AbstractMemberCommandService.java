@@ -11,8 +11,8 @@ import com.example.domain.member.payload.dto.MemberImagesStorageDeleteCommand;
 import com.example.domain.member.payload.dto.MemberNickNameDuplicateCheckCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.support.MemberImageStoragePort;
+import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
-import com.example.domain.social.repository.SocialAccountRepository;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,7 +57,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     protected void deactivateMemberCommon(
             Member member,
             MemberImageStoragePort memberImageStoragePort,
-            SocialAccountRepository socialAccountRepository,
+            MemberSocialCleanupPort memberSocialCleanupPort,
             ActivityEventPublisher activityEventPublisher,
             String inactiveMessage
     ) {
@@ -65,7 +65,7 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
 
         String loginId = member.getLoginId();
         member.withdraw();
-        deleteSocialAccounts(member, socialAccountRepository);
+        memberSocialCleanupPort.cleanupOnWithdraw(member.getId(), loginId);
         deleteMemberProfileImages(member, memberImageStoragePort);
         publishMemberDeactivatedEvent(activityEventPublisher, member, inactiveMessage, loginId);
     }
@@ -133,12 +133,6 @@ public abstract class AbstractMemberCommandService implements MemberCommandServi
     private void validateDeactivateMemberInput(Member member) {
         if (member == null) {
             throw new GlobalException(ErrorCode.INVALID_PARAMETER, "탈퇴 요청 값은 필수입니다.");
-        }
-    }
-
-    private void deleteSocialAccounts(Member member, SocialAccountRepository socialAccountRepository) {
-        if (member.getId() > 0 && socialAccountRepository != null) {
-            socialAccountRepository.deleteByMemberId(member.getId());
         }
     }
 

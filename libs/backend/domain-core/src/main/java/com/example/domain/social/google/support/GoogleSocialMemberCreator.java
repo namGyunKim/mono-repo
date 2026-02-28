@@ -2,8 +2,8 @@ package com.example.domain.social.google.support;
 
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.enums.MemberType;
-import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.social.google.payload.response.GoogleUserInfoResponse;
+import com.example.domain.social.support.SocialMemberRegistrationPort;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class GoogleSocialMemberCreator {
     private static final int NICKNAME_MAX_ATTEMPTS = 100;
     private static final String DEFAULT_NICKNAME_PREFIX = "google_user";
 
-    private final MemberRepository memberRepository;
+    private final SocialMemberRegistrationPort socialMemberRegistrationPort;
     private final PasswordEncoder passwordEncoder;
 
     public Member register(GoogleUserInfoResponse userInfo, String socialKey) {
@@ -32,13 +32,13 @@ public class GoogleSocialMemberCreator {
         Member newMember = Member.fromSocial(loginId, nickName, MemberType.GOOGLE);
         newMember.updatePassword(passwordEncoder.encode(createRandomPassword()));
 
-        return memberRepository.save(newMember);
+        return socialMemberRegistrationPort.saveSocialMember(newMember);
     }
 
     private String createUniqueNickName(String baseNickName) {
         String nickName = baseNickName;
         int attempts = 0;
-        while (memberRepository.existsByNickName(nickName)) {
+        while (socialMemberRegistrationPort.existsByNickName(nickName)) {
             attempts++;
             if (attempts >= NICKNAME_MAX_ATTEMPTS) {
                 throw new GlobalException(

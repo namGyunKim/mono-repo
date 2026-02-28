@@ -12,10 +12,8 @@ import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.support.MemberImageStoragePort;
+import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
-import com.example.domain.social.google.payload.dto.GoogleSocialUnlinkCommand;
-import com.example.domain.social.google.service.command.GoogleSocialCommandService;
-import com.example.domain.social.repository.SocialAccountRepository;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +32,7 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
     private final MemberRepository memberRepository;
     private final MemberUniquenessSupport memberUniquenessSupport;
     private final MemberImageStoragePort memberImageStoragePort;
-    private final SocialAccountRepository socialAccountRepository;
-    private final GoogleSocialCommandService googleSocialCommandService;
+    private final MemberSocialCleanupPort memberSocialCleanupPort;
     private final ActivityEventPublisher activityEventPublisher;
 
     @Override
@@ -96,14 +93,10 @@ public class UserMemberCommandService extends AbstractMemberCommandService {
         }
 
         Member member = findUserMember(command.memberId());
-        googleSocialCommandService.unlink(
-                GoogleSocialUnlinkCommand.of(member.getId(), member.getLoginId())
-        );
-
         deactivateMemberCommon(
                 member,
                 memberImageStoragePort,
-                socialAccountRepository,
+                memberSocialCleanupPort,
                 activityEventPublisher,
                 "회원 탈퇴 처리"
         );

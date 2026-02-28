@@ -1,8 +1,7 @@
 package com.example.domain.security.service.command;
 
-import com.example.domain.member.entity.Member;
-import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
+import com.example.domain.security.support.SecurityMemberTokenPort;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.springframework.util.StringUtils;
 public class JwtTokenRevocationCommandService {
 
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
-    private final MemberRepository memberRepository;
+    private final SecurityMemberTokenPort securityMemberTokenPort;
 
     @Transactional
     public void revokeOnLogout(SecurityLogoutCommand command) {
@@ -31,20 +30,10 @@ public class JwtTokenRevocationCommandService {
             return;
         }
 
-        Member managedMember = memberRepository.findById(memberId).orElse(null);
-        revokeManagedMemberTokens(managedMember, accessToken);
-    }
-
-    private void revokeManagedMemberTokens(Member managedMember, String accessToken) {
-        if (managedMember == null) {
-            return;
-        }
-
         if (StringUtils.hasText(accessToken)) {
             blacklistedTokenCommandService.blacklistToken(BlacklistedTokenRegisterCommand.of(accessToken));
         }
 
-        managedMember.rotateTokenVersion();
-        managedMember.invalidateRefreshTokenEncrypted();
+        securityMemberTokenPort.revokeTokens(memberId);
     }
 }

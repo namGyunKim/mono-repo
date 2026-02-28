@@ -1,6 +1,6 @@
 package com.example.domain.security.service.command;
 
-import com.example.domain.member.entity.Member;
+import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
 import com.example.global.security.jwt.JwtTokenClaimKeys;
 import com.example.global.security.jwt.JwtTokenKeyProvider;
 import com.example.global.security.jwt.JwtTokenType;
@@ -20,25 +20,25 @@ public class JwtTokenCommandService {
 
     private final JwtTokenKeyProvider keyProvider;
 
-    public String generateAccessToken(Member member) {
-        return generateToken(member, JwtTokenType.ACCESS, keyProvider.getProperties().accessTokenTtl());
+    public String generateAccessToken(SecurityMemberTokenInfo memberInfo) {
+        return generateToken(memberInfo, JwtTokenType.ACCESS, keyProvider.getProperties().accessTokenTtl());
     }
 
-    public String generateRefreshToken(Member member) {
-        return generateToken(member, JwtTokenType.REFRESH, keyProvider.getProperties().refreshTokenTtl());
+    public String generateRefreshToken(SecurityMemberTokenInfo memberInfo) {
+        return generateToken(memberInfo, JwtTokenType.REFRESH, keyProvider.getProperties().refreshTokenTtl());
     }
 
-    private String generateToken(Member member, JwtTokenType tokenType, java.time.Duration ttl) {
+    private String generateToken(SecurityMemberTokenInfo memberInfo, JwtTokenType tokenType, java.time.Duration ttl) {
         validateTtl(ttl, tokenType.name().toLowerCase());
         Instant now = Instant.now();
         Instant expiresAt = now.plus(ttl);
 
         return Jwts.builder()
                 .issuer(keyProvider.getProperties().issuer())
-                .subject(member.getLoginId())
-                .claim(JwtTokenClaimKeys.ROLE, member.getRole().name())
+                .subject(memberInfo.loginId())
+                .claim(JwtTokenClaimKeys.ROLE, memberInfo.role().name())
                 .claim(JwtTokenClaimKeys.TYPE, tokenType.name())
-                .claim(JwtTokenClaimKeys.VERSION, member.getTokenVersion())
+                .claim(JwtTokenClaimKeys.VERSION, memberInfo.tokenVersion())
                 .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiresAt))

@@ -11,10 +11,10 @@ import com.example.domain.member.payload.dto.MemberRoleUpdateCommand;
 import com.example.domain.member.payload.dto.MemberUpdateCommand;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.member.support.MemberImageStoragePort;
+import com.example.domain.member.support.MemberSocialCleanupPort;
 import com.example.domain.member.support.MemberUniquenessSupport;
 import com.example.domain.security.guard.MemberGuard;
 import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
-import com.example.domain.social.repository.SocialAccountRepository;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
     private final MemberUniquenessSupport memberUniquenessSupport;
 
     private final MemberImageStoragePort memberImageStoragePort;
-    private final SocialAccountRepository socialAccountRepository;
+    private final MemberSocialCleanupPort memberSocialCleanupPort;
 
     private final ActivityEventPublisher activityEventPublisher;
     private final JwtTokenRevocationCommandService jwtTokenRevocationCommandService;
@@ -110,7 +110,7 @@ public class AdminMemberCommandService extends AbstractMemberCommandService {
         deactivateMemberCommon(
                 member,
                 memberImageStoragePort,
-                socialAccountRepository,
+                memberSocialCleanupPort,
                 activityEventPublisher,
                 "관리자 탈퇴/비활성화 처리"
         );

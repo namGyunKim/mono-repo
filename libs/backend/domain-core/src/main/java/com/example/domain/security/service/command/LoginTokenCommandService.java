@@ -2,9 +2,9 @@ package com.example.domain.security.service.command;
 
 import com.example.domain.account.payload.dto.LoginMemberView;
 import com.example.domain.account.payload.response.LoginTokenResponse;
-import com.example.domain.member.entity.Member;
-import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
+import com.example.domain.security.support.SecurityMemberTokenPort;
+import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
@@ -19,36 +19,36 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class LoginTokenCommandService {
 
-    private final MemberRepository memberRepository;
+    private final SecurityMemberTokenPort securityMemberTokenPort;
     private final JwtTokenCommandService jwtTokenCommandService;
     private final RefreshTokenCrypto refreshTokenCrypto;
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
 
     @Transactional
     public LoginTokenResponse issueTokens(LoginTokenIssueCommand command) {
-        Member managedMember = findManagedMember(command);
-        blacklistPreviousRefreshTokenIfPresent(managedMember);
-        String accessToken = jwtTokenCommandService.generateAccessToken(managedMember);
-        String refreshToken = jwtTokenCommandService.generateRefreshToken(managedMember);
+        SecurityMemberTokenInfo memberInfo = findMemberTokenInfo(command);
+        blacklistPreviousRefreshTokenIfPresent(memberInfo);
+        String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
+        String refreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
         String refreshTokenEncrypted = refreshTokenCrypto.encrypt(refreshToken);
-        managedMember.updateRefreshTokenEncrypted(refreshTokenEncrypted);
+        securityMemberTokenPort.updateRefreshTokenEncrypted(memberInfo.id(), refreshTokenEncrypted);
 
         LoginMemberView memberView = LoginMemberView.of(
-                managedMember.getId(),
-                managedMember.getLoginId(),
-                managedMember.getRole(),
-                managedMember.getNickName(),
-                managedMember.getMemberType(),
-                managedMember.getActive()
+                memberInfo.id(),
+                memberInfo.loginId(),
+                memberInfo.role(),
+                memberInfo.nickName(),
+                memberInfo.memberType(),
+                memberInfo.active()
         );
         return LoginTokenResponse.from(memberView, accessToken, refreshToken);
     }
 
-    private void blacklistPreviousRefreshTokenIfPresent(Member managedMember) {
-        if (managedMember == null) {
+    private void blacklistPreviousRefreshTokenIfPresent(SecurityMemberTokenInfo memberInfo) {
+        if (memberInfo == null) {
             return;
         }
-        String storedRefreshTokenEncrypted = managedMember.getRefreshTokenEncrypted();
+        String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
         if (!StringUtils.hasText(storedRefreshTokenEncrypted)) {
             return;
         }
@@ -63,11 +63,11 @@ public class LoginTokenCommandService {
         }
     }
 
-    private Member findManagedMember(LoginTokenIssueCommand command) {
+    private SecurityMemberTokenInfo findMemberTokenInfo(LoginTokenIssueCommand command) {
         if (command == null || command.memberId() == null || command.memberId() <= 0) {
             throw new GlobalException(ErrorCode.MEMBER_NOT_EXIST);
         }
-        return memberRepository.findById(command.memberId())
+        return securityMemberTokenPort.findTokenInfoById(command.memberId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.MEMBER_NOT_EXIST));
     }
 }

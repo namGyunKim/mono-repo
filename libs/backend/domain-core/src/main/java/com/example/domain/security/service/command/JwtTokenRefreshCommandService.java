@@ -1,13 +1,13 @@
 package com.example.domain.security.service.command;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
-import com.example.domain.member.entity.Member;
 import com.example.domain.member.enums.MemberActiveStatus;
-import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
 import com.example.domain.security.jwt.JwtTokenParseResult;
 import com.example.domain.security.jwt.JwtTokenParser;
 import com.example.domain.security.jwt.JwtTokenPayload;
+import com.example.domain.security.support.SecurityMemberTokenPort;
+import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
@@ -30,18 +30,18 @@ public class JwtTokenRefreshCommandService {
     private final JwtTokenParser jwtTokenParser;
     private final BlacklistedTokenCommandService blacklistedTokenCommandService;
     private final BlacklistedTokenChecker blacklistedTokenChecker;
-    private final MemberRepository memberRepository;
+    private final SecurityMemberTokenPort securityMemberTokenPort;
     private final RefreshTokenCrypto refreshTokenCrypto;
 
     @Transactional
     public RefreshTokenResponse refreshTokens(RefreshTokenIssueCommand command) {
         String refreshToken = resolveRefreshToken(command);
         JwtTokenPayload payload = parseRefreshToken(refreshToken);
-        Member member = loadMemberForRefresh(payload);
-        validateTokenVersion(member, payload);
-        validateNotBlacklisted(member, refreshToken);
-        validateStoredRefreshToken(member, refreshToken);
-        return reissueTokens(member, refreshToken);
+        SecurityMemberTokenInfo memberInfo = loadMemberInfoForRefresh(payload);
+        validateTokenVersion(memberInfo, payload);
+        validateNotBlacklisted(memberInfo, refreshToken);
+        validateStoredRefreshToken(memberInfo, refreshToken);
+        return reissueTokens(memberInfo, refreshToken);
     }
 
     private String resolveRefreshToken(RefreshTokenIssueCommand command) {
@@ -67,65 +67,64 @@ public class JwtTokenRefreshCommandService {
         return payload;
     }
 
-    private Member loadMemberForRefresh(JwtTokenPayload payload) {
-        Member member = memberRepository.findByLoginId(payload.subject())
+    private SecurityMemberTokenInfo loadMemberInfoForRefresh(JwtTokenPayload payload) {
+        SecurityMemberTokenInfo memberInfo = securityMemberTokenPort.findTokenInfoByLoginId(payload.subject())
                 .orElseThrow(() -> new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다."));
 
-        if (member.getActive() != MemberActiveStatus.ACTIVE) {
+        if (memberInfo.active() != MemberActiveStatus.ACTIVE) {
             throw new GlobalException(ErrorCode.MEMBER_INACTIVE, "비활성화된 계정입니다.");
         }
 
-        return member;
+        return memberInfo;
     }
 
-    private void validateTokenVersion(Member member, JwtTokenPayload payload) {
-        if (member.getTokenVersion() != payload.tokenVersion()) {
+    private void validateTokenVersion(SecurityMemberTokenInfo memberInfo, JwtTokenPayload payload) {
+        if (memberInfo.tokenVersion() != payload.tokenVersion()) {
             throw new GlobalException(ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
         }
     }
 
-    private void validateNotBlacklisted(Member member, String refreshToken) {
+    private void validateNotBlacklisted(SecurityMemberTokenInfo memberInfo, String refreshToken) {
         if (blacklistedTokenChecker.isBlacklisted(refreshToken)) {
-            throw revokeAndCreateException(member, refreshToken, ErrorCode.REFRESH_TOKEN_REVOKED, "이미 폐기된 리프레시 토큰입니다.");
+            throw revokeAndCreateException(memberInfo, refreshToken, ErrorCode.REFRESH_TOKEN_REVOKED, "이미 폐기된 리프레시 토큰입니다.");
         }
     }
 
-    private void validateStoredRefreshToken(Member member, String refreshToken) {
-        String storedRefreshTokenEncrypted = member.getRefreshTokenEncrypted();
+    private void validateStoredRefreshToken(SecurityMemberTokenInfo memberInfo, String refreshToken) {
+        String storedRefreshTokenEncrypted = memberInfo.refreshTokenEncrypted();
         String storedRefreshToken;
         try {
             storedRefreshToken = refreshTokenCrypto.decrypt(storedRefreshTokenEncrypted);
         } catch (IllegalStateException e) {
-            throw revokeAndCreateException(member, refreshToken, ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
+            throw revokeAndCreateException(memberInfo, refreshToken, ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
         }
 
         if (!StringUtils.hasText(storedRefreshToken) || !storedRefreshToken.equals(refreshToken)) {
-            throw revokeAndCreateException(member, refreshToken, ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
+            throw revokeAndCreateException(memberInfo, refreshToken, ErrorCode.REFRESH_TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
         }
     }
 
-    private RefreshTokenResponse reissueTokens(Member member, String refreshToken) {
-        String accessToken = jwtTokenCommandService.generateAccessToken(member);
-        String newRefreshToken = jwtTokenCommandService.generateRefreshToken(member);
+    private RefreshTokenResponse reissueTokens(SecurityMemberTokenInfo memberInfo, String refreshToken) {
+        String accessToken = jwtTokenCommandService.generateAccessToken(memberInfo);
+        String newRefreshToken = jwtTokenCommandService.generateRefreshToken(memberInfo);
         String newRefreshTokenEncrypted = refreshTokenCrypto.encrypt(newRefreshToken);
 
         blacklistedTokenCommandService.blacklistToken(BlacklistedTokenRegisterCommand.of(refreshToken));
-        member.updateRefreshTokenEncrypted(newRefreshTokenEncrypted);
+        securityMemberTokenPort.updateRefreshTokenEncrypted(memberInfo.id(), newRefreshTokenEncrypted);
 
         return RefreshTokenResponse.of(accessToken, newRefreshToken);
     }
 
-    private void revokeOnSuspiciousRefresh(Member member, String refreshToken) {
-        if (member == null) {
+    private void revokeOnSuspiciousRefresh(SecurityMemberTokenInfo memberInfo, String refreshToken) {
+        if (memberInfo == null) {
             return;
         }
         blacklistedTokenCommandService.blacklistToken(BlacklistedTokenRegisterCommand.of(refreshToken));
-        member.rotateTokenVersion();
-        member.invalidateRefreshTokenEncrypted();
+        securityMemberTokenPort.revokeTokens(memberInfo.id());
     }
 
-    private GlobalException revokeAndCreateException(Member member, String refreshToken, ErrorCode errorCode, String message) {
-        revokeOnSuspiciousRefresh(member, refreshToken);
+    private GlobalException revokeAndCreateException(SecurityMemberTokenInfo memberInfo, String refreshToken, ErrorCode errorCode, String message) {
+        revokeOnSuspiciousRefresh(memberInfo, refreshToken);
         return new GlobalException(errorCode, message);
     }
 }

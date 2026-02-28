@@ -477,6 +477,16 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - 공통 흐름은 추상 클래스, 차이점은 Hook 메서드
 - `@Transactional(AOP)` 주의: 공통 흐름 메서드를 `final`로 만들지 않기
 
+### DDD Bounded Context 경계 — CRITICAL
+
+- 도메인 간 참조는 **Port 인터페이스**(또는 이벤트/DTO/ID)로만 허용, **Repository·Entity·Service 직접 참조 금지**
+- Port 인터페이스는 **사용하는(호출하는) 도메인**의 `support` 패키지에 정의
+- Port 구현체(Adapter)는 **제공하는(구현하는) 도메인**의 `support` 패키지에 배치
+- JPA 연관관계(`@ManyToOne` 등)로 인해 엔티티 참조가 불가피한 경우, Port 반환 타입에 엔티티를 허용하되 **주석으로 사유를 명시**
+- Aggregate 내부 필드에 다른 도메인의 관심사(인증 토큰, 외부 연동 키 등)를 혼합하지 않는다
+  - 불가피하게 같은 테이블에 저장해야 하면, 접근은 반드시 **해당 도메인의 Port를 경유**
+- 기존 패턴 참고: `AccountMemberQueryPort`(account/support) → `AccountMemberQueryPortAdapter`(member/support)
+
 ### 이벤트 기반 로깅
 
 - ❌ `logRepository.save(...)` 직접 호출 금지
@@ -591,6 +601,12 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - [ ] DTO는 record인가?
 - [ ] from/of 정적 팩토리 존재하는가?
 - [ ] 외부에서 `new DTO(...)` 호출하지 않는가?
+
+### DDD Bounded Context
+
+- [ ] 다른 도메인의 Repository를 직접 주입/사용하지 않는가?
+- [ ] 다른 도메인의 Service를 직접 호출하지 않고 Port/Event를 경유하는가?
+- [ ] Aggregate에 다른 도메인의 관심사가 혼합되어 있지 않은가?
 
 ### Enum 계약 동기화
 
