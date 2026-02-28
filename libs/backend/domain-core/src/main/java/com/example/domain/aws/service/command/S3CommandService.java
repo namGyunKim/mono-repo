@@ -1,6 +1,11 @@
 package com.example.domain.aws.service.command;
 
-import com.example.domain.aws.payload.dto.*;
+import com.example.domain.aws.payload.dto.S3ImageCloneCommand;
+import com.example.domain.aws.payload.dto.S3ImageDeleteCommand;
+import com.example.domain.aws.payload.dto.S3ImageUploadCommand;
+import com.example.domain.aws.payload.dto.S3ImagesCloneCommand;
+import com.example.domain.aws.payload.dto.S3ImagesUploadCommand;
+import com.example.domain.aws.payload.dto.S3SingleImageDeleteCommand;
 
 import java.util.List;
 

@@ -36,8 +36,8 @@ public class AsyncConfig {
         // 데코레이터를 통해 메인 스레드의 컨텍스트(로그, 인증)를 비동기 스레드로 복사
         adapter.setTaskDecorator(runnable -> {
             // 1. [메인 스레드] 현재 컨텍스트 캡처
-            Map<String, String> contextMap = MDC.getCopyOfContextMap();
-            SecurityContext securityContext = securityContextManager.getContext();
+            final Map<String, String> contextMap = MDC.getCopyOfContextMap();
+            final SecurityContext securityContext = securityContextManager.getContext();
 
             return () -> {
                 try {

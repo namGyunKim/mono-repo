@@ -1,7 +1,13 @@
 package com.example.domain.aws.service.command;
 
 import com.example.domain.aws.enums.ImageType;
-import com.example.domain.aws.payload.dto.*;
+import com.example.domain.aws.payload.dto.AdminS3ImageDeleteCommand;
+import com.example.domain.aws.payload.dto.AdminS3ImageUploadCommand;
+import com.example.domain.aws.payload.dto.AdminS3ImagesUploadCommand;
+import com.example.domain.aws.payload.dto.S3ImageUploadCommand;
+import com.example.domain.aws.payload.dto.S3ImageUploadResult;
+import com.example.domain.aws.payload.dto.S3ImageUrlQuery;
+import com.example.domain.aws.payload.dto.S3ImagesUploadCommand;
 import com.example.domain.aws.service.common.S3ImageUrlSupport;
 import com.example.domain.aws.support.MemberImageCommandPort;
 import com.example.global.exception.GlobalException;
