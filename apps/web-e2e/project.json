@@ -1,0 +1,15 @@
+{
+  "name": "web-e2e",
+  "projectType": "application",
+  "sourceRoot": "apps/web-e2e/src",
+  "implicitDependencies": ["@mono-repo/web"],
+  "targets": {
+    "e2e": {
+      "command": "pnpm exec playwright test --config=apps/web-e2e/playwright.config.ts",
+      "options": {
+        "cwd": "{workspaceRoot}"
+      },
+      "cache": false
+    }
+  }
+}
