@@ -130,12 +130,14 @@ Squash merge를 사용하므로 **PR 제목 = develop에 남는 최종 커밋 �
 
 ```yaml
 on:
-  push:
-    branches: [develop]           # develop에 직접 push 시
   pull_request:
     branches: [develop]           # develop 대상 PR 생성/업데이트 시
   workflow_dispatch:              # GitHub UI에서 수동 실행
 ```
+
+> **`push` 트리거를 제거한 이유:** Branch Protection의 "Require branches to be up to date" 옵션이 활성화되어 있어,
+> PR CI는 항상 최신 develop 기반으로 실행된다. 따라서 머지 후 push CI 결과는 PR CI와 동일하며,
+> 실패해도 이미 머지된 코드를 롤백하지 않으므로 실질적 의미가 없다. 제거로 CI 실행 횟수가 절반으로 줄어든다.
 
 ### Job 구조
 
