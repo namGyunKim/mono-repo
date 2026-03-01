@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PrincipalDetailsQueryService implements UserDetailsService {
 
-    private final AccountQueryService queryAccountService;
+    private final AccountQueryService accountQueryService;
 
     // 로그인 아이디로 유저 정보 로드 (Spring Security Form Login의 핵심)
     // Spring Security의 기본 Form Login은 'username' 파라미터만 사용하여 이 메서드를 호출합니다.
@@ -31,7 +31,7 @@ public class PrincipalDetailsQueryService implements UserDetailsService {
             // [수정] Form Login 시 `role` 파라미터를 함께 전달받지 못하므로,
             // AccountQueryService는 `loginId`만으로 찾도록 합니다.
             // *단, AccountQueryService::findActiveMemberForAuthByLoginId는 Active 체크를 수행합니다.*
-            final AccountAuthMemberView member = queryAccountService.findActiveMemberForAuthByLoginId(AccountLoginIdQuery.of(username));
+            final AccountAuthMemberView member = accountQueryService.findActiveMemberForAuthByLoginId(AccountLoginIdQuery.of(username));
             if (member.memberType() != MemberType.GENERAL) {
                 throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
             }

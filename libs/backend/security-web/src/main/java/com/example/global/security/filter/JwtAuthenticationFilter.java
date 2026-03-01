@@ -1,7 +1,6 @@
 package com.example.global.security.filter;
 
 import com.example.domain.account.payload.dto.AccountAuthMemberView;
-import com.example.domain.member.entity.Member;
 import com.example.domain.member.payload.dto.MemberLoginIdQuery;
 import com.example.domain.security.guard.PrincipalDetails;
 import com.example.domain.security.jwt.JwtTokenParser;
@@ -77,28 +76,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        final Optional<Member> memberOptional = memberAuthQueryService.findActiveMemberForAuthentication(
+        final Optional<AccountAuthMemberView> memberOptional = memberAuthQueryService.findActiveMemberForAuthentication(
                 MemberLoginIdQuery.of(payload.subject())
         );
         if (memberOptional.isEmpty()) {
             return false;
         }
 
-        final Member member = memberOptional.get();
-        if (member.getTokenVersion() != payload.tokenVersion()) {
+        final AccountAuthMemberView authMember = memberOptional.get();
+        if (authMember.tokenVersion() != payload.tokenVersion()) {
             return false;
         }
 
-        setAuthenticationContext(member);
+        setAuthenticationContext(authMember);
         return true;
     }
 
-    private void setAuthenticationContext(Member member) {
-        final AccountAuthMemberView authMember = AccountAuthMemberView.of(
-                member.getId(), member.getLoginId(), member.getPassword(),
-                member.getNickName(), member.getRole(), member.getMemberType(),
-                member.getActive(), member.getTokenVersion()
-        );
+    private void setAuthenticationContext(AccountAuthMemberView authMember) {
         final PrincipalDetails principalDetails = new PrincipalDetails(authMember);
         final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 principalDetails, null, principalDetails.getAuthorities()

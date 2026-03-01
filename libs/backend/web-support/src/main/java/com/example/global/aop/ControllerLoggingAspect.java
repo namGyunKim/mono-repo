@@ -57,41 +57,51 @@ public class ControllerLoggingAspect {
         // Filter 레벨의 fallback 로깅과 중복되지 않도록 "컨트롤러에서 로깅 완료" 플래그를 남깁니다.
         request.setAttribute(RequestLoggingAttributes.CONTROLLER_LOGGED, Boolean.TRUE);
 
-        // Trace ID 처리: 공통 유틸을 통해 항상 일관된 requestId를 유지합니다.
-        final String traceId = TraceIdUtils.resolveTraceId();
-
-        final String ip = ClientIpExtractor.extract(request);
-        final String method = request.getMethod();
-        final String uri = request.getRequestURI();
-        final String loginId = getLoginIdFromSecurityContext();
-
-        // 파라미터 정보 포맷팅 (변수명: 값)
-        final String params = loggingSupport.formatParams(joinPoint);
-
-        // [REQ] 로그 출력
-        // 로그 템플릿은 단일 라인보다 Java 텍스트 블록(""" """)을 사용해 멀티라인을 강조합니다.
-        log.info(loggingSupport.buildRequestLog(traceId, ip, loginId, method, uri, params));
+        final String traceId = logRequest(request, joinPoint);
 
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Object result;
         try {
-            // 실제 메서드 실행
             result = joinPoint.proceed();
         } finally {
             stopWatch.stop();
-            try {
-                final HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
-                final String responseStatus = loggingSupport.getResponseStatus(response);
-                final String responseSize = loggingSupport.getResponseSize(response);
-                log.info(loggingSupport.buildResponseLog(traceId, stopWatch.getTotalTimeMillis(), responseStatus, responseSize));
-            } catch (final IllegalStateException e) {
-                log.warn("응답 로깅 스킵: RequestAttributes 소실 time={}ms", stopWatch.getTotalTimeMillis());
-            }
+            logResponse(traceId, stopWatch.getTotalTimeMillis());
         }
 
         return result;
+    }
+
+    /**
+     * 요청 정보를 수집하여 [REQ] 로그를 출력합니다.
+     *
+     * @return traceId (응답 로깅에서 재사용)
+     */
+    private String logRequest(final HttpServletRequest request, final ProceedingJoinPoint joinPoint) {
+        final String traceId = TraceIdUtils.resolveTraceId();
+        final String ip = ClientIpExtractor.extract(request);
+        final String method = request.getMethod();
+        final String uri = request.getRequestURI();
+        final String loginId = getLoginIdFromSecurityContext();
+        final String params = loggingSupport.formatParams(joinPoint);
+
+        log.info(loggingSupport.buildRequestLog(traceId, ip, loginId, method, uri, params));
+        return traceId;
+    }
+
+    /**
+     * [RES] 응답 로그를 출력합니다.
+     */
+    private void logResponse(final String traceId, final long elapsedMillis) {
+        try {
+            final HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+            final String responseStatus = loggingSupport.getResponseStatus(response);
+            final String responseSize = loggingSupport.getResponseSize(response);
+            log.info(loggingSupport.buildResponseLog(traceId, elapsedMillis, responseStatus, responseSize));
+        } catch (final IllegalStateException e) {
+            log.warn("응답 로깅 스킵: RequestAttributes 소실 time={}ms", elapsedMillis);
+        }
     }
 
     /**

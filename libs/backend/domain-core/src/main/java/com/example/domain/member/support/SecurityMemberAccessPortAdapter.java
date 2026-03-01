@@ -1,6 +1,9 @@
 package com.example.domain.member.support;
 
 import com.example.domain.account.enums.AccountRole;
+import com.example.domain.account.payload.dto.AccountAuthMemberView;
+import com.example.domain.member.entity.Member;
+import com.example.domain.member.enums.MemberActiveStatus;
 import com.example.domain.member.repository.MemberRepository;
 import com.example.domain.security.guard.support.MemberAccessTarget;
 import com.example.domain.security.guard.support.SecurityMemberAccessPort;
@@ -35,5 +38,37 @@ public class SecurityMemberAccessPortAdapter implements SecurityMemberAccessPort
         }
         return memberRepository.findByIdAndRoleIn(memberId, roles)
                 .map(member -> MemberAccessTarget.of(member.getRole(), member.getId(), member.getActive()));
+    }
+
+    @Override
+    public Optional<AccountAuthMemberView> findActiveAuthMemberByLoginId(String loginId) {
+        if (loginId == null || loginId.isBlank()) {
+            return Optional.empty();
+        }
+        return memberRepository.findByLoginId(loginId)
+                .filter(member -> member.getActive() == MemberActiveStatus.ACTIVE)
+                .map(this::toAuthMemberView);
+    }
+
+    @Override
+    public Optional<Long> findMemberIdByLoginId(String loginId) {
+        if (loginId == null || loginId.isBlank()) {
+            return Optional.empty();
+        }
+        return memberRepository.findByLoginId(loginId)
+                .map(Member::getId);
+    }
+
+    private AccountAuthMemberView toAuthMemberView(Member member) {
+        return AccountAuthMemberView.of(
+                member.getId(),
+                member.getLoginId(),
+                member.getPassword(),
+                member.getNickName(),
+                member.getRole(),
+                member.getMemberType(),
+                member.getActive(),
+                member.getTokenVersion()
+        );
     }
 }
