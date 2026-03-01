@@ -10,6 +10,7 @@
     "@nx/js": "22.5.3",
     "@nx/next": "22.5.3",
     "@nx/react": "22.5.3",
+    "@playwright/mcp": "^0.0.68",
     "@swc-node/register": "1.11.1",
     "@swc/cli": "~0.8.0",
     "@swc/core": "1.15.17",
@@ -18,6 +19,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "nx": "22.5.3",
+    "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2"
