@@ -96,42 +96,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity http,
             DaoAuthenticationProvider daoAuthenticationProvider,
-            CustomAuthSuccessHandler customAuthSuccessHandler,
-            CustomAuthFailureHandler customAuthFailureHandler,
-            CustomAccessDeniedHandler customAccessDeniedHandler,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
-            JsonBodyLoginRequestParser jsonBodyLoginRequestParser,
-            JsonBodyLoginRequestValidator jsonBodyLoginRequestValidator,
-            JsonBodyLoginErrorWriter jsonBodyLoginErrorWriter,
-            AuthenticationConfiguration authenticationConfiguration,
-            JwtAuthenticationFilter jwtAuthenticationFilter
+            CustomAuthSuccessHandler successHandler, CustomAuthFailureHandler failureHandler,
+            CustomAccessDeniedHandler accessDeniedHandler, CustomAuthenticationEntryPoint entryPoint,
+            JsonBodyLoginRequestParser parser, JsonBodyLoginRequestValidator validator,
+            JsonBodyLoginErrorWriter errorWriter, AuthenticationConfiguration authConfig,
+            JwtAuthenticationFilter jwtFilter
     ) throws Exception {
+        configureBasePolicy(http);
 
+        final var loginFilter = createJsonBodyLoginFilter(parser, validator, errorWriter, authConfig, successHandler, failureHandler);
+        http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler).authenticationEntryPoint(entryPoint));
+        http.authenticationProvider(daoAuthenticationProvider);
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        return http.build();
+    }
+
+    private void configureBasePolicy(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(SecurityPublicPaths.PUBLIC_URLS).permitAll()
                 .requestMatchers(SecurityPublicPaths.PUBLIC_API_URLS).permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
         );
-
         http.csrf(csrf -> csrf.disable());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        final JsonBodyLoginAuthenticationFilter loginFilter = createJsonBodyLoginFilter(
-                jsonBodyLoginRequestParser, jsonBodyLoginRequestValidator, jsonBodyLoginErrorWriter,
-                authenticationConfiguration, customAuthSuccessHandler, customAuthFailureHandler
-        );
-        http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.exceptionHandling(ex -> ex
-                .accessDeniedHandler(customAccessDeniedHandler)
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-        );
-        http.authenticationProvider(daoAuthenticationProvider);
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
-        return http.build();
     }
 
     private JsonBodyLoginAuthenticationFilter createJsonBodyLoginFilter(

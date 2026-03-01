@@ -83,20 +83,10 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
     }
 
     private void logIfNotControllerLogged(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            long startedAt,
-            Throwable thrown
+            HttpServletRequest request, HttpServletResponse response,
+            long startedAt, Throwable thrown
     ) {
-        if (request == null) {
-            return;
-        }
-
-        if (Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.CONTROLLER_LOGGED))) {
-            return;
-        }
-
-        if (Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.FILTER_LOGGED))) {
+        if (shouldSkipLogging(request)) {
             return;
         }
 
@@ -117,6 +107,14 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
         }
 
         logByStatus(status, traceId, ip, loginId, method, uri, elapsedMs);
+    }
+
+    private boolean shouldSkipLogging(HttpServletRequest request) {
+        if (request == null) {
+            return true;
+        }
+        return Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.CONTROLLER_LOGGED))
+                || Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.FILTER_LOGGED));
     }
 
     private void logThrownException(
