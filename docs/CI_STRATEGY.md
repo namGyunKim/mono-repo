@@ -251,20 +251,75 @@ main ──→ deploy/user-api   ──→ user-api 실서버 배포
 main ──→ deploy/admin-api  ──→ admin-api 실서버 배포
 ```
 
-### 배포 흐름
+### 배포 흐름 (현재 — 테스트 서버만)
 
 ```
-1. develop(또는 main)에서 배포 브랜치로 merge
-   $ git checkout deploy/user-api
-   $ git merge main
-   $ git push
-
-2. GitHub Actions 자동 실행
-   bootJar → Docker 이미지 빌드 → GHCR push → SSH 배포
-
-3. 서버에서 Blue/Green 무중단 배포
-   deploy.sh → 새 컨테이너 기동 → 헬스체크 → Nginx 전환
+개발자: git checkout deploy/user-api
+        git merge develop
+        git push
+            │
+            ▼
+GitHub Actions: deploy-user-api.yml 트리거
+    ├── checkout
+    ├── ./gradlew :apps:user-api:bootJar
+    ├── docker build → ghcr.io/.../user-api:<commit-sha>
+    ├── docker push (GHCR)
+    └── ssh ec2-user@테스트서버 "/opt/deploy/deploy.sh user-api <commit-sha>"
+            │
+테스트 서버 (EC2):
+    ├── docker pull user-api:<commit-sha>
+    ├── Green 컨테이너 기동 (8082)
+    ├── health check → OK
+    ├── Nginx upstream → Green(8082)
+    ├── Blue 컨테이너 종료
+    └── 완료 ✅
 ```
+
+### 배포 흐름 (main 도입 후 — 테스트 + 실서버)
+
+두 환경 모두 **동일한 Blue/Green 배포 과정**을 거친다. 차이는 소스 브랜치와 대상 서버뿐이다.
+
+**테스트 서버 배포 (`stage/user-api` → EC2-A):**
+
+```
+개발자: git checkout stage/user-api
+        git merge develop
+        git push
+            │
+            ▼
+GitHub Actions: stage-user-api.yml 트리거
+    └── deploy-backend.yml (재사용 워크플로우)
+        ├── bootJar → Docker image → GHCR push
+        └── ssh ec2-user@EC2-A → deploy.sh → Blue/Green 배포
+```
+
+**실서버 배포 (`deploy/user-api` → EC2-B):**
+
+```
+개발자: develop → main PR 생성 & 머지 (릴리스)
+        git checkout deploy/user-api
+        git merge main
+        git push
+            │
+            ▼
+GitHub Actions: deploy-user-api.yml 트리거
+    └── deploy-backend.yml (재사용 워크플로우)
+        ├── bootJar → Docker image → GHCR push
+        └── ssh ec2-user@EC2-B → deploy.sh → Blue/Green 배포
+```
+
+**환경별 차이:**
+
+| 항목            | 테스트 서버                       | 실서버                    |
+|---------------|------------------------------|------------------------|
+| 브랜치           | `stage/user-api`             | `deploy/user-api`      |
+| 소스            | `develop`에서 merge            | `main`에서 merge         |
+| 워크플로우         | `stage-user-api.yml`         | `deploy-user-api.yml`  |
+| 대상 서버         | EC2-A (테스트)                  | EC2-B (실서버)            |
+| GitHub Secret | `STAGE_USER_API_SERVER_HOST` | `USER_API_SERVER_HOST` |
+
+> 두 워크플로우 모두 같은 `deploy-backend.yml`을 호출한다.
+> `server-host` 파라미터(GitHub Secret)만 다르게 지정하면 된다.
 
 ### 배포 워크플로우 파일
 
