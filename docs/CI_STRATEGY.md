@@ -13,7 +13,6 @@ feat/*  ──→  develop  ──→  deploy/*
 | `develop` | 통합 브랜치 — 모든 feat이 여기로 머지됨 | Branch Protection 적용 |
 | `deploy/user-api` | user-api 배포 트리거 | push 시 자동 배포 |
 | `deploy/admin-api` | admin-api 배포 트리거 | push 시 자동 배포 |
-| `main` | 프로덕션 릴리스 기록 | 예약 |
 
 ### feat 브랜치 네이밍 컨벤션
 
