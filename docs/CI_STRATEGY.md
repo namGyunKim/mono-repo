@@ -138,16 +138,20 @@ feat/* → develop PR 생성 시:
 
 GitHub Settings → Branches → Branch protection rules → `develop`:
 
-| 옵션 | 설정 | 설명 |
-|------|------|------|
+| 옵션 | 현재 설정 | 설명 |
+|------|----------|------|
 | **Require a pull request before merging** | ✅ | 직접 push 차단, PR 필수 |
 | **Require approvals** | ✅ (1명) | 최소 1명의 리뷰 승인 필요 |
-| **Dismiss stale pull request approvals** | 선택 | 새 커밋 push 시 기존 승인 취소 |
+| **Dismiss stale pull request approvals** | ❌ | 새 커밋 push 시 기존 승인 취소 여부 |
+| **Require review from Code Owners** | ❌ | CODEOWNERS 기반 리뷰 강제 여부 |
+| **Require approval of the most recent reviewable push** | ❌ | 마지막 push에 대해 별도 승인 필요 여부 |
 | **Require status checks to pass** | ✅ | CI 통과 필수 |
-| **Required checks** | `backend`, `frontend`, `e2e` | 3개 job 모두 통과해야 머지 가능 |
-| **Require branches to be up to date** | 권장 | 최신 develop 기반으로 CI 통과 보장 |
-| **Require linear history** | 권장 | Squash merge 강제 |
-| **Do not allow bypassing** | 선택 | admin도 규칙 준수 강제 |
+| **Required checks** | ⚠️ **미설정** | `backend`, `frontend`, `e2e` 3개를 추가해야 함 |
+| **Require branches to be up to date** | ✅ | 최신 develop 기반으로 CI 통과 보장 |
+| **Require linear history** | ❌ (권장) | Squash merge 강제 — 활성화 권장 |
+| **Do not allow bypassing** | ❌ (선택) | admin도 규칙 준수 강제 |
+
+> ⚠️ **TODO**: "Search for status checks" 검색창에서 `backend`, `frontend`, `e2e`를 검색하여 추가해야 CI 게이트가 동작한다.
 
 ---
 
