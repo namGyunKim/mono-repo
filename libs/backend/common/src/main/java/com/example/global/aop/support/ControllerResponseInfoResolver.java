@@ -1,13 +1,14 @@
 package com.example.global.aop.support;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-@Component
-public class ControllerResponseInfoResolver {
+public final class ControllerResponseInfoResolver {
 
-    public String getResponseStatus(final HttpServletResponse response) {
+    private ControllerResponseInfoResolver() {
+    }
+
+    public static String getResponseStatus(final HttpServletResponse response) {
         if (response == null) {
             return "알 수 없음";
         }
@@ -15,7 +16,7 @@ public class ControllerResponseInfoResolver {
         return String.valueOf(response.getStatus());
     }
 
-    public String getResponseSize(final HttpServletResponse response) {
+    public static String getResponseSize(final HttpServletResponse response) {
         if (response == null) {
             return "알 수 없음";
         }

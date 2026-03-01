@@ -1,11 +1,11 @@
 package com.example.global.aop.support;
 
-import org.springframework.stereotype.Component;
+public final class ControllerLogMessageFactory {
 
-@Component
-public class ControllerLogMessageFactory {
+    private ControllerLogMessageFactory() {
+    }
 
-    public String buildRequestLog(
+    public static String buildRequestLog(
             final String traceId,
             final String ip,
             final String loginId,
@@ -24,7 +24,7 @@ public class ControllerLogMessageFactory {
                 """.formatted(traceId, ip, loginId, method, uri, params).stripTrailing();
     }
 
-    public String buildResponseLog(final String traceId, final long elapsedMs, final String status, final String size) {
+    public static String buildResponseLog(final String traceId, final long elapsedMs, final String status, final String size) {
         return """
                 [RES] [%s]
                 Time    : %dms
