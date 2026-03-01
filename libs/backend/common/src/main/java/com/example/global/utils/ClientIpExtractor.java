@@ -79,31 +79,22 @@ public final class ClientIpExtractor {
             return null;
         }
 
-        final String[] parts = first.split(";");
-        for (final String part : parts) {
-            final String p = part.trim();
-            if (p.isEmpty()) {
-                continue;
-            }
-
-            if (p.regionMatches(true, 0, "for=", 0, 4)) {
-                final String value = stripQuotes(p.substring(4).trim());
-
-                // IPv6: [....] 형태 처리
-                if (value.startsWith("[")) {
-                    final int end = value.indexOf(']');
-                    if (end > 0) {
-                        return value.substring(1, end);
-                    }
-                    return value.substring(1);
-                }
-
-                // IPv4:port 형태일 수 있음
-                return value;
+        for (final String part : first.split(";")) {
+            final String forValue = extractForwardedForValue(part);
+            if (forValue != null) {
+                return forValue;
             }
         }
 
         return null;
+    }
+
+    private static String extractForwardedForValue(final String part) {
+        final String p = part.trim();
+        if (p.isEmpty() || !p.regionMatches(true, 0, "for=", 0, 4)) {
+            return null;
+        }
+        return stripQuotes(p.substring(4).trim());
     }
 
     private static String normalizeIp(final String raw) {

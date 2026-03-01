@@ -92,12 +92,10 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 1) 컨트롤러 AOP에서 이미 로깅한 요청은 스킵
         if (Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.CONTROLLER_LOGGED))) {
             return;
         }
 
-        // 2) 보안/필터 레벨에서 이미 상세 로그를 남긴 요청은 스킵(중복 방지)
         if (Boolean.TRUE.equals(request.getAttribute(RequestLoggingAttributes.FILTER_LOGGED))) {
             return;
         }
@@ -105,76 +103,51 @@ public class FallbackRequestLoggingFilter extends OncePerRequestFilter {
         final String traceId = TraceIdUtils.resolveTraceId();
         final String ip = ClientIpExtractor.extract(request);
         final String loginId = loggingSupport.resolveLoginIdForLog(request);
-
         final String method = safe(request.getMethod());
         final String uri = loggingSupport.buildUriWithQuery(request);
-
         final int status = response != null ? response.getStatus() : 0;
         final long elapsedMs = Math.max(0, System.currentTimeMillis() - startedAt);
 
-        // 이 필터가 로그를 남겼음을 표시(동일 요청에서 중복 로그 방지 목적)
         request.setAttribute(RequestLoggingAttributes.FILTER_LOGGED, Boolean.TRUE);
 
-        // 예외가 터진 경우(필터 체인에서 던져짐)는 상태 코드가 확정되지 않았을 수 있으므로 ERROR로 남깁니다.
         if (thrown != null) {
+            logThrownException(traceId, ip, loginId, method, uri, status, elapsedMs, thrown);
             loggingSupport.publishExceptionEvent(request, thrown);
-            log.error(
-                    ExceptionLogTemplates.FILTER_EXCEPTION_LOG_TEMPLATE.stripTrailing(),
-                    traceId,
-                    ip,
-                    loginId,
-                    method,
-                    uri,
-                    status,
-                    elapsedMs,
-                    ErrorCode.INTERNAL_SERVER_ERROR.name(),
-                    ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
-                    ErrorCode.INTERNAL_SERVER_ERROR.getErrorMessage(),
-                    thrown.getClass().getSimpleName(),
-                    sanitizeMessage(thrown.getMessage()),
-                    thrown
-            );
             return;
         }
+
+        logByStatus(status, traceId, ip, loginId, method, uri, elapsedMs);
+    }
+
+    private void logThrownException(
+            String traceId, String ip, String loginId, String method, String uri,
+            int status, long elapsedMs, Throwable thrown
+    ) {
+        log.error(
+                ExceptionLogTemplates.FILTER_EXCEPTION_LOG_TEMPLATE.stripTrailing(),
+                traceId, ip, loginId, method, uri, status, elapsedMs,
+                ErrorCode.INTERNAL_SERVER_ERROR.name(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getErrorMessage(),
+                thrown.getClass().getSimpleName(),
+                sanitizeMessage(thrown.getMessage()),
+                thrown
+        );
+    }
+
+    private void logByStatus(
+            int status, String traceId, String ip, String loginId,
+            String method, String uri, long elapsedMs
+    ) {
+        final String template = ExceptionLogTemplates.FILTER_LOG_TEMPLATE.stripTrailing();
 
         if (status >= 500) {
-            log.error(
-                    ExceptionLogTemplates.FILTER_LOG_TEMPLATE.stripTrailing(),
-                    traceId,
-                    ip,
-                    loginId,
-                    method,
-                    uri,
-                    status,
-                    elapsedMs
-            );
-            return;
+            log.error(template, traceId, ip, loginId, method, uri, status, elapsedMs);
+        } else if (status >= 400) {
+            log.warn(template, traceId, ip, loginId, method, uri, status, elapsedMs);
+        } else {
+            log.info(template, traceId, ip, loginId, method, uri, status, elapsedMs);
         }
-
-        if (status >= 400) {
-            log.warn(
-                    ExceptionLogTemplates.FILTER_LOG_TEMPLATE.stripTrailing(),
-                    traceId,
-                    ip,
-                    loginId,
-                    method,
-                    uri,
-                    status,
-                    elapsedMs
-            );
-            return;
-        }
-
-        log.info(
-                ExceptionLogTemplates.FILTER_LOG_TEMPLATE.stripTrailing(),
-                traceId,
-                ip,
-                loginId,
-                method,
-                uri,
-                status,
-                elapsedMs
-        );
     }
 
     private String safe(String value) {

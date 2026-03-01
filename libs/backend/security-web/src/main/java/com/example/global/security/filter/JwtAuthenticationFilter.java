@@ -89,26 +89,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
+        setAuthenticationContext(member);
+        return true;
+    }
+
+    private void setAuthenticationContext(Member member) {
         final AccountAuthMemberView authMember = AccountAuthMemberView.of(
-                member.getId(),
-                member.getLoginId(),
-                member.getPassword(),
-                member.getNickName(),
-                member.getRole(),
-                member.getMemberType(),
-                member.getActive(),
-                member.getTokenVersion()
+                member.getId(), member.getLoginId(), member.getPassword(),
+                member.getNickName(), member.getRole(), member.getMemberType(),
+                member.getActive(), member.getTokenVersion()
         );
         final PrincipalDetails principalDetails = new PrincipalDetails(authMember);
         final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                principalDetails,
-                null,
-                principalDetails.getAuthorities()
+                principalDetails, null, principalDetails.getAuthorities()
         );
         final SecurityContext securityContext = securityContextManager.createEmptyContext();
         securityContext.setAuthentication(authentication);
         securityContextManager.setContext(securityContext);
-        return true;
     }
 
     // API 전용 프로젝트에서는 요청 경로와 무관하게 stateless 정책을 유지합니다.
