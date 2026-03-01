@@ -56,18 +56,6 @@
 
 ---
 
-# 커밋 / PR 규칙
-
-- **커밋은 자율 진행** 가능 (코드 변경 완료 후 바로 커밋)
-- **푸시/PR 생성/머지는 사용자가 요청할 때만** 진행한다
-- PR은 `docs/CI_STRATEGY.md`의 "커밋 / PR 메시지 컨벤션"을 따른다
-- **PR 제목**: `<type>: <변경 요약>` — squash merge 시 develop에 남는 최종 커밋 메시지가 된다
-- **PR 본문**: `## Summary` (변경사항 bullet) + `## Test plan` (검증 항목) — 구체적으로 작성한다
-- **개별 커밋**: 간결해도 무방 (squash merge로 사라짐)
-- type 목록: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `rename`, `style`
-
----
-
 # MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*, Playwright -> mcp__playwright__*)
 
 이 워크스페이스에는 네 개의 MCP 서버가 연결되어 있다.
