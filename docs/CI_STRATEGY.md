@@ -21,22 +21,46 @@ feat/*  ──→  develop  ──→  deploy/*
 
 **도입 시점:** 실서버 릴리스 버전 관리가 필요할 때
 
-**도입 후 브랜치 전략:**
+**현재 구조 (테스트 서버만):**
 
 ```
-feat/* ──→ develop ──→ deploy/* (테스트/스테이징 배포)
-                ↓
-              main (프로덕션 릴리스 기록 + 태깅)
-                ↓
-            deploy/* (실서버 배포)
+feat/* ──→ develop ──→ deploy/user-api    (테스트 서버 배포)
+          (Squash PR)  deploy/admin-api   (테스트 서버 배포)
 ```
+
+**도입 후 구조 (테스트 + 실서버 분리):**
+
+```
+feat/* ──→ develop ──→ staging/user-api   (테스트 서버 배포)
+          (Squash PR)  staging/admin-api  (테스트 서버 배포)
+                │
+                └──→ main ──→ deploy/user-api   (실서버 배포)
+                    (PR)      deploy/admin-api  (실서버 배포)
+                      │
+                    태깅 (v1.0.0)
+```
+
+| 브랜치         | 환경         | 트리거            |
+|-------------|------------|----------------|
+| `staging/*` | 테스트 서버     | develop에서 push |
+| `deploy/*`  | 실서버 (프로덕션) | main에서 push    |
+
+**GitHub 기본 브랜치:**
+
+`main` 도입 후에도 **`develop`을 GitHub 기본(default) 브랜치로 유지**한다.
+- PR 생성 시 자동으로 `develop`을 대상으로 지정 (가장 빈번한 워크플로우)
+- `main`은 프로덕션 릴리스 전용 — `develop → main` PR은 릴리스 시에만 수동 생성
+- Settings → General → Default Branch에서 변경하지 않음
 
 **도입 절차:**
 
 1. `develop`에서 `main` 브랜치 생성: `git checkout -b main develop && git push -u origin main`
 2. `main`에 Branch Protection 설정 (develop과 동일 수준)
-3. 릴리스 시 `develop → main` PR 생성 후 머지
-4. `main`에서 릴리스 태그 부여 (예: `v1.0.0`)
+3. GitHub 기본 브랜치는 `develop` 유지 (변경하지 않음)
+4. 기존 `deploy/*` 브랜치를 `staging/*`으로 이름 변경 (테스트 서버용)
+5. 새 `deploy/*` 브랜치 생성 (실서버용, main 기반)
+6. 배포 워크플로우 파일 추가: `deploy-staging-*.yml` (테스트), `deploy-*.yml` (실서버)
+7. 릴리스 시 `develop → main` PR 생성 후 머지 → `main`에서 릴리스 태그 부여 (예: `v1.0.0`)
 
 ### feat 브랜치 네이밍 컨벤션
 
@@ -208,19 +232,31 @@ B: feat/b → 기존 시그니처로 호출 (텍스트 충돌 없음, 빌드 에
 
 ## 배포 전략
 
-배포는 CI와 분리되어 있다. `deploy/*` 브랜치에 push하면 해당 프로젝트가 자동 배포된다.
+배포는 CI와 분리되어 있다. 배포 전용 브랜치에 push하면 해당 프로젝트가 자동 배포된다.
+
+### 현재 구조 (테스트 서버만)
 
 ```
-develop ──→ deploy/user-api   ──→ user-api 서버 배포
-develop ──→ deploy/admin-api  ──→ admin-api 서버 배포
+develop ──→ deploy/user-api   ──→ user-api 테스트 서버 배포
+develop ──→ deploy/admin-api  ──→ admin-api 테스트 서버 배포
+```
+
+### main 도입 후 구조 (테스트 + 실서버)
+
+```
+develop ──→ staging/user-api   ──→ user-api 테스트 서버 배포
+develop ──→ staging/admin-api  ──→ admin-api 테스트 서버 배포
+
+main ──→ deploy/user-api   ──→ user-api 실서버 배포
+main ──→ deploy/admin-api  ──→ admin-api 실서버 배포
 ```
 
 ### 배포 흐름
 
 ```
-1. develop에서 deploy/* 브랜치로 merge
+1. develop(또는 main)에서 배포 브랜치로 merge
    $ git checkout deploy/user-api
-   $ git merge develop
+   $ git merge main
    $ git push
 
 2. GitHub Actions 자동 실행
@@ -232,15 +268,27 @@ develop ──→ deploy/admin-api  ──→ admin-api 서버 배포
 
 ### 배포 워크플로우 파일
 
+**현재:**
+
 | 파일                     | 트리거                      | 역할              |
 |------------------------|--------------------------|-----------------|
 | `deploy-user-api.yml`  | `push: deploy/user-api`  | user-api 배포 호출  |
 | `deploy-admin-api.yml` | `push: deploy/admin-api` | admin-api 배포 호출 |
 | `deploy-backend.yml`   | `workflow_call` (재사용)    | 공통 빌드+배포 로직     |
 
+**main 도입 후 추가:**
+
+| 파일                      | 트리거                       | 역할                  |
+|-------------------------|---------------------------|---------------------|
+| `staging-user-api.yml`  | `push: staging/user-api`  | user-api 테스트 서버 배포  |
+| `staging-admin-api.yml` | `push: staging/admin-api` | admin-api 테스트 서버 배포 |
+
+> 기존 `deploy-*.yml`은 실서버 배포용으로 유지하고, `staging-*.yml`을 테스트 서버용으로 추가한다.
+
 ### 새 프로젝트 배포 추가 시
 
 `deploy-user-api.yml`을 복사하여 `project`, `gradle-module`, 브랜치명만 변경하면 된다.
+main 도입 후에는 `staging-*.yml`도 동일하게 추가한다.
 
 ---
 
