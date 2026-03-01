@@ -190,5 +190,5 @@ git push origin deploy/user-api
 1. `deploy-<프로젝트명>.yml` 워크플로우 파일 생성 (기존 파일 복사, 프로젝트명만 변경)
 2. EC2 신규 생성 + 서버 세팅 9단계 실행
 3. ALB 타겟그룹에 새 EC2 등록
-4. 배포 브랜치 생성: `git push origin main:deploy/<프로젝트명>`
+4. 배포 브랜치 생성: `git push origin develop:deploy/<프로젝트명>`
 5. 공통 워크플로우(`deploy-backend.yml`)와 배포 스크립트(`deploy.sh`)는 수정 불필요

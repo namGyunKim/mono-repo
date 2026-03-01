@@ -33,8 +33,8 @@ EC2마다 1개의 프로젝트를 운영하며, 대상 프로젝트만 바꾸면
 #    → 발급된 토큰을 메모 (서버 세팅 3단계 docker login에서 입력)
 
 # 3. 배포 브랜치 생성 (최초 1회)
-git push origin main:deploy/user-api
-git push origin main:deploy/admin-api
+git push origin develop:deploy/user-api
+git push origin develop:deploy/admin-api
 #    → 각 프로젝트의 GitHub Actions 워크플로우가
 #      on.push.branches에 해당 브랜치를 트리거로 등록하고 있다.
 #      따라서 deploy/user-api 브랜치에 push하면 워크플로우가 자동 실행되어
