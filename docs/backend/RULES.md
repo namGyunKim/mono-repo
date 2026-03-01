@@ -1,7 +1,6 @@
 # 백엔드 REST API 개발 규칙
 
 > CRITICAL: 코드 작성/수정이 끝나면 답변 전에 이 지침서(`docs/backend/RULES.md`)를 다시 확인해 규칙 누락이 없는지 최종 점검한다.
-> CRITICAL: 코드/문서 수정 작업 완료 답변에는 반드시 아래 규칙 형식의 **커밋 메시지 1줄**을 함께 제공한다.
 
 이 문서는 AI가 이 모노레포의 **REST API 전용 백엔드**(Spring Boot) 코드를 생성하거나 수정할 때 반드시 따라야 할 규칙입니다.
 본 프로젝트는 `apps/*-api`와 `libs/backend/*`를 분리한 모노레포 구조를 기준으로 운영합니다.
@@ -28,7 +27,7 @@
 - 코드 변경으로 **새로운 패턴·규칙·컨벤션이 확립**되면 본 지침서(`RULES.md`)에 즉시 반영한다
 - 코드 변경 완료 후 `RULES.md`와 `docs/backend/README.md`를 확인하여 **현재 코드와 불일치하는 내용이 있으면 함께 수정**한다
 - **구조 변경**(모듈 추가/삭제, 파일 이동, 패키지 재구성 등) 시 `docs/backend/README.md`의 구조도·테스트 현황·명령어 등을 반드시 확인하고 불일치하면 즉시 수정한다
-- 코드 변경 완료 후 **커밋은 자동 진행**, 푸시는 사용자 명시 요청 시에만 진행 (백엔드만 해당)
+- 코드 변경 완료 후 **커밋은 사용자 요청 시에만** 진행, 푸시/PR도 사용자 명시 요청 시에만 진행
 
 > 모노레포 경로: `apps/user-api/`, `apps/admin-api/`, `libs/backend/*`
 
@@ -123,17 +122,15 @@ pnpm nx test admin-api
 4. `apps/{name}-api/build.gradle.kts` 생성
 5. 포트 번호 변경 (`8082`, `8083`, ...)
 
-## 커밋 메시지 규칙 (Conventional Commits, CRITICAL)
+## 커밋 / PR 메시지 규칙 (Conventional Commits, CRITICAL)
 
-- 기본 형식: **`type(scope): 변경 요약`**
-- 예시: `docs(backend): 백엔드 지침서 구조·경로 정합성 정리`
-- `type` 허용값: `feat`, `fix`, `refactor`, `docs`, `chore`
-- 변경 영역이 명확하면 `scope`를 반드시 포함한다
-- 권장 `scope`: `backend`, `user-api`, `admin-api`, `domain-core`, `global-core`, `common`, `security-web`, `web-support`,
-  `web`
-- `:` 뒤 설명은 **한국어**로 작성
-- 커밋 메시지는 변경사항을 요약한 **제목 한 줄 1개만** 제공 (여러 후보/여러 줄 금지)
-- 코드/문서 수정 작업을 완료해 사용자에게 보고할 때, 위 형식의 커밋 메시지를 **답변에 반드시 포함**한다.
+> 상세 컨벤션은 `docs/CI_STRATEGY.md`의 "커밋 / PR 메시지 컨벤션" 섹션을 참조한다.
+
+- 기본 형식: **`<type>: <변경 요약>`** (scope 생략 가능, 한국어 설명)
+- `type` 허용값: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `rename`, `style`
+- 개별 커밋은 간결하게 작성 (squash merge로 최종 합쳐짐)
+- **PR 제목이 squash merge 시 최종 커밋 메시지**가 되므로, PR 제목을 정확하게 작성한다
+- PR 본문: `## Summary` + `## Test plan` 형식
 
 ---
 
@@ -304,14 +301,11 @@ pnpm nx test admin-api
 - 호환성 목적의 레거시 코드를 남기지 않는다
 - 변경 시 기존 방식을 제거하고 최신 규칙으로 통일
 
-### 커밋 메시지 규칙 (CRITICAL)
+### 커밋 / PR 규칙
 
-- 형식은 상단 규칙과 동일하게 `type(scope): 변경 요약`을 사용
-- 설명은 **한국어**, 제목 한 줄 1개만 제공
-- 코드 제공 시 커밋 메시지를 함께 제공
-- 커밋 메시지 제공 시 macOS `pbcopy`로 한 줄 메시지를 클립보드에 자동 복사
-- 클립보드 텍스트 마지막은 개행 없이 유지 (`printf '%s' ... | pbcopy`)
-- 클립보드 명령 사용이 불가한 환경이면 복사용 한 줄 코드블록을 제공
+- 상단 "커밋 / PR 메시지 규칙" 섹션과 동일한 컨벤션을 따른다
+- 커밋은 **사용자 요청 시에만** 생성한다 (자율 커밋 금지)
+- PR 생성/머지도 **사용자 요청 시에만** 진행한다
 
 ### 규칙 요약 (핵심)
 
