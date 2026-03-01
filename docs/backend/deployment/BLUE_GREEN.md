@@ -1,7 +1,7 @@
 # Blue/Green 무중단 배포 가이드
 
-서버 1대에서 Docker + Nginx + GitHub Actions를 이용한 Blue/Green 배포 전략.
-대상 프로젝트만 바꾸면 동일한 구조를 그대로 재사용할 수 있다.
+ALB + EC2 2대에서 Docker + Nginx + GitHub Actions를 이용한 Blue/Green 무중단 배포 전략.
+EC2마다 1개의 프로젝트를 운영하며, 대상 프로젝트만 바꾸면 동일한 구조를 그대로 재사용할 수 있다.
 
 ---
 
@@ -12,13 +12,14 @@
 ```bash
 # 1. GitHub Secrets 등록 (GitHub Actions가 서버에 SSH 접속하기 위해 필요)
 #    리포지토리 Settings → Secrets and variables → Actions
-#    ┌──────────────────┬──────────────────────────────────────────┐
-#    │ Secret           │ 값                                       │
-#    ├──────────────────┼──────────────────────────────────────────┤
-#    │ SERVER_HOST      │ EC2 퍼블릭 IP (예: 123.45.67.89)         │
-#    │ SERVER_USER      │ EC2 기본 유저 (예: ec2-user)              │
-#    │ SSH_PRIVATE_KEY  │ EC2 키페어 .pem 파일 내용 전체             │
-#    └──────────────────┴──────────────────────────────────────────┘
+#    ┌────────────────────────┬──────────────────────────────────────────┐
+#    │ Secret                 │ 값                                       │
+#    ├────────────────────────┼──────────────────────────────────────────┤
+#    │ USER_API_SERVER_HOST   │ user-api EC2 IP (예: 10.0.1.10)         │
+#    │ ADMIN_API_SERVER_HOST  │ admin-api EC2 IP (예: 10.0.1.20)        │
+#    │ SERVER_USER            │ EC2 기본 유저 (예: ec2-user)              │
+#    │ SSH_PRIVATE_KEY        │ EC2 키페어 .pem 파일 내용 전체             │
+#    └────────────────────────┴──────────────────────────────────────────┘
 #    → SSH_PRIVATE_KEY에는 EC2 인스턴스 생성 시 발급받은 .pem 파일 내용을 그대로 붙여넣는다.
 #      cat ~/.ssh/my-key.pem  →  전체 복사 후 Secret value에 입력
 #
@@ -137,26 +138,35 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 ┌─────────────────────────────────────────────────────────┐
 │  GitHub                                                 │
 │  push → Actions → build JAR → Docker image → Push GHCR  │
-└──────────────────────────┬──────────────────────────────┘
-                           │ SSH
-┌──────────────────────────▼──────────────────────────────┐
-│  앱 서버                                                 │
-│                                                         │
-│  Nginx (:80/:443)                                       │
-│    └── upstream → localhost:8081 (Blue)                  │
-│                 or localhost:8082 (Green)                │
-│                                                         │
-│  Docker containers                                      │
-│    ├── user-api-blue  (--network host, port 8081)       │
-│    └── user-api-green (--network host, port 8082)       │
-└─────────────────────────────────────────────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │  DB 서버     │
-                    │  PostgreSQL  │
-                    └─────────────┘
+└──────────────┬──────────────────────┬───────────────────┘
+               │ SSH                  │ SSH
+┌──────────────▼───────┐  ┌──────────▼────────────┐
+│  ALB (HTTPS:443)     │  │                       │
+│  + ACM SSL + WAF     │  │                       │
+└──────┬─────────┬─────┘  │                       │
+       │         │        │                       │
+┌──────▼──┐  ┌───▼─────┐  │                       │
+│ EC2-1   │  │ EC2-2   │  │                       │
+│ Nginx   │  │ Nginx   │  │                       │
+│ (:80)   │  │ (:80)   │  │                       │
+│ ┌─────┐ │  │ ┌─────┐ │  │                       │
+│ │Blue │ │  │ │Blue │ │  │                       │
+│ │8081 │ │  │ │8081 │ │  │                       │
+│ ├─────┤ │  │ ├─────┤ │  │                       │
+│ │Green│ │  │ │Green│ │  │                       │
+│ │8082 │ │  │ │8082 │ │  │                       │
+│ └─────┘ │  │ └─────┘ │  │                       │
+│user-api │  │admin-api│  │                       │
+└────┬────┘  └────┬────┘  │                       │
+     │            │       │                       │
+  ┌──▼────────────▼──┐    │                       │
+  │  DB 서버          │    │                       │
+  │  PostgreSQL      │    │                       │
+  └──────────────────┘    │                       │
+                          └───────────────────────┘
 ```
 
+> ALB가 HTTPS 종료 + WAF를 처리하므로, EC2의 Nginx는 HTTP(:80)만 수신한다.
 > DB는 별도 서버에 분리한다. 앱 서버에는 Docker + Nginx만 존재한다.
 
 ### 배포 흐름 (deploy.sh)
@@ -205,13 +215,15 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 
 ### 2.2 GitHub Secrets 등록
 
-리포지토리 Settings → Secrets and variables → Actions에 등록:
+리포지토리 Settings → Secrets and variables → Actions에 등록.
+EC2가 프로젝트별로 분리되어 있으므로 서버별 Secret을 등록한다.
 
 | Secret | 설명 | 예시 |
 |--------|------|------|
-| `SERVER_HOST` | 배포 대상 서버 IP/도메인 | `123.45.67.89` |
-| `SERVER_USER` | SSH 접속 유저 | `deploy` |
-| `SSH_PRIVATE_KEY` | 서버 접속용 SSH 개인키 | `-----BEGIN OPENSSH...` |
+| `USER_API_SERVER_HOST` | user-api EC2 IP | `10.0.1.10` |
+| `ADMIN_API_SERVER_HOST` | admin-api EC2 IP | `10.0.1.20` |
+| `SERVER_USER` | SSH 접속 유저 (공통) | `ec2-user` |
+| `SSH_PRIVATE_KEY` | EC2 키페어 .pem (공통) | `-----BEGIN OPENSSH...` |
 
 > GHCR(GitHub Container Registry)은 `GITHUB_TOKEN`으로 push하고,
 > 서버에서는 PAT(Personal Access Token)로 pull한다(3.2절 참조).
@@ -510,9 +522,9 @@ docker image prune -a --filter "until=168h" -f
     ├── ./gradlew :apps:user-api:bootJar
     ├── docker build → ghcr.io/.../user-api:abc1234
     ├── docker push
-    └── ssh deploy@server "/opt/deploy/deploy.sh user-api abc1234"
+    └── ssh ec2-user@EC2-1 "/opt/deploy/deploy.sh user-api abc1234"
             │
-[서버 deploy.sh]
+[EC2-1 deploy.sh]
             ├── 현재 활성: blue(8081)
             ├── docker pull ...user-api:abc1234
             ├── docker run → user-api-green (8082)
@@ -521,6 +533,8 @@ docker image prune -a --filter "until=168h" -f
             ├── nginx reload
             ├── docker stop user-api-blue
             └── echo "green" > user-api.active
+            │
+[ALB]       └── 클라이언트 → ALB(:443) → EC2-1 Nginx(:80) → Green(8082)
 ```
 
 ---

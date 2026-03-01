@@ -17,4 +17,7 @@ jobs:
     with:
       project: admin-api
       gradle-module: ':apps:admin-api'
-    secrets: inherit
+    secrets:
+      SERVER_HOST: ${{ secrets.ADMIN_API_SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
