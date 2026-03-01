@@ -241,7 +241,7 @@ GitHub Settings → Branches → Branch protection rules → `develop`:
 | 옵션                                                      | 현재 설정  | 설명                                           |
 |---------------------------------------------------------|--------|----------------------------------------------|
 | **Require a pull request before merging**               | ✅      | 직접 push 차단, PR 필수                            |
-| **Require approvals**                                   | ✅ (1명) | 최소 1명의 리뷰 승인 필요                              |
+| **Require approvals**                                   | ✅ (0명) | PR 필수이나 리뷰 승인 없이 머지 가능                       |
 | **Dismiss stale pull request approvals**                | ❌      | 새 커밋 push 시 기존 승인 취소 여부                      |
 | **Require review from Code Owners**                     | ❌      | CODEOWNERS 기반 리뷰 강제 여부                       |
 | **Require approval of the most recent reviewable push** | ❌      | 마지막 push에 대해 별도 승인 필요 여부                     |
