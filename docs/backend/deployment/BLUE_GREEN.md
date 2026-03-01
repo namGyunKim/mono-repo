@@ -57,9 +57,9 @@ sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 newgrp docker
 
-# 2. Nginx 설치
-sudo dnf install -y nginx
-sudo systemctl enable --now nginx
+# 2. Nginx + cronie 설치
+sudo dnf install -y nginx cronie
+sudo systemctl enable --now nginx crond
 
 # 3. GHCR 로그인 (이미지 pull 용)
 echo "<GHCR_PAT>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin
@@ -218,9 +218,12 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 
 ### 2.3 서버 요구사항
 
-- Docker Engine 24+
-- Nginx
-- curl
+- **인스턴스**: t3a.large (2 vCPU, 8GB RAM)
+- **OS**: Amazon Linux 2023 (AL2023)
+- Docker Engine 24+ (`dnf install docker`)
+- Nginx (`dnf install nginx`)
+- cronie (`dnf install cronie`) — 로그 백업 cron용
+- curl (AL2023 기본 포함)
 
 ---
 
@@ -237,9 +240,9 @@ sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 newgrp docker
 
-# Nginx
-sudo dnf install -y nginx
-sudo systemctl enable --now nginx
+# Nginx + cronie (crontab용)
+sudo dnf install -y nginx cronie
+sudo systemctl enable --now nginx crond
 ```
 
 ### 3.2 GHCR 인증 (이미지 pull 용)
