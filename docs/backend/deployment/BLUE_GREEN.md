@@ -578,8 +578,19 @@ docker image prune -a --filter "until=168h" -f
 
 ---
 
-## TODO
+## 10. 배포 알림
 
-- [x] `/app/logs`에 프로그램 실행 시 `app.log`로 로그 남기기 및 매일 백업 전략 수립
-- [ ] 배포 실패 시 알림/대응 전략 수립 (Slack 알림, 자동 롤백 등)
-- [ ] 배포 성공 시 후속 전략 수립 (배포 이력 기록, 알림 등)
+GitHub Actions는 기본적으로 워크플로우 실패 시 이메일을 발송한다.
+성공 시에도 이메일을 받으려면 GitHub 설정을 변경한다.
+
+### 설정 방법
+
+GitHub → Settings → Notifications → Actions:
+
+| 설정 | 동작 |
+|------|------|
+| **Only failures** (기본값) | 실패 시에만 이메일 발송 |
+| **All workflows** | 성공 · 실패 모두 이메일 발송 |
+
+> 별도 워크플로우 수정 없이 GitHub 계정 설정만 바꾸면 된다.
+> 추후 Slack 알림이 필요하면 워크플로우에 알림 step을 추가한다.
