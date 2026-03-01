@@ -151,6 +151,35 @@ GitHub Settings → Branches → Branch protection rules → `develop`:
 | **Require linear history**                              | ✅      | Squash merge 강제                              |
 | **Do not allow bypassing**                              | ❌ (선택) | admin도 규칙 준수 강제                              |
 
+### PR 충돌 및 통합 오류 방어
+
+"Require branches to be up to date before merging" 옵션이 활성화되어 있어, 다른 PR이 먼저 머지된 경우 반드시 최신 develop 기반으로 업데이트한 뒤 CI를 재실행해야 머지할 수 있다.
+
+**시나리오 1: 머지 충돌**
+
+```
+A: feat/a → develop PR (먼저 머지됨)
+B: feat/b → develop PR (A와 같은 파일 수정 → 충돌)
+```
+
+1. GitHub가 "This branch has conflicts" 표시 → 머지 버튼 비활성화
+2. B가 develop을 rebase/merge → 충돌 해결 → push
+3. CI 재실행 → 통과 후 머지
+
+**시나리오 2: 충돌은 없지만 합치면 에러**
+
+```
+A: feat/a → 함수 시그니처 변경 (먼저 머지됨)
+B: feat/b → 기존 시그니처로 호출 (텍스트 충돌 없음, 빌드 에러)
+```
+
+1. A 머지 후 develop이 앞서감 → B는 "Update branch" 필요
+2. B가 develop을 rebase/merge → CI 재실행 → 빌드 에러 발견
+3. 에러 수정 → push → CI 통과 후 머지
+
+> 이 옵션이 꺼져 있으면 오래된 브랜치가 그대로 머지되어 develop이 깨질 수 있다.
+> 활성화 상태에서는 항상 최신 develop 기반으로 CI를 통과해야 하므로 통합 오류를 사전에 방지한다.
+
 ---
 
 ## 배포 전략
