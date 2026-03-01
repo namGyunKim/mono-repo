@@ -3,7 +3,7 @@ package com.example.global.security.filter;
 import com.example.domain.account.payload.dto.AccountAuthMemberView;
 import com.example.domain.member.entity.Member;
 import com.example.domain.member.payload.dto.MemberLoginIdQuery;
-import com.example.domain.security.PrincipalDetails;
+import com.example.domain.security.guard.PrincipalDetails;
 import com.example.domain.security.jwt.JwtTokenParser;
 import com.example.domain.security.jwt.JwtTokenPayload;
 import com.example.global.security.SecurityContextManager;

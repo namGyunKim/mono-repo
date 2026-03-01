@@ -1,6 +1,7 @@
 package com.example.global.config.social;
 
 import com.example.domain.social.google.client.GoogleApiClient;
+import com.example.domain.social.google.client.GoogleOauthClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

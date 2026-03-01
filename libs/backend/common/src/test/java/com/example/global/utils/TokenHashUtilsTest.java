@@ -1,4 +1,4 @@
-package com.example.global.security;
+package com.example.global.utils;
 
 import org.junit.jupiter.api.Test;
 

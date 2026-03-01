@@ -2,7 +2,7 @@ package com.example.domain.security.token;
 
 import com.example.domain.security.jwt.JwtTokenParser;
 import com.example.domain.security.jwt.JwtTokenPayload;
-import com.example.global.security.TokenHashUtils;
+import com.example.global.utils.TokenHashUtils;
 import com.example.global.security.blacklist.BlacklistedToken;
 import com.example.global.security.blacklist.BlacklistedTokenRepository;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;

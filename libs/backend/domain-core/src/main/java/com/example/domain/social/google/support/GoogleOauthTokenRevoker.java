@@ -1,7 +1,7 @@
 package com.example.domain.social.google.support;
 
 import com.example.domain.social.entity.SocialAccount;
-import com.example.global.config.social.GoogleOauthClient;
+import com.example.domain.social.google.client.GoogleOauthClient;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;
 

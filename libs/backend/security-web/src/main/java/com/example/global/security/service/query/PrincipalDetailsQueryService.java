@@ -4,7 +4,7 @@ import com.example.domain.account.payload.dto.AccountAuthMemberView;
 import com.example.domain.account.payload.dto.AccountLoginIdQuery;
 import com.example.domain.account.service.query.AccountQueryService;
 import com.example.domain.member.enums.MemberType;
-import com.example.domain.security.PrincipalDetails;
+import com.example.domain.security.guard.PrincipalDetails;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;

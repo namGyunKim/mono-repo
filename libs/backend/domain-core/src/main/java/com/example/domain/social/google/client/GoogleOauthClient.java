@@ -1,4 +1,4 @@
-package com.example.global.config.social;
+package com.example.domain.social.google.client;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;

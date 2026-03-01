@@ -1,6 +1,6 @@
 package com.example.global.security.blacklist.support;
 
-import com.example.global.security.TokenHashUtils;
+import com.example.global.utils.TokenHashUtils;
 import com.example.global.security.blacklist.BlacklistedTokenRepository;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenHashQuery;
 import lombok.RequiredArgsConstructor;
