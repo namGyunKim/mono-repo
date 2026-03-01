@@ -30,6 +30,10 @@
 # 3. 배포 브랜치 생성 (최초 1회)
 git push origin main:deploy/user-api
 git push origin main:deploy/admin-api
+#    → 각 프로젝트의 GitHub Actions 워크플로우(deploy-user-api.yml 등)가
+#      on.push.branches에 해당 브랜치를 트리거로 등록하고 있다.
+#      따라서 deploy/user-api 브랜치에 push하면 워크플로우가 자동 실행되어
+#      JAR 빌드 → Docker 이미지 → GHCR push → SSH 배포까지 진행된다.
 ```
 
 끝. 이제 아래 서버 세팅을 진행한다.
