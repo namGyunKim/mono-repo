@@ -14,6 +14,30 @@ feat/*  ──→  develop  ──→  deploy/*
 | `deploy/user-api`  | user-api 배포 트리거                                  | push 시 자동 배포         |
 | `deploy/admin-api` | admin-api 배포 트리거                                 | push 시 자동 배포         |
 
+### main 브랜치 (예약)
+
+현재 `main` 브랜치는 존재하지 않으며, `develop`이 기본 브랜치 역할을 한다.
+실서버 운영이 시작되어 테스트/프로덕션 환경 분리가 필요해지면 `main`을 도입한다.
+
+**도입 시점:** 실서버 릴리스 버전 관리가 필요할 때
+
+**도입 후 브랜치 전략:**
+
+```
+feat/* ──→ develop ──→ deploy/* (테스트/스테이징 배포)
+                ↓
+              main (프로덕션 릴리스 기록 + 태깅)
+                ↓
+            deploy/* (실서버 배포)
+```
+
+**도입 절차:**
+
+1. `develop`에서 `main` 브랜치 생성: `git checkout -b main develop && git push -u origin main`
+2. `main`에 Branch Protection 설정 (develop과 동일 수준)
+3. 릴리스 시 `develop → main` PR 생성 후 머지
+4. `main`에서 릴리스 태그 부여 (예: `v1.0.0`)
+
 ### feat 브랜치 네이밍 컨벤션
 
 ```
