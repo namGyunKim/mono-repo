@@ -52,17 +52,21 @@ public class AsyncConfig implements AsyncConfigurer {
 
         return () -> {
             try {
-                if (contextMap != null) {
-                    MDC.setContextMap(contextMap);
-                }
-                if (securityContext != null) {
-                    securityContextManager.setContext(securityContext);
-                }
+                restoreContext(contextMap, securityContext);
                 runnable.run();
             } finally {
                 MDC.clear();
                 securityContextManager.clearContext();
             }
         };
+    }
+
+    private void restoreContext(Map<String, String> contextMap, SecurityContext securityContext) {
+        if (contextMap != null) {
+            MDC.setContextMap(contextMap);
+        }
+        if (securityContext != null) {
+            securityContextManager.setContext(securityContext);
+        }
     }
 }

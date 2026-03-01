@@ -55,15 +55,7 @@ public class MemberStrategyFactory {
                 continue;
             }
 
-            for (AccountRole role : supportedRoles) {
-                final MemberCommandService existing = commandServiceMap.put(role, service);
-                if (existing != null && existing != service) {
-                    // 동일 Role에 대해 2개 이상의 구현체가 등록되면, 런타임에서 어떤 서비스가 선택될지 보장되지 않습니다.
-                    // 베이스 프로젝트에서는 "fail-fast"로 오류를 노출하여 설정/확장 실수를 조기에 발견하도록 합니다.
-                    throw new IllegalStateException("MemberCommandService 중복 등록: role=%s".formatted(role));
-                }
-
-            }
+            registerForRoles(service, supportedRoles, commandServiceMap, "MemberCommandService");
         }
     }
 
@@ -78,12 +70,15 @@ public class MemberStrategyFactory {
                 continue;
             }
 
-            for (AccountRole role : supportedRoles) {
-                final MemberQueryService existing = queryServiceMap.put(role, service);
-                if (existing != null && existing != service) {
-                    throw new IllegalStateException("MemberQueryService 중복 등록: role=%s".formatted(role));
-                }
+            registerForRoles(service, supportedRoles, queryServiceMap, "MemberQueryService");
+        }
+    }
 
+    private <T> void registerForRoles(T service, List<AccountRole> roles, Map<AccountRole, T> serviceMap, String serviceTypeName) {
+        for (AccountRole role : roles) {
+            final T existing = serviceMap.put(role, service);
+            if (existing != null && existing != service) {
+                throw new IllegalStateException("%s 중복 등록: role=%s".formatted(serviceTypeName, role));
             }
         }
     }

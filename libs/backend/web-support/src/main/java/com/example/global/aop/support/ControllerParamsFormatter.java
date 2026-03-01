@@ -44,36 +44,32 @@ public class ControllerParamsFormatter {
         }
 
         try {
-            // 순서를 보장하기 위해 LinkedHashMap 사용
-            final Map<String, Object> loggableArgs = new LinkedHashMap<>();
             final String[] parameterNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
-
-            for (int i = 0; i < args.length; i++) {
-                final Object arg = args[i];
-                final String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
-
-                // 로깅 가능한 타입만 맵에 담기
-                if (isLoggable(arg)) {
-                    loggableArgs.put(paramName, sanitize(paramName, arg));
-                }
-            }
+            final Map<String, Object> loggableArgs = collectLoggableArgs(args, parameterNames);
 
             if (loggableArgs.isEmpty()) {
                 return "없음(필터링됨)";
             }
 
-            // JSON Pretty Print 적용 (줄바꿈 및 들여쓰기)
             final String formatted = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loggableArgs);
             return truncateLog(formatted);
-
         } catch (Exception e) {
-            log.warn(
-                    "traceId={}, 요청 파라미터 로깅 실패: {}",
-                    TraceIdUtils.resolveTraceId(),
-                    e.getClass().getSimpleName()
-            );
+            log.warn("traceId={}, 요청 파라미터 로깅 실패: {}", TraceIdUtils.resolveTraceId(), e.getClass().getSimpleName());
             return "파라미터 파싱 실패";
         }
+    }
+
+    private Map<String, Object> collectLoggableArgs(Object[] args, String[] parameterNames) {
+        final Map<String, Object> loggableArgs = new LinkedHashMap<>();
+        for (int i = 0; i < args.length; i++) {
+            final Object arg = args[i];
+            final String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
+
+            if (isLoggable(arg)) {
+                loggableArgs.put(paramName, sanitize(paramName, arg));
+            }
+        }
+        return loggableArgs;
     }
 
     /**

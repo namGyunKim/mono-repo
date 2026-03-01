@@ -32,12 +32,9 @@ public final class ClientIpExtractor {
         }
 
         try {
-            for (final String header : IP_HEADERS) {
-                final String raw = request.getHeader(header);
-                final String candidate = parse(header, raw);
-                if (hasText(candidate)) {
-                    return candidate;
-                }
+            final String fromHeaders = resolveFromHeaders(request);
+            if (fromHeaders != null) {
+                return fromHeaders;
             }
 
             final String remoteAddr = request.getRemoteAddr();
@@ -45,6 +42,17 @@ public final class ClientIpExtractor {
         } catch (final Exception e) {
             return "UNKNOWN";
         }
+    }
+
+    private static String resolveFromHeaders(final HttpServletRequest request) {
+        for (final String header : IP_HEADERS) {
+            final String raw = request.getHeader(header);
+            final String candidate = parse(header, raw);
+            if (hasText(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private static String parse(final String headerName, final String raw) {
