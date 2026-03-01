@@ -1,7 +1,10 @@
-# 모든 백엔드 프로젝트가 호출하는 공통 재사용 워크플로우.
+# 모든 백엔드 프로젝트가 호출하는 공통 재사용 워크플로우 (Reusable Workflow).
+# 이 파일 자체는 단독으로 실행되지 않는다.
+# 각 프로젝트 워크플로우(deploy-user-api.yml 등)가 workflow_call로 이 파일을 호출하며,
+# project와 gradle-module 파라미터만 바꿔서 빌드/배포 로직을 공유한다.
 #
-# 레포지토리 위치: docs/backend/deployment/deploy-backend.yml
-# 실제 배치 위치: .github/workflows/deploy-backend.yml
+# 원본: docs/backend/deployment/deploy-backend.yml
+# 배치: .github/workflows/deploy-backend.yml
 
 name: Deploy Backend (Reusable)
 
