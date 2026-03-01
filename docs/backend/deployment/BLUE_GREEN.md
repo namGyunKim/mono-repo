@@ -398,7 +398,9 @@ sudo nginx -t && sudo nginx -s reload
 |----------------------------------|------------------------------------------|
 | `deploy-backend.yml`             | `.github/workflows/deploy-backend.yml`   |
 | `user-api/deploy-user-api.yml`   | `.github/workflows/deploy-user-api.yml`  |
+| `user-api/stage-user-api.yml`    | `.github/workflows/stage-user-api.yml`   |
 | `admin-api/deploy-admin-api.yml` | `.github/workflows/deploy-admin-api.yml` |
+| `admin-api/stage-admin-api.yml`  | `.github/workflows/stage-admin-api.yml`  |
 | `backend.Dockerfile`             | `infra/docker/backend.Dockerfile`        |
 
 > 원본과 배치 파일은 항상 동일한 내용을 유지해야 한다. 배치 위치만 직접 수정하면 원본과 불일치가 발생한다.
