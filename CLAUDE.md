@@ -53,6 +53,19 @@
 - 빌드(`pnpm nx build`, `./gradlew build`), 테스트(`pnpm nx test`), 린트 실행도 자율 진행
 - 리팩토링 중 발견된 위반 사항은 즉시 수정한다
 - 파일 읽기/탐색/검색은 자율 진행
+
+---
+
+# 커밋 / PR 규칙
+
+- **커밋은 사용자가 요청할 때만** 생성한다 (자율 커밋 금지)
+- **PR 생성/머지도 사용자가 요청할 때만** 진행한다
+- PR은 `docs/CI_STRATEGY.md`의 "커밋 / PR 메시지 컨벤션"을 따른다
+- **PR 제목**: `<type>: <변경 요약>` — squash merge 시 develop에 남는 최종 커밋 메시지가 된다
+- **PR 본문**: `## Summary` (변경사항 bullet) + `## Test plan` (검증 항목) — 구체적으로 작성한다
+- **개별 커밋**: 간결해도 무방 (squash merge로 사라짐)
+- type 목록: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `rename`, `style`
+
 ---
 
 # MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*, Playwright -> mcp__playwright__*)
