@@ -83,6 +83,9 @@ out/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Playwright MCP
+.playwright-mcp/
+
 # MCP config (API 키 포함)
 .mcp.json
 
