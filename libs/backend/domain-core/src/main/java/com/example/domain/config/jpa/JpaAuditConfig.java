@@ -1,4 +1,4 @@
-package com.example.global.config.jpa;
+package com.example.domain.config.jpa;
 
 import com.example.domain.security.guard.MemberGuard;
 import lombok.RequiredArgsConstructor;

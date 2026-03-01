@@ -1,4 +1,4 @@
-package com.example.global.config.social;
+package com.example.domain.social.google.config;
 
 import com.example.domain.social.google.client.GoogleApiClient;
 import com.example.domain.social.google.client.GoogleOauthClient;
