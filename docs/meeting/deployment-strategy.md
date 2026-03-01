@@ -82,16 +82,31 @@
 
 배포 전용 브랜치에 push하면 해당 프로젝트만 자동 배포된다.
 
-| 브랜치                | 배포 대상     | 서버    |
-|--------------------|-----------|-------|
-| `deploy/user-api`  | user-api  | EC2-1 |
-| `deploy/admin-api` | admin-api | EC2-2 |
+**현재 (테스트 서버만):**
+
+| 브랜치                | 배포 대상     | 환경     |
+|--------------------|-----------|--------|
+| `deploy/user-api`  | user-api  | 테스트 서버 |
+| `deploy/admin-api` | admin-api | 테스트 서버 |
+
+**main 도입 후 (테스트 + 실서버):**
+
+| 브랜치                | 배포 대상     | 환경     |
+|--------------------|-----------|--------|
+| `stage/user-api`   | user-api  | 테스트 서버 |
+| `stage/admin-api`  | admin-api | 테스트 서버 |
+| `deploy/user-api`  | user-api  | 실서버    |
+| `deploy/admin-api` | admin-api | 실서버    |
 
 ```
-git push origin deploy/user-api
+git push origin stage/user-api    → 테스트 서버 배포
+git push origin deploy/user-api   → 실서버 배포
   → GitHub Actions 자동 실행
-    → JAR 빌드 → Docker 이미지 → GHCR push → SSH로 EC2-1 배포
+    → JAR 빌드 → Docker 이미지 → GHCR push → SSH 배포
 ```
+
+> 두 워크플로우 모두 같은 `backend-cd.yml`을 호출한다.
+> GitHub Secret에 등록된 서버 IP만 다르게 지정하여 대상 서버를 결정한다.
 
 ### 수동 배포 / 롤백
 
@@ -187,8 +202,9 @@ git push origin deploy/user-api
 
 ## 새 프로젝트 추가 시
 
-1. `deploy-<프로젝트명>.yml` 워크플로우 파일 생성 (기존 파일 복사, 프로젝트명만 변경)
+1. `deploy-<프로젝트명>.yml` + `stage-<프로젝트명>.yml` 워크플로우 파일 생성 (기존 파일 복사, 프로젝트명만 변경)
 2. EC2 신규 생성 + 서버 세팅 9단계 실행
 3. ALB 타겟그룹에 새 EC2 등록
 4. 배포 브랜치 생성: `git push origin develop:deploy/<프로젝트명>`
-5. 공통 워크플로우(`backend-cd.yml`)와 배포 스크립트(`deploy.sh`)는 수정 불필요
+5. GitHub Secrets에 서버 IP 등록 (`<PROJECT>_SERVER_HOST`, `STAGE_<PROJECT>_SERVER_HOST`)
+6. 공통 워크플로우(`backend-cd.yml`)와 배포 스크립트(`deploy.sh`)는 수정 불필요

@@ -53,6 +53,7 @@
 - 빌드(`pnpm nx build`, `./gradlew build`), 테스트(`pnpm nx test`), 린트 실행도 자율 진행
 - 리팩토링 중 발견된 위반 사항은 즉시 수정한다
 - 파일 읽기/탐색/검색은 자율 진행
+
 ---
 
 # MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*, Playwright -> mcp__playwright__*)
