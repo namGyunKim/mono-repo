@@ -10,7 +10,7 @@
 서버를 세팅하기 전에 내 컴퓨터에서 먼저 준비해야 하는 항목들이다.
 
 ```bash
-# 1. GitHub Secrets 등록
+# 1. GitHub Secrets 등록 (GitHub Actions가 서버에 SSH 접속하기 위해 필요)
 #    리포지토리 Settings → Secrets and variables → Actions
 #    ┌──────────────────┬──────────────────────────────────────────┐
 #    │ Secret           │ 값                                       │
@@ -21,11 +21,13 @@
 #    └──────────────────┴──────────────────────────────────────────┘
 #    → SSH_PRIVATE_KEY에는 EC2 인스턴스 생성 시 발급받은 .pem 파일 내용을 그대로 붙여넣는다.
 #      cat ~/.ssh/my-key.pem  →  전체 복사 후 Secret value에 입력
+#
+#    참고: GHCR push는 워크플로우의 GITHUB_TOKEN이 자동 처리하므로 별도 설정 불필요.
 
-# 2. GHCR PAT 발급 (서버에서 이미지 pull 시 사용)
+# 2. GHCR PAT 발급 (서버에서 이미지 pull 시 사용 — GitHub Actions와는 무관)
 #    GitHub → Settings → Developer settings → Personal access tokens
 #    → Generate new token → 스코프: read:packages
-#    → 발급된 토큰을 메모 (서버 세팅 3단계에서 사용)
+#    → 발급된 토큰을 메모 (서버 세팅 3단계 docker login에서 입력)
 
 # 3. 배포 브랜치 생성 (최초 1회)
 git push origin main:deploy/user-api
