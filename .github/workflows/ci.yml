@@ -25,7 +25,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - run: ./gradlew build
+      - run: ./gradlew :apps:admin-api:build :apps:user-api:build
 
   frontend:
     runs-on: ubuntu-latest
