@@ -12,7 +12,8 @@
   - `apps/user-api` (포트 `8081`)
   - `apps/admin-api` (포트 `8082`)
 - 공통 라이브러리
-  - `libs/backend/global-core`
+  - `libs/backend/common` — 순수 공유(entity, payload, utils, annotation, version)
+  - `libs/backend/global-core` — 인프라 공통(security, config, exception, event, logging)
   - `libs/backend/domain-core`
   - `libs/backend/security-web`
   - `libs/backend/web-support`
@@ -29,7 +30,8 @@ mono-repo/
 │   └── web/                      # Next.js 16 프론트엔드
 ├── libs/
 │   ├── backend/
-│   │   ├── global-core/          # 전역 공통(도메인 비의존)
+│   │   ├── common/               # 순수 공유(entity, payload, utils, annotation, version)
+│   │   ├── global-core/          # 인프라 공통(security, config, exception, event, logging)
 │   │   ├── domain-core/          # 도메인 핵심(account/member/log/social 등)
 │   │   ├── security-web/         # 인증/인가 웹 계층 어댑터
 │   │   └── web-support/          # MVC/AOP/예외/API-Version 필터 등
@@ -42,7 +44,7 @@ mono-repo/
 
 의존 방향(개념):
 
-`global-core <- domain-core <- security-web <- web-support <- apps/*-api`
+`common ←(api)── global-core ← domain-core ← security-web ← web-support ← apps/*-api`
 
 ---
 
@@ -91,12 +93,14 @@ pnpm nx test domain-core
 ./gradlew :apps:admin-api:build
 
 # 개별 라이브러리 컴파일 검증
+./gradlew :libs:backend:common:compileJava
 ./gradlew :libs:backend:global-core:compileJava
 ./gradlew :libs:backend:domain-core:compileJava
 ./gradlew :libs:backend:security-web:compileJava
 ./gradlew :libs:backend:web-support:compileJava
 
 # 라이브러리 단위 테스트
+./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
 ./gradlew :libs:backend:domain-core:test
 ```

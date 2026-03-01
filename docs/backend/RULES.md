@@ -59,7 +59,8 @@ mono-repo/
 │   └── web/                    # Next.js 16 (App Router)
 ├── libs/
 │   ├── backend/
-│   │   ├── global-core/
+│   │   ├── common/             # 순수 공유(entity, payload, utils, annotation, version)
+│   │   ├── global-core/        # 인프라 공통(security, config, exception, event, logging)
 │   │   ├── domain-core/
 │   │   ├── security-web/
 │   │   └── web-support/
@@ -107,6 +108,7 @@ pnpm nx test admin-api
 ./gradlew :apps:admin-api:test
 
 # 라이브러리 단위 테스트
+./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
 ./gradlew :libs:backend:domain-core:test
 ```
@@ -125,7 +127,8 @@ pnpm nx test admin-api
 - 예시: `docs(backend): 백엔드 지침서 구조·경로 정합성 정리`
 - `type` 허용값: `feat`, `fix`, `refactor`, `docs`, `chore`
 - 변경 영역이 명확하면 `scope`를 반드시 포함한다
-- 권장 `scope`: `backend`, `user-api`, `admin-api`, `domain-core`, `global-core`, `security-web`, `web-support`, `web`
+- 권장 `scope`: `backend`, `user-api`, `admin-api`, `domain-core`, `global-core`, `common`, `security-web`, `web-support`,
+  `web`
 - `:` 뒤 설명은 **한국어**로 작성
 - 커밋 메시지는 변경사항을 요약한 **제목 한 줄 1개만** 제공 (여러 후보/여러 줄 금지)
 - 코드/문서 수정 작업을 완료해 사용자에게 보고할 때, 위 형식의 커밋 메시지를 **답변에 반드시 포함**한다.
@@ -519,11 +522,19 @@ apps/{app}-api/src/main/java/com/example/{app}/
     └── {app-specific-domain}
         └── api               # 앱 진입점/앱 전용 조합
 
+libs/backend/common/src/main/java/com/example/global/
+├── entity                    # BaseTimeEntity
+├── payload/response          # RestApiResponse, ApiErrorDetail, IdResponse 등
+├── annotation                # CurrentAccount
+├── version                   # ApiVersioning
+├── utils                     # TraceIdUtils, PaginationUtils 등
+└── aop/support               # ControllerLogMessageFactory 등
+
 libs/backend/global-core/src/main/java/com/example/global/
 ├── config
 ├── exception
 ├── security
-└── utils
+└── event
 
 libs/backend/domain-core/src/main/java/com/example/domain/
 └── {domain}
@@ -550,13 +561,13 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 모든 도메인이 위 표준 레이아웃을 100% 따르지는 않는다.
 아래 도메인은 역할 특성상 일부 패키지를 생략하며, 이는 **의도된 설계**이다.
 
-| 도메인 | 특수 구조 | 사유 |
-|--------|-----------|------|
-| **account** | `entity`/`repository` 없음 | `AccountMemberQueryPort`를 통해 member 도메인에 위임하는 **조회·조합 전용 도메인** |
-| **security** | `api`/`entity`/`repository` 없음 | JWT·Guard·블랙리스트 등 **횡단 관심사 도메인**, 자체 영속 엔티티 없음 |
-| **social** | 루트에 `service` 없음, `google/` 서브도메인 중심 | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제 |
-| **aws** | `entity`/`repository`/`validator` 없음 | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인** |
-| **log** | 이벤트 리스너 + 관리자 조회 API | 활동 로그는 이벤트 리스너로 저장, 관리자 로그 조회용 `api/` 존재 |
+| 도메인          | 특수 구조                                                          | 사유                                                                                                   |
+|--------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| **account**  | `entity`/`repository` 없음                                       | `AccountMemberQueryPort`를 통해 member 도메인에 위임하는 **조회·조합 전용 도메인**                                       |
+| **security** | `api`/`entity`/`repository` 없음, `token/`·`port/`·`adapter/` 분리 | JWT·Guard·블랙리스트 등 **횡단 관심사 도메인**, 자체 영속 엔티티 없음. `token/`=토큰 서비스, `port/`=외부 도메인 계약, `adapter/`=포트 구현 |
+| **social**   | 루트에 `service` 없음, `google/` 서브도메인 중심                           | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제                                        |
+| **aws**      | `entity`/`repository`/`validator` 없음                           | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인**                                                                     |
+| **log**      | 이벤트 리스너 + 관리자 조회 API                                           | 활동 로그는 이벤트 리스너로 저장, 관리자 로그 조회용 `api/` 존재                                                             |
 
 ### 멀티라인 문자열 (Text Block) — CRITICAL
 
@@ -597,21 +608,21 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - **의존 방향**: Adapter → Port ← Domain (**항상 안쪽으로**, 역방향 금지)
 - 패키지 매핑:
 
-| 패키지 | 헥사고날 역할 | 설명 |
-|--------|-------------|------|
-| `api/` | Inbound Adapter | Controller, 외부 요청 진입점 |
-| `service/command/` | Application Service | 상태 변경 유스케이스 |
-| `service/query/` | Application Service | 조회 유스케이스 |
-| `entity/` | Domain Model | 핵심 비즈니스 모델 (Aggregate) |
-| `support/` | Outbound Port + Adapter | 도메인 간 경계, 외부 인프라 추상화 |
-| `repository/` | Outbound Adapter | 같은 도메인 내 JPA 영속화 |
-| `client/` | Outbound Adapter | 외부 API 연동 |
+| 패키지                | 헥사고날 역할                 | 설명                                                          |
+|--------------------|-------------------------|-------------------------------------------------------------|
+| `api/`             | Inbound Adapter         | Controller, 외부 요청 진입점                                       |
+| `service/command/` | Application Service     | 상태 변경 유스케이스                                                 |
+| `service/query/`   | Application Service     | 조회 유스케이스                                                    |
+| `entity/`          | Domain Model            | 핵심 비즈니스 모델 (Aggregate)                                      |
+| `support/`         | Outbound Port + Adapter | 도메인 간 경계, 외부 인프라 추상화 (security 도메인은 `port/`·`adapter/`로 분리) |
+| `repository/`      | Outbound Adapter        | 같은 도메인 내 JPA 영속화                                            |
+| `client/`          | Outbound Adapter        | 외부 API 연동                                                   |
 
 ### DDD Bounded Context 경계 — CRITICAL
 
 - 도메인 간 참조는 **Port 인터페이스**(또는 이벤트/DTO/ID)로만 허용, **Repository·Entity·Service 직접 참조 금지**
-- Port 인터페이스는 **사용하는(호출하는) 도메인**의 `support` 패키지에 정의
-- Port 구현체(Adapter)는 **제공하는(구현하는) 도메인**의 `support` 패키지에 배치
+- Port 인터페이스는 **사용하는(호출하는) 도메인**의 `support` 패키지에 정의 (security 도메인은 `port/`)
+- Port 구현체(Adapter)는 **제공하는(구현하는) 도메인**의 `support` 패키지에 배치 (security 도메인은 `adapter/`)
 - JPA 연관관계(`@ManyToOne` 등)로 인해 엔티티 참조가 불가피한 경우, Port 반환 타입에 엔티티를 허용하되 **주석으로 사유를 명시**
 - Aggregate 내부 필드에 다른 도메인의 관심사(인증 토큰, 외부 연동 키 등)를 혼합하지 않는다
   - 불가피하게 같은 테이블에 저장해야 하면, 접근은 반드시 **해당 도메인의 Port를 경유**
