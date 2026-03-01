@@ -321,6 +321,56 @@ GitHub Actions: deploy-user-api.yml 트리거
 > 두 워크플로우 모두 같은 `deploy-backend.yml`을 호출한다.
 > `server-host` 파라미터(GitHub Secret)만 다르게 지정하면 된다.
 
+### 배포 워크플로우의 동작 원리
+
+각 프로젝트 워크플로우는 재사용 워크플로우(`deploy-backend.yml`)를 호출하면서 **GitHub Secret으로 대상 서버를 결정**한다.
+
+```yaml
+# stage-user-api.yml (테스트 서버)
+secrets:
+  SERVER_HOST: ${{ secrets.STAGE_USER_API_SERVER_HOST }}  # → 테스트 서버 IP
+
+# deploy-user-api.yml (실서버)
+secrets:
+  SERVER_HOST: ${{ secrets.USER_API_SERVER_HOST }}         # → 실서버 IP
+```
+
+`deploy-backend.yml`은 전달받은 `SERVER_HOST`로 SSH 접속하여 배포한다:
+
+```yaml
+# deploy-backend.yml (재사용 워크플로우)
+- uses: appleboy/ssh-action@v1
+  with:
+    host: ${{ secrets.SERVER_HOST }}    # ← 전달받은 IP로 SSH 접속
+    script: /opt/deploy/deploy.sh ...
+```
+
+**결과적으로 동일한 빌드+배포 로직이 Secret에 등록된 IP에 따라 다른 서버에 배포된다.**
+
+### GitHub Secrets 등록 방법
+
+Repository Settings → Secrets and variables → Actions → **Repository secrets**에 등록한다.
+Name과 Secret을 입력하고 [Add secret]을 클릭한다. Secret은 1개씩 따로 등록한다.
+
+**현재 (테스트 서버만):**
+
+| Name                    | Secret (예시)             | 설명              |
+|-------------------------|-------------------------|-----------------|
+| `USER_API_SERVER_HOST`  | `10.0.1.10`             | user-api 서버 IP  |
+| `ADMIN_API_SERVER_HOST` | `10.0.1.20`             | admin-api 서버 IP |
+| `SERVER_USER`           | `ec2-user`              | SSH 접속 유저 (공통)  |
+| `SSH_PRIVATE_KEY`       | EC2 키페어 `.pem` 파일 내용 전체 | SSH 키 (공통)      |
+
+**main 도입 후 추가:**
+
+| Name                          | Secret (예시) | 설명                  |
+|-------------------------------|-------------|---------------------|
+| `STAGE_USER_API_SERVER_HOST`  | `10.0.2.10` | user-api 테스트 서버 IP  |
+| `STAGE_ADMIN_API_SERVER_HOST` | `10.0.2.20` | admin-api 테스트 서버 IP |
+
+> main 도입 시 기존 `USER_API_SERVER_HOST`는 실서버 IP로 변경하고,
+> 테스트 서버 IP는 `STAGE_*` Secret에 새로 등록한다.
+
 ### 배포 워크플로우 파일
 
 **현재:**
