@@ -14,6 +14,54 @@ feat/*  ──→  develop  ──→  deploy/*
 | `deploy/user-api`  | user-api 배포 트리거                                  | push 시 자동 배포         |
 | `deploy/admin-api` | admin-api 배포 트리거                                 | push 시 자동 배포         |
 
+### main 브랜치 (예약)
+
+현재 `main` 브랜치는 존재하지 않으며, `develop`이 기본 브랜치 역할을 한다.
+실서버 운영이 시작되어 테스트/프로덕션 환경 분리가 필요해지면 `main`을 도입한다.
+
+**도입 시점:** 실서버 릴리스 버전 관리가 필요할 때
+
+**현재 구조 (테스트 서버만):**
+
+```
+feat/* ──→ develop ──→ deploy/user-api    (테스트 서버 배포)
+          (Squash PR)  deploy/admin-api   (테스트 서버 배포)
+```
+
+**도입 후 구조 (테스트 + 실서버 분리):**
+
+```
+feat/* ──→ develop ──→ stage/user-api    (테스트 서버 배포)
+          (Squash PR)  stage/admin-api   (테스트 서버 배포)
+                │
+                └──→ main ──→ deploy/user-api   (실서버 배포)
+                    (PR)      deploy/admin-api  (실서버 배포)
+                      │
+                    태깅 (v1.0.0)
+```
+
+| 브랜치        | 환경         | 트리거            |
+|------------|------------|----------------|
+| `stage/*`  | 테스트 서버     | develop에서 push |
+| `deploy/*` | 실서버 (프로덕션) | main에서 push    |
+
+**GitHub 기본 브랜치:**
+
+`main` 도입 후에도 **`develop`을 GitHub 기본(default) 브랜치로 유지**한다.
+- PR 생성 시 자동으로 `develop`을 대상으로 지정 (가장 빈번한 워크플로우)
+- `main`은 프로덕션 릴리스 전용 — `develop → main` PR은 릴리스 시에만 수동 생성
+- Settings → General → Default Branch에서 변경하지 않음
+
+**도입 절차:**
+
+1. `develop`에서 `main` 브랜치 생성: `git checkout -b main develop && git push -u origin main`
+2. `main`에 Branch Protection 설정 (develop과 동일 수준)
+3. GitHub 기본 브랜치는 `develop` 유지 (변경하지 않음)
+4. 기존 `deploy/*` 브랜치를 `stage/*`으로 이름 변경 (테스트 서버용)
+5. 새 `deploy/*` 브랜치 생성 (실서버용, main 기반)
+6. 배포 워크플로우 파일 추가: `stage-*.yml` (테스트), `deploy-*.yml` (실서버)
+7. 릴리스 시 `develop → main` PR 생성 후 머지 → `main`에서 릴리스 태그 부여 (예: `v1.0.0`)
+
 ### feat 브랜치 네이밍 컨벤션
 
 ```
@@ -184,29 +232,148 @@ B: feat/b → 기존 시그니처로 호출 (텍스트 충돌 없음, 빌드 에
 
 ## 배포 전략
 
-배포는 CI와 분리되어 있다. `deploy/*` 브랜치에 push하면 해당 프로젝트가 자동 배포된다.
+배포는 CI와 분리되어 있다. 배포 전용 브랜치에 push하면 해당 프로젝트가 자동 배포된다.
+
+### 현재 구조 (테스트 서버만)
 
 ```
-develop ──→ deploy/user-api   ──→ user-api 서버 배포
-develop ──→ deploy/admin-api  ──→ admin-api 서버 배포
+develop ──→ deploy/user-api   ──→ user-api 테스트 서버 배포
+develop ──→ deploy/admin-api  ──→ admin-api 테스트 서버 배포
 ```
 
-### 배포 흐름
+### main 도입 후 구조 (테스트 + 실서버)
 
 ```
-1. develop에서 deploy/* 브랜치로 merge
-   $ git checkout deploy/user-api
-   $ git merge develop
-   $ git push
+develop ──→ stage/user-api   ──→ user-api 테스트 서버 배포
+develop ──→ stage/admin-api  ──→ admin-api 테스트 서버 배포
 
-2. GitHub Actions 자동 실행
-   bootJar → Docker 이미지 빌드 → GHCR push → SSH 배포
-
-3. 서버에서 Blue/Green 무중단 배포
-   deploy.sh → 새 컨테이너 기동 → 헬스체크 → Nginx 전환
+main ──→ deploy/user-api   ──→ user-api 실서버 배포
+main ──→ deploy/admin-api  ──→ admin-api 실서버 배포
 ```
+
+### 배포 흐름 (현재 — 테스트 서버만)
+
+```
+개발자: git checkout deploy/user-api
+        git merge develop
+        git push
+            │
+            ▼
+GitHub Actions: deploy-user-api.yml 트리거
+    ├── checkout
+    ├── ./gradlew :apps:user-api:bootJar
+    ├── docker build → ghcr.io/.../user-api:<commit-sha>
+    ├── docker push (GHCR)
+    └── ssh ec2-user@테스트서버 "/opt/deploy/deploy.sh user-api <commit-sha>"
+            │
+테스트 서버 (EC2):
+    ├── docker pull user-api:<commit-sha>
+    ├── Green 컨테이너 기동 (8082)
+    ├── health check → OK
+    ├── Nginx upstream → Green(8082)
+    ├── Blue 컨테이너 종료
+    └── 완료 ✅
+```
+
+### 배포 흐름 (main 도입 후 — 테스트 + 실서버)
+
+두 환경 모두 **동일한 Blue/Green 배포 과정**을 거친다. 차이는 소스 브랜치와 대상 서버뿐이다.
+
+**테스트 서버 배포 (`stage/user-api` → EC2-A):**
+
+```
+개발자: git checkout stage/user-api
+        git merge develop
+        git push
+            │
+            ▼
+GitHub Actions: stage-user-api.yml 트리거
+    └── deploy-backend.yml (재사용 워크플로우)
+        ├── bootJar → Docker image → GHCR push
+        └── ssh ec2-user@EC2-A → deploy.sh → Blue/Green 배포
+```
+
+**실서버 배포 (`deploy/user-api` → EC2-B):**
+
+```
+개발자: develop → main PR 생성 & 머지 (릴리스)
+        git checkout deploy/user-api
+        git merge main
+        git push
+            │
+            ▼
+GitHub Actions: deploy-user-api.yml 트리거
+    └── deploy-backend.yml (재사용 워크플로우)
+        ├── bootJar → Docker image → GHCR push
+        └── ssh ec2-user@EC2-B → deploy.sh → Blue/Green 배포
+```
+
+**환경별 차이:**
+
+| 항목            | 테스트 서버                       | 실서버                    |
+|---------------|------------------------------|------------------------|
+| 브랜치           | `stage/user-api`             | `deploy/user-api`      |
+| 소스            | `develop`에서 merge            | `main`에서 merge         |
+| 워크플로우         | `stage-user-api.yml`         | `deploy-user-api.yml`  |
+| 대상 서버         | EC2-A (테스트)                  | EC2-B (실서버)            |
+| GitHub Secret | `STAGE_USER_API_SERVER_HOST` | `USER_API_SERVER_HOST` |
+
+> 두 워크플로우 모두 같은 `deploy-backend.yml`을 호출한다.
+> `server-host` 파라미터(GitHub Secret)만 다르게 지정하면 된다.
+
+### 배포 워크플로우의 동작 원리
+
+각 프로젝트 워크플로우는 재사용 워크플로우(`deploy-backend.yml`)를 호출하면서 **GitHub Secret으로 대상 서버를 결정**한다.
+
+```yaml
+# stage-user-api.yml (테스트 서버)
+secrets:
+  SERVER_HOST: ${{ secrets.STAGE_USER_API_SERVER_HOST }}  # → 테스트 서버 IP
+
+# deploy-user-api.yml (실서버)
+secrets:
+  SERVER_HOST: ${{ secrets.USER_API_SERVER_HOST }}         # → 실서버 IP
+```
+
+`deploy-backend.yml`은 전달받은 `SERVER_HOST`로 SSH 접속하여 배포한다:
+
+```yaml
+# deploy-backend.yml (재사용 워크플로우)
+- uses: appleboy/ssh-action@v1
+  with:
+    host: ${{ secrets.SERVER_HOST }}    # ← 전달받은 IP로 SSH 접속
+    script: /opt/deploy/deploy.sh ...
+```
+
+**결과적으로 동일한 빌드+배포 로직이 Secret에 등록된 IP에 따라 다른 서버에 배포된다.**
+
+### GitHub Secrets 등록 방법
+
+Repository Settings → Secrets and variables → Actions → **Repository secrets**에 등록한다.
+Name과 Secret을 입력하고 [Add secret]을 클릭한다. Secret은 1개씩 따로 등록한다.
+
+**현재 (테스트 서버만):**
+
+| Name                    | Secret (예시)             | 설명              |
+|-------------------------|-------------------------|-----------------|
+| `USER_API_SERVER_HOST`  | `10.0.1.10`             | user-api 서버 IP  |
+| `ADMIN_API_SERVER_HOST` | `10.0.1.20`             | admin-api 서버 IP |
+| `SERVER_USER`           | `ec2-user`              | SSH 접속 유저 (공통)  |
+| `SSH_PRIVATE_KEY`       | EC2 키페어 `.pem` 파일 내용 전체 | SSH 키 (공통)      |
+
+**main 도입 후 추가:**
+
+| Name                          | Secret (예시) | 설명                  |
+|-------------------------------|-------------|---------------------|
+| `STAGE_USER_API_SERVER_HOST`  | `10.0.2.10` | user-api 테스트 서버 IP  |
+| `STAGE_ADMIN_API_SERVER_HOST` | `10.0.2.20` | admin-api 테스트 서버 IP |
+
+> main 도입 시 기존 `USER_API_SERVER_HOST`는 실서버 IP로 변경하고,
+> 테스트 서버 IP는 `STAGE_*` Secret에 새로 등록한다.
 
 ### 배포 워크플로우 파일
+
+**현재:**
 
 | 파일                     | 트리거                      | 역할              |
 |------------------------|--------------------------|-----------------|
@@ -214,9 +381,19 @@ develop ──→ deploy/admin-api  ──→ admin-api 서버 배포
 | `deploy-admin-api.yml` | `push: deploy/admin-api` | admin-api 배포 호출 |
 | `deploy-backend.yml`   | `workflow_call` (재사용)    | 공통 빌드+배포 로직     |
 
+**main 도입 후 추가:**
+
+| 파일                    | 트리거                     | 역할                  |
+|-----------------------|-------------------------|---------------------|
+| `stage-user-api.yml`  | `push: stage/user-api`  | user-api 테스트 서버 배포  |
+| `stage-admin-api.yml` | `push: stage/admin-api` | admin-api 테스트 서버 배포 |
+
+> 기존 `deploy-*.yml`은 실서버 배포용으로 유지하고, `stage-*.yml`을 테스트 서버용으로 추가한다.
+
 ### 새 프로젝트 배포 추가 시
 
 `deploy-user-api.yml`을 복사하여 `project`, `gradle-module`, 브랜치명만 변경하면 된다.
+main 도입 후에는 `stage-*.yml`도 동일하게 추가한다.
 
 ---
 
