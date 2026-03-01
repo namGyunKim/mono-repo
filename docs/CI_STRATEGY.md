@@ -148,7 +148,7 @@ GitHub Settings → Branches → Branch protection rules → `develop`:
 | **Require status checks to pass**                       | ✅        | CI 통과 필수                                        |
 | **Required checks**                                     | ✅        | `backend`, `frontend`, `e2e` 3개 job 모두 통과 필수 |
 | **Require branches to be up to date**                   | ✅        | 최신 develop 기반으로 CI 통과 보장                  |
-| **Require linear history**                              | ❌ (권장) | Squash merge 강제 — 활성화 권장                     |
+| **Require linear history**                              | ✅        | Squash merge 강제                                   |
 | **Do not allow bypassing**                              | ❌ (선택) | admin도 규칙 준수 강제                              |
 
 ---
