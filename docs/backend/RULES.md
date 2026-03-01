@@ -11,14 +11,14 @@
 이 프로젝트는 아래 6가지 원칙을 핵심 개발 방향으로 삼는다.
 **모든 코드 생성/수정/리뷰 시 아래 원칙을 기준으로 판단**하며, 위반 발견 시 즉시 수정한다.
 
-| 원칙                       | 핵심 요약                                          |
-|----------------------------|----------------------------------------------------|
-| **SRP** (단일 책임 원칙)   | 클래스·메서드는 하나의 책임만 가진다               |
-| **Clean Code**             | 읽기 쉬운 이름, 짧은 메서드, 명확한 의도           |
-| **CQRS**                   | Command(상태 변경)와 Query(조회)를 물리적으로 분리 |
-| **DDD**                    | Bounded Context 경계, Aggregate, 도메인 중심 설계  |
-| **Hexagonal Architecture** | Port/Adapter로 도메인을 인프라에서 격리            |
-| **AI 친화적 구조**         | 예측 가능한 패턴, 일관된 네이밍, 자기 문서화 코드  |
+| 원칙                         | 핵심 요약                                    |
+|----------------------------|------------------------------------------|
+| **SRP** (단일 책임 원칙)         | 클래스·메서드는 하나의 책임만 가진다                     |
+| **Clean Code**             | 읽기 쉬운 이름, 짧은 메서드, 명확한 의도                 |
+| **CQRS**                   | Command(상태 변경)와 Query(조회)를 물리적으로 분리      |
+| **DDD**                    | Bounded Context 경계, Aggregate, 도메인 중심 설계 |
+| **Hexagonal Architecture** | Port/Adapter로 도메인을 인프라에서 격리              |
+| **AI 친화적 구조**              | 예측 가능한 패턴, 일관된 네이밍, 자기 문서화 코드            |
 
 ### AI 자율 실행 규칙 (CRITICAL)
 
@@ -39,12 +39,12 @@
 - 메모리 변경 시 코드 변경과 동일하게 커밋하여 팀 전체에 공유한다
 - 개인 설정/로컬 환경 정보는 메모리에 기록하지 않는다
 
-| 메모리 파일                         | 내용                                                 | 변경 시점          |
-|-------------------------------------|------------------------------------------------------|--------------------|
-| `project_overview`                  | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 (전체) | 구조 변경 시       |
-| `backend/style_and_conventions`     | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션           | 규칙 변경 시       |
-| `backend/suggested_commands`        | 백엔드 빌드/테스트/실행 명령 모음                    | 명령 추가/변경 시  |
-| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목                        | 체크리스트 변경 시 |
+| 메모리 파일                              | 내용                               | 변경 시점      |
+|-------------------------------------|----------------------------------|------------|
+| `project_overview`                  | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 (전체) | 구조 변경 시    |
+| `backend/style_and_conventions`     | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션    | 규칙 변경 시    |
+| `backend/suggested_commands`        | 백엔드 빌드/테스트/실행 명령 모음              | 명령 추가/변경 시 |
+| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목                | 체크리스트 변경 시 |
 
 > 프론트엔드 메모리는 `frontend/` 토픽 아래에 동일 패턴으로 추가한다.
 
@@ -78,7 +78,7 @@ mono-repo/
 
 ## 기술 스택 하한 (CRITICAL)
 
-| 영역             | 기준                                     |
+| 영역               | 기준                                       |
 |------------------|------------------------------------------|
 | Java             | **25** (Gradle Toolchain)                |
 | Spring Boot      | **4.0.3**                                |
@@ -148,9 +148,9 @@ pnpm nx test admin-api
     - 각 위배 항목에는 **`선택번호`(1부터 순번)** 부여
   - `불확실/질문`: 범위나 의도가 불명확하면 추정하지 말고 질문
 
-| 선택번호 | 우선순위 | 규칙/근거                 | 위치                         | 설명                    | 권장 조치                             |
-|----------|----------|---------------------------|------------------------------|-------------------------|---------------------------------------|
-| 1        | 높음     | 예: API-Version 헤더 규칙 | 예: `SomeApiController.java` | 예: 버전 헤더 매핑 누락 | 예: `version = ApiVersioning.V1` 추가 |
+| 선택번호 | 우선순위 | 규칙/근거                | 위치                          | 설명             | 권장 조치                              |
+|------|------|----------------------|-----------------------------|----------------|------------------------------------|
+| 1    | 높음   | 예: API-Version 헤더 규칙 | 예: `SomeApiController.java` | 예: 버전 헤더 매핑 누락 | 예: `version = ApiVersioning.V1` 추가 |
 
 - 후속 조치 옵션 제시(필수):
   1. 높음 우선순위 항목만 우선 조치(권장)
@@ -191,6 +191,16 @@ pnpm nx test admin-api
 - 예외: `/api/social/**` 콜백에 한해 URL 버저닝 허용
 - 기본값 `0.0`은 유효하지 않으며, 프론트는 `1.0` 명시 전송 필수
 - Swagger 문서에서도 `/api/health`, `/api/social/**` 제외 API는 `API-Version`을 `required=true`로 표기
+
+### 마크다운 테이블 포맷팅 규칙
+
+- `docs/` 하위 마크다운 파일의 테이블은 **IntelliJ 스타일**로 정렬한다
+- IntelliJ의 "Reformat Table" 결과와 동일한 형식을 유지해야 IDE 경고가 발생하지 않는다
+- 정렬 기준: **문자 수(`len()`)** 기준, 동아시아 표시 폭(display width) 아님
+- 형식:
+  - 내용 행: `| ` + 내용(최대 폭까지 패딩) + ` |`
+  - 구분 행: `|` + `-` × (최대 폭 + 2) + `|`
+- 테이블을 수정한 후에는 IntelliJ에서 "Reformat Table" (`Ctrl+Alt+L`)로 정렬을 확인한다
 
 ### 경로/문서 참조 정합성 (CRITICAL)
 
@@ -400,12 +410,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 ### 로그 레벨 사용 기준 (CRITICAL)
 
-| 레벨      | 사용 기준                                                 | 예시                                                               |
-|-----------|-----------------------------------------------------------|--------------------------------------------------------------------|
-| **ERROR** | 시스템이 정상 동작할 수 없는 예상 외 예외, 즉시 대응 필요 | 예상 외 런타임 예외, DB 연결 실패, 외부 인프라 장애                |
-| **WARN**  | 비즈니스 예외, 복구 가능한 오류, 주의가 필요한 상황       | 인증 실패, 잘못된 요청, 외부 API 호출 실패(재시도 가능), 검증 실패 |
-| **INFO**  | 주요 비즈니스 흐름, 상태 변경, 정상 처리 완료             | 로그인 성공, 외부 API 호출 완료, 초기화 완료                       |
-| **DEBUG** | 개발/디버깅용 상세 정보, 운영에서는 비활성화              | 쿼리 파라미터 상세, 중간 처리 결과, 조건 분기 경로                 |
+| 레벨        | 사용 기준                              | 예시                                         |
+|-----------|------------------------------------|--------------------------------------------|
+| **ERROR** | 시스템이 정상 동작할 수 없는 예상 외 예외, 즉시 대응 필요 | 예상 외 런타임 예외, DB 연결 실패, 외부 인프라 장애           |
+| **WARN**  | 비즈니스 예외, 복구 가능한 오류, 주의가 필요한 상황     | 인증 실패, 잘못된 요청, 외부 API 호출 실패(재시도 가능), 검증 실패 |
+| **INFO**  | 주요 비즈니스 흐름, 상태 변경, 정상 처리 완료        | 로그인 성공, 외부 API 호출 완료, 초기화 완료               |
+| **DEBUG** | 개발/디버깅용 상세 정보, 운영에서는 비활성화          | 쿼리 파라미터 상세, 중간 처리 결과, 조건 분기 경로             |
 
 - ERROR는 **운영 알림 대상**, WARN은 **모니터링 대상**으로 구분한다
 - 외부 API 호출 실패: 재시도 가능하면 WARN, 전체 흐름 실패로 이어지면 ERROR
@@ -565,13 +575,13 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 모든 도메인이 위 표준 레이아웃을 100% 따르지는 않는다.
 아래 도메인은 역할 특성상 일부 패키지를 생략하며, 이는 **의도된 설계**이다.
 
-| 도메인       | 특수 구조                                                          | 사유                                                                                                                                        |
-|--------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| **account**  | `entity`/`repository` 없음                                         | `AccountMemberQueryPort`를 통해 member 도메인에 위임하는 **조회·조합 전용 도메인**                                                          |
+| 도메인          | 특수 구조                                                          | 사유                                                                                                   |
+|--------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| **account**  | `entity`/`repository` 없음                                       | `AccountMemberQueryPort`를 통해 member 도메인에 위임하는 **조회·조합 전용 도메인**                                       |
 | **security** | `api`/`entity`/`repository` 없음, `token/`·`port/`·`adapter/` 분리 | JWT·Guard·블랙리스트 등 **횡단 관심사 도메인**, 자체 영속 엔티티 없음. `token/`=토큰 서비스, `port/`=외부 도메인 계약, `adapter/`=포트 구현 |
-| **social**   | 루트에 `service` 없음, `google/` 서브도메인 중심                   | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제                                                      |
-| **aws**      | `entity`/`repository`/`validator` 없음                             | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인**                                                                                          |
-| **log**      | 이벤트 리스너 + 관리자 조회 API                                    | 활동 로그는 이벤트 리스너로 저장, 관리자 로그 조회용 `api/` 존재                                                                            |
+| **social**   | 루트에 `service` 없음, `google/` 서브도메인 중심                           | 소셜 제공자별 서브도메인 구조(`social/google/service/`), 제공자 추가 시 동일 패턴 복제                                        |
+| **aws**      | `entity`/`repository`/`validator` 없음                           | S3 파일 업로드 등 **외부 인프라 연동 전용 도메인**                                                                     |
+| **log**      | 이벤트 리스너 + 관리자 조회 API                                           | 활동 로그는 이벤트 리스너로 저장, 관리자 로그 조회용 `api/` 존재                                                             |
 
 ### 멀티라인 문자열 (Text Block) — CRITICAL
 
@@ -612,15 +622,15 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - **의존 방향**: Adapter → Port ← Domain (**항상 안쪽으로**, 역방향 금지)
 - 패키지 매핑:
 
-| 패키지             | 헥사고날 역할           | 설명                                                                             |
-|--------------------|-------------------------|----------------------------------------------------------------------------------|
-| `api/`             | Inbound Adapter         | Controller, 외부 요청 진입점                                                     |
-| `service/command/` | Application Service     | 상태 변경 유스케이스                                                             |
-| `service/query/`   | Application Service     | 조회 유스케이스                                                                  |
-| `entity/`          | Domain Model            | 핵심 비즈니스 모델 (Aggregate)                                                   |
+| 패키지                | 헥사고날 역할                 | 설명                                                          |
+|--------------------|-------------------------|-------------------------------------------------------------|
+| `api/`             | Inbound Adapter         | Controller, 외부 요청 진입점                                       |
+| `service/command/` | Application Service     | 상태 변경 유스케이스                                                 |
+| `service/query/`   | Application Service     | 조회 유스케이스                                                    |
+| `entity/`          | Domain Model            | 핵심 비즈니스 모델 (Aggregate)                                      |
 | `support/`         | Outbound Port + Adapter | 도메인 간 경계, 외부 인프라 추상화 (security 도메인은 `port/`·`adapter/`로 분리) |
-| `repository/`      | Outbound Adapter        | 같은 도메인 내 JPA 영속화                                                        |
-| `client/`          | Outbound Adapter        | 외부 API 연동                                                                    |
+| `repository/`      | Outbound Adapter        | 같은 도메인 내 JPA 영속화                                            |
+| `client/`          | Outbound Adapter        | 외부 API 연동                                                   |
 
 ### DDD Bounded Context 경계 — CRITICAL
 
@@ -632,7 +642,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
   - 불가피하게 같은 테이블에 저장해야 하면, 접근은 반드시 **해당 도메인의 Port를 경유**
 - 기존 Port/Adapter 목록:
 
-| Port (소비자 support/)         | Adapter (제공자 support/)             | 방향               |
+| Port (소비자 support/)            | Adapter (제공자 support/)                | 방향                 |
 |--------------------------------|---------------------------------------|--------------------|
 | `AccountMemberQueryPort`       | `AccountMemberQueryPortAdapter`       | account → member   |
 | `AccountMemberCommandPort`     | `AccountMemberCommandPortAdapter`     | account → member   |
@@ -657,17 +667,17 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 아래 타입들은 **여러 Bounded Context에서 공통으로 사용되는 Shared Kernel**으로, 도메인 간 직접 참조를 허용한다.
 
-| 타입                    | 소속 도메인              | 공유 사유                                                 |
-|-------------------------|--------------------------|-----------------------------------------------------------|
-| `AccountRole`           | account/enums            | 역할 기반 분기·검증에 전 도메인 필수                      |
-| `CurrentAccountDTO`     | account/payload/dto      | 인증 컨텍스트 전달에 security·member·log 등 필수          |
+| 타입                      | 소속 도메인                   | 공유 사유                                        |
+|-------------------------|--------------------------|----------------------------------------------|
+| `AccountRole`           | account/enums            | 역할 기반 분기·검증에 전 도메인 필수                        |
+| `CurrentAccountDTO`     | account/payload/dto      | 인증 컨텍스트 전달에 security·member·log 등 필수         |
 | `LogType`               | log/enums                | 활동 로그 발행 Port 파라미터로 account·member·social 사용 |
-| `MemberActiveStatus`    | member/enums             | 회원 활성 상태 판별에 account·social 등 필수              |
-| `MemberType`            | member/enums             | 회원 유형 분기에 account·social 등 필수                   |
-| `LoginTokenResponse`    | account/payload/response | 로그인 토큰 반환에 security·social 필수                   |
-| `RefreshTokenResponse`  | account/payload/response | 토큰 갱신 반환에 security 필수                            |
-| `AccountAuthMemberView` | account/payload/dto      | 인증 주체 정보 전달에 security 필수                       |
-| `LoginMemberView`       | account/payload/dto      | 로그인 회원 뷰 전달에 security 필수                       |
+| `MemberActiveStatus`    | member/enums             | 회원 활성 상태 판별에 account·social 등 필수             |
+| `MemberType`            | member/enums             | 회원 유형 분기에 account·social 등 필수                |
+| `LoginTokenResponse`    | account/payload/response | 로그인 토큰 반환에 security·social 필수                |
+| `RefreshTokenResponse`  | account/payload/response | 토큰 갱신 반환에 security 필수                        |
+| `AccountAuthMemberView` | account/payload/dto      | 인증 주체 정보 전달에 security 필수                     |
+| `LoginMemberView`       | account/payload/dto      | 로그인 회원 뷰 전달에 security 필수                     |
 
 - Shared Kernel 타입은 Port 인터페이스 파라미터/반환 타입에 사용 가능
 - Shared Kernel 이외의 타입(Service·Repository·Entity·내부 DTO)은 **반드시 Port 경유**
@@ -720,11 +730,11 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 - 앱 전용 컨트롤러에는 `@ConditionalOnProperty(name = "app.type", havingValue = "...")`를 반드시 추가한다
 - 양쪽 앱에서 공통으로 사용하는 컨트롤러는 `@ConditionalOnProperty`를 **추가하지 않는다**
 
-| 구분           | 대상 컨트롤러                                                                                                    | `@ConditionalOnProperty` |
-|----------------|------------------------------------------------------------------------------------------------------------------|--------------------------|
+| 구분           | 대상 컨트롤러                                                                                                          | `@ConditionalOnProperty` |
+|--------------|------------------------------------------------------------------------------------------------------------------|--------------------------|
 | **admin 전용** | `AdminMemberApiController`, `AdminLogApiController`, `AdminS3ApiController`, `AdminAccountAuthDocsApiController` | `havingValue = "admin"`  |
 | **user 전용**  | `AccountSessionApiController`, `AccountAuthDocsApiController`, `AccountApiController`, `SocialApiController`     | `havingValue = "user"`   |
-| **공통**       | `RootApiController`, `AccountAuthApiController`, `HealthRestController`                                          | 추가 안 함               |
+| **공통**       | `RootApiController`, `AccountAuthApiController`, `HealthRestController`                                          | 추가 안 함                   |
 
 - 새 컨트롤러 생성 시 반드시 **어느 앱에 귀속되는지** 판단하고, 전용이면 해당 `havingValue`를 추가한다
 
@@ -753,11 +763,11 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 ### 검증 책임 분리
 
-| 영역                          | 대상                                            |
-|-------------------------------|-------------------------------------------------|
+| 영역                            | 대상                                       |
+|-------------------------------|------------------------------------------|
 | Request DTO (Bean Validation) | `@NotBlank`, `@Min`, `@Email` 등 단순 필드 검증 |
-| InitBinder Validator          | 교차 필드, 조건부 필수값, 옵션 조합, 트리밍     |
-| Service 계층                  | DB/트랜잭션 상태 의존 검증                      |
+| InitBinder Validator          | 교차 필드, 조건부 필수값, 옵션 조합, 트리밍               |
+| Service 계층                    | DB/트랜잭션 상태 의존 검증                         |
 
 ---
 
@@ -888,34 +898,34 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 ## 7. 요약 (Cheatsheet)
 
-| 구분              | 규칙                                                                                                            |
-|-------------------|-----------------------------------------------------------------------------------------------------------------|
-| DTO               | record + `from/of`, 외부 `new` 금지                                                                             |
-| 계층 경계         | 값 나열 금지, DTO 1개로 전달                                                                                    |
-| 도메인 경계       | Port/Event/DTO/ID로만 참조, Repository·Entity·Service 직접 참조 금지                                            |
-| 헥사고날 아키텍처 | 의존 방향 항상 안쪽으로, Port/Adapter로 도메인-인프라 격리                                                      |
-| AI 친화적 구조    | 예측 가능한 네이밍(`{Domain}{역할}{계층}`), 일관된 패키지, 자기 문서화 코드                                     |
-| 스크립트          | `gradlew`/`gradlew.bat` 외 shell 스크립트 추가/수정은 사용자 요청 시만 진행                                     |
-| CQRS              | 물리 분리, Command=`@Transactional`, Query=`readOnly=true`                                                      |
-| 조회 최적화       | QueryDSL + fetch join, DTO Projection                                                                           |
-| 로깅              | traceId 포함, 민감정보 금지                                                                                     |
-| API 버전          | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true`                              |
-| 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                                                      |
-| 컨트롤러 격리     | 앱 전용 컨트롤러에 `@ConditionalOnProperty(name = "app.type")` 필수                                             |
-| 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                           |
-| 테스트            | 순수 단위 테스트(JUnit5+Mockito+AssertJ), `@SpringBootTest` 금지                                                |
-| Enum 계약 동기화  | `Api* == Domain name()` 유지 + 빌드 시 TS 자동 생성(`generateContractEnumTs`) + `pnpm nx test domain-core` 통과 |
-| 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                                                   |
-| 보안              | `@PreAuthorize`만, 누락=공개                                                                                    |
-| 리프레시 토큰     | 암호화 저장 + 복호화 검증 + 재발급 시 폐기                                                                      |
-| JPA               | `LAZY` 명시, `EAGER` 금지                                                                                       |
-| 멀티라인          | `"\n"` 금지, Text Block 사용                                                                                    |
-| InitBinder        | DTO 1:1 매칭, 공용 이름 금지, `supports()` 방어                                                                 |
-| 검증              | Bean Validation + InitBinder Validator, 서비스는 최종 보장만                                                    |
-| Java 25           | record/pattern matching/switch 우선 + ScopedValue/Virtual Thread                                                |
-| Spring 7          | API Versioning + `@HttpExchange` 우선                                                                           |
-| Spring Boot 4     | HTTP Service Clients/Virtual Thread/OpenTelemetry 우선                                                          |
-| 버전 하한         | Java 25 + Boot 4 + Framework 7 미만 호환 타협 금지                                                              |
-| Jackson 3         | `tools.jackson.*`, 어노테이션만 `com.fasterxml.jackson.annotation.*`                                            |
-| Logback           | XML 설정 파일 미사용                                                                                            |
-| Serena 메모리     | `.serena/memories/`는 git 공유, `.serena/cache/`는 로컬 전용                                                    |
+| 구분            | 규칙                                                                                                   |
+|---------------|------------------------------------------------------------------------------------------------------|
+| DTO           | record + `from/of`, 외부 `new` 금지                                                                      |
+| 계층 경계         | 값 나열 금지, DTO 1개로 전달                                                                                  |
+| 도메인 경계        | Port/Event/DTO/ID로만 참조, Repository·Entity·Service 직접 참조 금지                                           |
+| 헥사고날 아키텍처     | 의존 방향 항상 안쪽으로, Port/Adapter로 도메인-인프라 격리                                                              |
+| AI 친화적 구조     | 예측 가능한 네이밍(`{Domain}{역할}{계층}`), 일관된 패키지, 자기 문서화 코드                                                   |
+| 스크립트          | `gradlew`/`gradlew.bat` 외 shell 스크립트 추가/수정은 사용자 요청 시만 진행                                             |
+| CQRS          | 물리 분리, Command=`@Transactional`, Query=`readOnly=true`                                               |
+| 조회 최적화        | QueryDSL + fetch join, DTO Projection                                                                |
+| 로깅            | traceId 포함, 민감정보 금지                                                                                  |
+| API 버전        | `version = ApiVersioning.*`, 기본 `0.0`(무효), Swagger `API-Version required=true`                       |
+| 컨트롤러          | `RestApiController` 응답, 서비스에서 `ResponseEntity` 금지                                                    |
+| 컨트롤러 격리       | 앱 전용 컨트롤러에 `@ConditionalOnProperty(name = "app.type")` 필수                                            |
+| 설정 변경         | 설정 변경 사유/영향 범위를 먼저 설명하고 확인 후 진행                                                                      |
+| 테스트           | 순수 단위 테스트(JUnit5+Mockito+AssertJ), `@SpringBootTest` 금지                                              |
+| Enum 계약 동기화   | `Api* == Domain name()` 유지 + 빌드 시 TS 자동 생성(`generateContractEnumTs`) + `pnpm nx test domain-core` 통과 |
+| 외부 연동         | SDK → `@HttpExchange` → `@EnableHttpServices`                                                        |
+| 보안            | `@PreAuthorize`만, 누락=공개                                                                              |
+| 리프레시 토큰       | 암호화 저장 + 복호화 검증 + 재발급 시 폐기                                                                           |
+| JPA           | `LAZY` 명시, `EAGER` 금지                                                                                |
+| 멀티라인          | `"\n"` 금지, Text Block 사용                                                                             |
+| InitBinder    | DTO 1:1 매칭, 공용 이름 금지, `supports()` 방어                                                                |
+| 검증            | Bean Validation + InitBinder Validator, 서비스는 최종 보장만                                                  |
+| Java 25       | record/pattern matching/switch 우선 + ScopedValue/Virtual Thread                                       |
+| Spring 7      | API Versioning + `@HttpExchange` 우선                                                                  |
+| Spring Boot 4 | HTTP Service Clients/Virtual Thread/OpenTelemetry 우선                                                 |
+| 버전 하한         | Java 25 + Boot 4 + Framework 7 미만 호환 타협 금지                                                           |
+| Jackson 3     | `tools.jackson.*`, 어노테이션만 `com.fasterxml.jackson.annotation.*`                                       |
+| Logback       | XML 설정 파일 미사용                                                                                        |
+| Serena 메모리    | `.serena/memories/`는 git 공유, `.serena/cache/`는 로컬 전용                                                 |

@@ -151,7 +151,7 @@ pnpm nx test domain-core
 - 서비스 계층에서 `ApplicationEventPublisher.publishEvent()`로 로그 이벤트를 발행한다
 - `@Async @TransactionalEventListener`가 비동기로 소비하여 비즈니스 로직과 로깅을 분리한다
 
-| 이벤트                | 리스너                   | 트랜잭션 시점                                  |
+| 이벤트                   | 리스너                      | 트랜잭션 시점                                        |
 |-----------------------|--------------------------|------------------------------------------------|
 | `LogEvent`            | `LogEventListener`       | `AFTER_COMMIT` (+ fallback) / `AFTER_ROLLBACK` |
 | `ExceptionEvent`      | `ExceptionEventListener` | `AFTER_COMMIT` / `AFTER_ROLLBACK`              |
@@ -255,13 +255,13 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ### 현재 테스트 현황
 
-| 모듈         | 테스트 파일 수 | 테스트 메서드 수 |
-|--------------|----------------|------------------|
-| common       | 14             | ~95              |
-| global-core  | 10             | ~80              |
-| security-web | 2              | ~10              |
-| domain-core  | 14             | ~85              |
-| **합계**     | **40**         | **~270**         |
+| 모듈           | 테스트 파일 수 | 테스트 메서드 수 |
+|--------------|----------|-----------|
+| common       | 14       | ~95       |
+| global-core  | 10       | ~80       |
+| security-web | 2        | ~10       |
+| domain-core  | 14       | ~85       |
+| **합계**       | **40**   | **~270**  |
 
 ---
 
@@ -271,20 +271,20 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ### 공유/비공유 구분
 
-| 경로                  | git 공유 | 용도                                                 |
-|-----------------------|----------|------------------------------------------------------|
-| `.serena/memories/`   | O        | 팀 공통 컨벤션, 프로젝트 구조, 빌드 명령, 체크리스트 |
-| `.serena/project.yml` | O        | 프로젝트 설정 (언어, 무시 경로)                      |
-| `.serena/cache/`      | X        | 로컬 LSP 캐시                                        |
+| 경로                    | git 공유 | 용도                              |
+|-----------------------|--------|---------------------------------|
+| `.serena/memories/`   | O      | 팀 공통 컨벤션, 프로젝트 구조, 빌드 명령, 체크리스트 |
+| `.serena/project.yml` | O      | 프로젝트 설정 (언어, 무시 경로)             |
+| `.serena/cache/`      | X      | 로컬 LSP 캐시                       |
 
 ### 메모리 파일 목록
 
-| 파일                                | 내용                                                 |
-|-------------------------------------|------------------------------------------------------|
+| 파일                                  | 내용                               |
+|-------------------------------------|----------------------------------|
 | `project_overview`                  | 기술 스택, 프로젝트 구조, 도메인, 테스트 현황 (전체) |
-| `backend/style_and_conventions`     | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션           |
-| `backend/suggested_commands`        | 백엔드 빌드/테스트/실행 명령 모음                    |
-| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목                        |
+| `backend/style_and_conventions`     | 백엔드 코딩 규칙, CQRS, DDD, 테스트 컨벤션    |
+| `backend/suggested_commands`        | 백엔드 빌드/테스트/실행 명령 모음              |
+| `backend/task_completion_checklist` | 백엔드 작업 완료 후 점검 항목                |
 
 > 프론트엔드 메모리는 `frontend/` 토픽 아래에 동일 패턴으로 추가한다.
 
@@ -387,11 +387,11 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ### Enum 확인 경로
 
-| 대상                | 확인 방법                                                                        |
-|---------------------|----------------------------------------------------------------------------------|
-| 백엔드 (Java)       | `domain-core/.../contract/enums/Api*.java` 소스 코드                             |
-| Swagger UI          | 앱 실행 후 `http://localhost:{port}/swagger-ui.html` — DTO 스키마 내 허용값 표시 |
-| 프론트 (TypeScript) | `import { ApiAccountRole } from '@mono-repo/types'`                              |
+| 대상               | 확인 방법                                                               |
+|------------------|---------------------------------------------------------------------|
+| 백엔드 (Java)       | `domain-core/.../contract/enums/Api*.java` 소스 코드                    |
+| Swagger UI       | 앱 실행 후 `http://localhost:{port}/swagger-ui.html` — DTO 스키마 내 허용값 표시 |
+| 프론트 (TypeScript) | `import { ApiAccountRole } from '@mono-repo/types'`                 |
 
 예외 정책:
 
