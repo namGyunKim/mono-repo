@@ -6,32 +6,73 @@
 
 ## 한줄 요약
 
-서버 1대에서 **Docker + Nginx + GitHub Actions**를 이용한 **Blue/Green 무중단 배포**.
+**AWS 올인원** — ALB + EC2 2대 Blue/Green 무중단 배포, ACM SSL, WAF 보안, S3 + CloudFront 이미지 서빙.
 
 ---
 
-## 인프라 구성
-
-| 항목 | 사양 |
-|------|------|
-| 앱 서버 | EC2 t3a.large (2 vCPU, 8GB RAM) |
-| OS | Amazon Linux 2023 |
-| DB 서버 | 별도 서버, PostgreSQL |
-| 컨테이너 레지스트리 | GitHub Container Registry (GHCR) |
-| CI/CD | GitHub Actions |
+## 전체 아키텍처
 
 ```
-  GitHub Actions                          앱 서버 (EC2)
- ┌────────────────┐        SSH       ┌──────────────────────┐
- │ JAR 빌드       │ ──────────────→ │ Nginx (:80/:443)     │
- │ Docker 이미지   │                  │  └→ Blue(8081)       │
- │ GHCR push      │                  │  or Green(8082)      │
- └────────────────┘                  └──────────┬───────────┘
-                                                │
-                                     ┌──────────▼───────────┐
-                                     │ DB 서버 (PostgreSQL)  │
-                                     └──────────────────────┘
+                    [클라이언트]
+                        │
+              ┌─────────▼──────────┐
+              │     Route 53       │
+              │   (DNS 라우팅)      │
+              └────┬──────────┬────┘
+                   │          │
+         ┌─────────▼───┐  ┌──▼──────────────┐
+         │     ALB     │  │  CloudFront      │
+         │  + ACM SSL  │  │  (이미지 CDN)     │
+         │  + WAF      │  │                  │
+         └──┬───────┬──┘  └───────┬──────────┘
+            │       │             │
+     ┌──────▼──┐ ┌──▼──────┐  ┌──▼──────────┐
+     │  EC2-1  │ │  EC2-2  │  │  S3 (비공개) │
+     │ user-api│ │admin-api│  │  이미지 저장  │
+     │ B/G     │ │ B/G     │  └─────────────┘
+     └────┬────┘ └────┬────┘
+          │           │
+       ┌──▼───────────▼──┐
+       │   RDS / EC2 DB   │
+       │   PostgreSQL     │
+       └─────────────────┘
 ```
+
+---
+
+## AWS 서비스 역할
+
+| 서비스 | 역할 | 비고 |
+|--------|------|------|
+| **ALB** | 로드밸런서, HTTPS 종료, EC2 라우팅 | 리스너: 443(HTTPS) → 타겟그룹(80) |
+| **ACM** | SSL/TLS 인증서 | ALB에 연결, 자동 갱신, 무료 |
+| **WAF** | 웹 방화벽 | ALB에 연결, SQL Injection/XSS 등 차단 |
+| **EC2** | 앱 서버 (t3a.large x 2) | 1서버 1프로젝트, 각각 Blue/Green 배포 |
+| **S3** | 이미지 저장소 | 비공개 버킷, 직접 접근 차단 |
+| **CloudFront** | 이미지 CDN | OAC로 S3 비공개 접근, 캐싱 + 글로벌 배포 |
+| **Route 53** | DNS | 도메인 → ALB, 이미지 도메인 → CloudFront |
+
+---
+
+## 네트워크 흐름
+
+### API 요청
+
+```
+클라이언트 → Route 53 → ALB (WAF 검사 → ACM SSL 종료) → EC2 Nginx(:80) → Docker 컨테이너
+```
+
+- ALB가 HTTPS를 처리하므로 EC2의 Nginx는 **HTTP(:80)만** 수신
+- WAF가 ALB 앞단에서 악성 요청을 필터링
+
+### 이미지 요청
+
+```
+클라이언트 → Route 53 → CloudFront (캐시) → S3 (비공개, OAC 인증)
+```
+
+- S3 버킷은 퍼블릭 접근 차단, CloudFront OAC(Origin Access Control)를 통해서만 접근
+- CloudFront가 엣지 캐싱으로 S3 직접 요청을 최소화
 
 ---
 
@@ -41,15 +82,15 @@
 
 배포 전용 브랜치에 push하면 해당 프로젝트만 자동 배포된다.
 
-| 브랜치 | 배포 대상 |
-|--------|----------|
-| `deploy/user-api` | user-api |
-| `deploy/admin-api` | admin-api |
+| 브랜치 | 배포 대상 | 서버 |
+|--------|----------|------|
+| `deploy/user-api` | user-api | EC2-1 |
+| `deploy/admin-api` | admin-api | EC2-2 |
 
 ```
 git push origin deploy/user-api
   → GitHub Actions 자동 실행
-    → JAR 빌드 → Docker 이미지 → GHCR push → SSH로 서버 배포
+    → JAR 빌드 → Docker 이미지 → GHCR push → SSH로 EC2-1 배포
 ```
 
 ### 수동 배포 / 롤백
@@ -66,7 +107,7 @@ git push origin deploy/user-api
 
 ## Blue/Green 전환 흐름
 
-블루가 운영 중일 때 새 배포가 시작되면:
+각 EC2 내부에서 Docker 컨테이너 단위로 Blue/Green 전환한다.
 
 ```
  현재 상태                    배포 중                        완료
@@ -88,15 +129,48 @@ git push origin deploy/user-api
 
 ---
 
+## 보안 구성
+
+| 계층 | 방어 | 설명 |
+|------|------|------|
+| DNS | Route 53 | AWS 관리형 DNS, DDoS 기본 방어 |
+| L7 방화벽 | WAF → ALB | SQL Injection, XSS, Bot 차단 (AWS Managed Rules) |
+| SSL/TLS | ACM → ALB | HTTPS 종료, 자동 갱신, EC2에는 HTTP만 전달 |
+| 네트워크 | 보안그룹 | EC2: ALB에서만 80 허용, S3: CloudFront OAC만 허용 |
+| 이미지 저장 | S3 비공개 | 퍼블릭 접근 차단, CloudFront OAC 경유만 허용 |
+
+---
+
+## 이미지 서빙 (S3 + CloudFront)
+
+| 항목 | 설정 |
+|------|------|
+| S3 버킷 | 비공개 (Block Public Access 전체 활성화) |
+| CloudFront Origin | S3, OAC(Origin Access Control) 인증 |
+| 캐시 정책 | 이미지: 장기 캐시 (Cache-Control: max-age) |
+| 도메인 | `images.example.com` → CloudFront (Route 53 CNAME) |
+
+```
+앱 서버 (업로드)                     클라이언트 (조회)
+     │                                    │
+     ▼                                    ▼
+  S3 (비공개)  ←── OAC 인증 ──  CloudFront (캐시)
+```
+
+> 앱에서 S3에 직접 업로드, 클라이언트는 CloudFront URL로 조회.
+> S3 직접 URL은 접근 불가.
+
+---
+
 ## 핵심 원칙
 
 | 원칙 | 설명 |
 |------|------|
+| AWS 올인원 | SSL, WAF, CDN, 스토리지 모두 AWS 서비스로 통일 |
 | 빌드/배포 분리 | CI에서 빌드, 서버에서는 pull + 기동만 |
 | 불변 아티팩트 | Docker 이미지 = 배포 단위, 서버에 소스코드 없음 |
-| 포트 컨벤션 | 모든 서버 동일: Blue=8081, Green=8082 |
-| 1서버 1프로젝트 | 서버마다 하나의 프로젝트만 운영 |
-| 재사용 | 프로젝트명만 바꾸면 동일 구조 적용 |
+| 1서버 1프로젝트 | EC2마다 하나의 프로젝트만 운영 |
+| 비공개 원칙 | S3 비공개 + CloudFront OAC, EC2 직접 접근 차단 |
 
 ---
 
@@ -114,6 +188,7 @@ git push origin deploy/user-api
 ## 새 프로젝트 추가 시
 
 1. `deploy-<프로젝트명>.yml` 워크플로우 파일 생성 (기존 파일 복사, 프로젝트명만 변경)
-2. 서버에 `.env` + Nginx conf 배치
-3. 배포 브랜치 생성: `git push origin main:deploy/<프로젝트명>`
-4. 공통 워크플로우(`deploy-backend.yml`)와 배포 스크립트(`deploy.sh`)는 수정 불필요
+2. EC2 신규 생성 + 서버 세팅 9단계 실행
+3. ALB 타겟그룹에 새 EC2 등록
+4. 배포 브랜치 생성: `git push origin main:deploy/<프로젝트명>`
+5. 공통 워크플로우(`deploy-backend.yml`)와 배포 스크립트(`deploy.sh`)는 수정 불필요
