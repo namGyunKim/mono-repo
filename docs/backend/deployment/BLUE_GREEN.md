@@ -26,7 +26,7 @@ echo "<GHCR_PAT>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin
 sudo mkdir -p /opt/deploy/{projects,nginx/conf.d}
 sudo chown -R $USER:$USER /opt/deploy
 
-# 5. 파일 복사 (docs/deployment/ 에서)
+# 5. 파일 복사 (docs/backend/deployment/ 에서)
 cp deploy.sh /opt/deploy/deploy.sh && chmod +x /opt/deploy/deploy.sh
 cp user-api/user-api.env /opt/deploy/projects/
 cp user-api/user-api-upstream.conf /opt/deploy/nginx/conf.d/
@@ -75,8 +75,8 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 
 | 프로젝트 | 디렉토리 |
 |----------|----------|
-| user-api | [`docs/deployment/user-api/`](user-api/) |
-| admin-api | [`docs/deployment/admin-api/`](admin-api/) |
+| user-api | [`docs/backend/deployment/user-api/`](user-api/) |
+| admin-api | [`docs/backend/deployment/admin-api/`](admin-api/) |
 
 ---
 
@@ -305,7 +305,7 @@ docker images ghcr.io/namgyunkim/mono-repo/user-api --format "{{.Tag}}\t{{.Creat
 ### 레포지토리
 
 - [ ] `apps/payment-api/`에 `/api/health` 엔드포인트 존재 확인
-- [ ] `docs/deployment/payment-api/` 디렉토리 생성
+- [ ] `docs/backend/deployment/payment-api/` 디렉토리 생성
 - [ ] 기존 프로젝트 디렉토리(예: `user-api/`)를 복사하고 프로젝트명 변경
   - `deploy-payment-api.yml` (브랜치: `deploy/payment-api`)
   - `payment-api.env`

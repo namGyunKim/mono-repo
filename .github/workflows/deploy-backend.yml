@@ -1,6 +1,6 @@
 # 모든 백엔드 프로젝트가 호출하는 공통 재사용 워크플로우.
 #
-# 레포지토리 위치: docs/deployment/deploy-backend.yml
+# 레포지토리 위치: docs/backend/deployment/deploy-backend.yml
 # 실제 배치 위치: .github/workflows/deploy-backend.yml
 
 name: Deploy Backend (Reusable)
