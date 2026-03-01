@@ -1,6 +1,6 @@
-package com.example.domain.security.support;
+package com.example.domain.security.port;
 
-import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
+import com.example.domain.security.port.SecurityMemberTokenInfo;
 
 import java.util.Optional;
 
@@ -9,7 +9,7 @@ import java.util.Optional;
  *
  * <p>
  * - Security 도메인은 MemberRepository / Member 엔티티를 직접 참조하지 않고 이 Port를 통해 접근합니다.
- * - Port 정의: security/support (사용하는 도메인)
+ * - Port 정의: security/port (사용하는 도메인)
  * - Adapter 구현: member/support (제공하는 도메인)
  * </p>
  */

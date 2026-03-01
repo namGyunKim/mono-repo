@@ -22,7 +22,8 @@ mono-repo/
 │   └── web/                    # Next.js 프론트엔드
 ├── libs/
 │   ├── backend/
-│   │   ├── global-core/        # 전역 공통(도메인 비의존)
+│   │   ├── common/             # 순수 공유(entity, payload, utils, annotation)
+│   │   ├── global-core/        # 인프라 공통(security, config, exception, event)
 │   │   ├── domain-core/        # 도메인 핵심(account/member/log/social 등)
 │   │   ├── security-web/       # Spring Security 웹 계층 어댑터
 │   │   └── web-support/        # MVC/AOP/예외 처리/웹 공통 지원
@@ -44,7 +45,8 @@ mono-repo/
 
 ### libs/backend
 
-- `global-core`: 여러 앱에서 공통으로 재사용되는 최소 전역 컴포넌트
+- `common`: 순수 공유 타입(BaseEntity, payload, utils, annotation, versioning) — Spring Security 비의존
+- `global-core`: 인프라 공통(security, config, exception, event, logging) — `common`을 `api`로 포함
 - `domain-core`: 도메인 모델/서비스/도메인 규칙
 - `security-web`: 인증/인가 웹 어댑터(필터, 핸들러, 보안 설정)
 - `web-support`: 웹 계층 공통 지원(MVC/AOP/예외/버전 헤더 처리 등)
@@ -55,7 +57,7 @@ mono-repo/
 
 ### 백엔드 의존 흐름(개념)
 
-`global-core <- domain-core <- security-web <- web-support <- apps/*-api`
+`common ←(api)── global-core ← domain-core ← security-web ← web-support ← apps/*-api`
 
 ## 시작하기
 

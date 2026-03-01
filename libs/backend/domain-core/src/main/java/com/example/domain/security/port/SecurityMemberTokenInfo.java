@@ -1,4 +1,4 @@
-package com.example.domain.security.support.payload;
+package com.example.domain.security.port;
 
 import com.example.domain.account.enums.AccountRole;
 import com.example.domain.member.enums.MemberActiveStatus;

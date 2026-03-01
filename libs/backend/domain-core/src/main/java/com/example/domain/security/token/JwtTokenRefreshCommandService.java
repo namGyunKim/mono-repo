@@ -1,13 +1,13 @@
-package com.example.domain.security.service.command;
+package com.example.domain.security.token;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
 import com.example.domain.member.enums.MemberActiveStatus;
-import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
+import com.example.domain.security.token.BlacklistedTokenCommandService;
 import com.example.domain.security.jwt.JwtTokenParseResult;
 import com.example.domain.security.jwt.JwtTokenParser;
 import com.example.domain.security.jwt.JwtTokenPayload;
-import com.example.domain.security.support.SecurityMemberTokenPort;
-import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
+import com.example.domain.security.port.SecurityMemberTokenPort;
+import com.example.domain.security.port.SecurityMemberTokenInfo;
 import com.example.global.exception.GlobalException;
 import com.example.global.exception.enums.ErrorCode;
 import com.example.global.security.RefreshTokenCrypto;

@@ -1,4 +1,4 @@
-package com.example.domain.security.support;
+package com.example.domain.security.adapter;
 
 import com.example.domain.member.support.MemberPermissionCheckPort;
 import com.example.domain.security.guard.MemberGuard;

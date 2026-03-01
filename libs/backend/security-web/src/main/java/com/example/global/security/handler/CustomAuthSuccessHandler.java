@@ -2,7 +2,7 @@ package com.example.global.security.handler;
 
 import com.example.domain.account.payload.response.LoginTokenResponse;
 import com.example.domain.security.PrincipalDetails;
-import com.example.domain.security.service.command.LoginTokenCommandService;
+import com.example.domain.security.token.LoginTokenCommandService;
 import com.example.global.security.handler.support.LoginSuccessEventPublisher;
 import com.example.global.security.handler.support.LoginSuccessMessageResolver;
 import com.example.global.security.handler.support.LoginSuccessResponseWriter;

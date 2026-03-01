@@ -1,7 +1,7 @@
-package com.example.domain.security.support;
+package com.example.domain.security.adapter;
 
 import com.example.domain.account.support.AccountTokenRevocationPort;
-import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
+import com.example.domain.security.token.JwtTokenRevocationCommandService;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

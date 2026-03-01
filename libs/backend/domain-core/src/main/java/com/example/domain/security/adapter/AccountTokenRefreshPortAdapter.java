@@ -1,8 +1,8 @@
-package com.example.domain.security.support;
+package com.example.domain.security.adapter;
 
 import com.example.domain.account.payload.response.RefreshTokenResponse;
 import com.example.domain.account.support.AccountTokenRefreshPort;
-import com.example.domain.security.service.command.JwtTokenRefreshCommandService;
+import com.example.domain.security.token.JwtTokenRefreshCommandService;
 import com.example.global.security.payload.RefreshTokenIssueCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

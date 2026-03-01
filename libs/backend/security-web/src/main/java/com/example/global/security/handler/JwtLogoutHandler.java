@@ -1,7 +1,7 @@
 package com.example.global.security.handler;
 
 import com.example.domain.security.guard.MemberGuard;
-import com.example.domain.security.service.command.JwtTokenRevocationCommandService;
+import com.example.domain.security.token.JwtTokenRevocationCommandService;
 import com.example.global.security.jwt.AccessTokenResolver;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import jakarta.servlet.http.HttpServletRequest;

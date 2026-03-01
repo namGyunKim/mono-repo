@@ -1,8 +1,8 @@
 package com.example.domain.member.support;
 
 import com.example.domain.member.repository.MemberRepository;
-import com.example.domain.security.support.SecurityMemberTokenPort;
-import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
+import com.example.domain.security.port.SecurityMemberTokenPort;
+import com.example.domain.security.port.SecurityMemberTokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

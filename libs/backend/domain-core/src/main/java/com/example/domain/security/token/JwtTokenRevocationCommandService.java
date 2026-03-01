@@ -1,7 +1,7 @@
-package com.example.domain.security.service.command;
+package com.example.domain.security.token;
 
-import com.example.domain.security.blacklist.service.command.BlacklistedTokenCommandService;
-import com.example.domain.security.support.SecurityMemberTokenPort;
+import com.example.domain.security.token.BlacklistedTokenCommandService;
+import com.example.domain.security.port.SecurityMemberTokenPort;
 import com.example.global.security.blacklist.payload.dto.BlacklistedTokenRegisterCommand;
 import com.example.global.security.payload.SecurityLogoutCommand;
 import lombok.RequiredArgsConstructor;

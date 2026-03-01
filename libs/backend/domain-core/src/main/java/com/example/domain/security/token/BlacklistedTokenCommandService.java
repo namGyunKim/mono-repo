@@ -1,4 +1,4 @@
-package com.example.domain.security.blacklist.service.command;
+package com.example.domain.security.token;
 
 import com.example.domain.security.jwt.JwtTokenParser;
 import com.example.domain.security.jwt.JwtTokenPayload;

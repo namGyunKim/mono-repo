@@ -1,9 +1,5 @@
 plugins {
-    `java-library`
-}
-
-dependencies {
-    api(project(":libs:backend:common"))
+    java
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

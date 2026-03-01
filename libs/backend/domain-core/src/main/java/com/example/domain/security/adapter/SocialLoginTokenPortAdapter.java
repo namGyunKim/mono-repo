@@ -1,7 +1,7 @@
-package com.example.domain.security.support;
+package com.example.domain.security.adapter;
 
 import com.example.domain.account.payload.response.LoginTokenResponse;
-import com.example.domain.security.service.command.LoginTokenCommandService;
+import com.example.domain.security.token.LoginTokenCommandService;
 import com.example.domain.social.support.SocialLoginTokenPort;
 import com.example.global.security.payload.LoginTokenIssueCommand;
 import lombok.RequiredArgsConstructor;

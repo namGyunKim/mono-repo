@@ -1,6 +1,6 @@
-package com.example.domain.security.service.command;
+package com.example.domain.security.token;
 
-import com.example.domain.security.support.payload.SecurityMemberTokenInfo;
+import com.example.domain.security.port.SecurityMemberTokenInfo;
 import com.example.global.security.jwt.JwtTokenClaimKeys;
 import com.example.global.security.jwt.JwtTokenKeyProvider;
 import com.example.global.security.jwt.JwtTokenType;
