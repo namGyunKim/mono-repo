@@ -76,8 +76,8 @@ sudo chown -R $USER:$USER /app
 # 5. 파일 복사 (docs/backend/deployment/ 에서)
 cp deploy.sh /opt/deploy/deploy.sh && chmod +x /opt/deploy/deploy.sh
 cp user-api/user-api.env /opt/deploy/projects/
-cp user-api/user-api-upstream.conf /opt/deploy/nginx/conf.d/
-sudo cp user-api/user-api.conf /etc/nginx/conf.d/
+cp user-api/nginx/user-api-upstream.conf /opt/deploy/nginx/conf.d/
+sudo cp user-api/nginx/user-api.conf /etc/nginx/conf.d/
 
 # 6. 서버별 값 수정
 #    /opt/deploy/projects/user-api.env → IMAGE, SPRING_PROFILES
@@ -108,12 +108,12 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 
 ### 파일
 
-| 서버 경로                                             | 원본                                                                   | 비고                                |
-|---------------------------------------------------|----------------------------------------------------------------------|-----------------------------------|
-| `/opt/deploy/deploy.sh`                           | [`deploy.sh`](deploy.sh)                                             | 모든 서버 동일                          |
-| `/opt/deploy/projects/user-api.env`               | [`user-api/user-api.env`](user-api/user-api.env)                     | `IMAGE`, `SPRING_PROFILES`, 로깅 설정 |
-| `/opt/deploy/nginx/conf.d/user-api-upstream.conf` | [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | deploy.sh가 자동 관리                  |
-| `/etc/nginx/conf.d/user-api.conf`                 | [`user-api/user-api.conf`](user-api/user-api.conf)                   | `server_name` 수정                  |
+| 서버 경로                                             | 원본                                                                               | 비고                                |
+|---------------------------------------------------|----------------------------------------------------------------------------------|-----------------------------------|
+| `/opt/deploy/deploy.sh`                           | [`deploy.sh`](deploy.sh)                                                         | 모든 서버 동일                          |
+| `/opt/deploy/projects/user-api.env`               | [`user-api/user-api.env`](user-api/user-api.env)                                 | `IMAGE`, `SPRING_PROFILES`, 로깅 설정 |
+| `/opt/deploy/nginx/conf.d/user-api-upstream.conf` | [`user-api/nginx/user-api-upstream.conf`](user-api/nginx/user-api-upstream.conf) | deploy.sh가 자동 관리                  |
+| `/etc/nginx/conf.d/user-api.conf`                 | [`user-api/nginx/user-api.conf`](user-api/nginx/user-api.conf)                   | `server_name` 수정                  |
 
 ### 서버마다 달라지는 값
 
@@ -348,8 +348,8 @@ chmod +x /opt/deploy/deploy.sh
 
 # 프로젝트 설정 (user-api/ 디렉토리에서)
 cp user-api.env /opt/deploy/projects/user-api.env
-cp user-api-upstream.conf /opt/deploy/nginx/conf.d/user-api-upstream.conf
-sudo cp user-api.conf /etc/nginx/conf.d/user-api.conf
+cp nginx/user-api-upstream.conf /opt/deploy/nginx/conf.d/user-api-upstream.conf
+sudo cp nginx/user-api.conf /etc/nginx/conf.d/user-api.conf
 ```
 
 > 복사 후 `.env`의 `IMAGE`, `SPRING_PROFILES`와 Nginx conf의 `server_name`을 실제 값으로 변경한다.
@@ -378,12 +378,13 @@ sudo nginx -t && sudo nginx -s reload
 
 ### 프로젝트별 파일
 
-| 파일                                                                   | 배치 위치                                                |
-|----------------------------------------------------------------------|------------------------------------------------------|
-| [`user-api/deploy-user-api.yml`](user-api/deploy-user-api.yml)       | `.github/workflows/deploy-user-api.yml`              |
-| [`user-api/user-api.env`](user-api/user-api.env)                     | 서버 `/opt/deploy/projects/user-api.env`               |
-| [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | 서버 `/opt/deploy/nginx/conf.d/user-api-upstream.conf` |
-| [`user-api/user-api.conf`](user-api/user-api.conf)                   | 서버 `/etc/nginx/conf.d/user-api.conf`                 |
+| 파일                                                                               | 배치 위치                                                |
+|----------------------------------------------------------------------------------|------------------------------------------------------|
+| [`user-api/deploy-user-api.yml`](user-api/deploy-user-api.yml)                   | `.github/workflows/deploy-user-api.yml`              |
+| [`user-api/stage-user-api.yml`](user-api/stage-user-api.yml)                     | `.github/workflows/stage-user-api.yml`               |
+| [`user-api/user-api.env`](user-api/user-api.env)                                 | 서버 `/opt/deploy/projects/user-api.env`               |
+| [`user-api/nginx/user-api-upstream.conf`](user-api/nginx/user-api-upstream.conf) | 서버 `/opt/deploy/nginx/conf.d/user-api-upstream.conf` |
+| [`user-api/nginx/user-api.conf`](user-api/nginx/user-api.conf)                   | 서버 `/etc/nginx/conf.d/user-api.conf`                 |
 
 > admin-api도 동일한 구조. [`admin-api/`](admin-api/) 디렉토리 참조.
 
@@ -464,9 +465,10 @@ docker images ghcr.io/namgyunkim/mono-repo/user-api --format "{{.Tag}}\t{{.Creat
 - [ ] `docs/backend/deployment/payment-api/` 디렉토리 생성
 - [ ] 기존 프로젝트 디렉토리(예: `user-api/`)를 복사하고 프로젝트명 변경
   - `deploy-payment-api.yml` (브랜치: `deploy/payment-api`)
+  - `stage-payment-api.yml` (브랜치: `stage/payment-api`)
   - `payment-api.env`
-  - `payment-api-upstream.conf`
-  - `payment-api.conf`
+  - `nginx/payment-api-upstream.conf`
+  - `nginx/payment-api.conf`
 
 ### 서버
 
