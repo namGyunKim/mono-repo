@@ -308,7 +308,8 @@ libs/backend/domain-core/src/test/java/com/example/domain/
   - 위치: `libs/backend/domain-core/src/main/java/com/example/domain/contract/enums`
   - 목적: 외부 API 요청/응답 스키마 고정
 - 프론트 공유 타입
-  - 위치: `libs/shared/types/src/api-contract-enums.ts`
+  - 위치: `libs/shared/types/src/api-contract-enums.ts` (**자동 생성** — 직접 수정 금지)
+  - 패키지: `@mono-repo/types` (`import { ApiAccountRole } from '@mono-repo/types'`)
   - 목적: 프론트와 백엔드가 같은 계약 값 집합 사용
 
 ### 매핑 원칙
@@ -325,7 +326,33 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 2. 외부 API 입력/응답 값이 바뀌는 변경: 도메인 Enum + API 계약 Enum + `libs/shared/types`를 함께 변경
 3. 내부에서만 이름/구조 리팩터링하고 API 값은 유지: 매핑만 조정하고 API 계약 Enum 값은 유지
 
-즉, **API 계약이 변하면 2개(백엔드 계약 Enum + 프론트 공유 Enum) 이상 함께 변경**, 계약이 안 변하면 도메인 Enum만 변경하면 됩니다.
+즉, **API 계약이 변하면 백엔드 계약 Enum을 수정하고 Gradle 태스크로 TS를 재생성**한다. 계약이 안 변하면 도메인 Enum만 변경하면 됩니다.
+
+### TypeScript 자동 생성 전략
+
+백엔드 계약 Enum(`contract/enums/Api*.java`)을 **단일 원본(Single Source of Truth)** 으로 삼고, TypeScript Enum은 Gradle 태스크가 자동 생성한다.
+
+**동작 방식:**
+
+- Gradle 태스크 `generateContractEnumTs`가 Java 소스 파일을 직접 파싱하여 TS 파일을 생성한다
+- `domain-core:classes` 태스크에 의존성이 걸려 있어 **빌드/실행 시 자동 실행**된다
+- Gradle `inputs/outputs` 캐싱으로 소스 변경이 없으면 `UP-TO-DATE`로 스킵된다
+
+```
+빌드/실행 흐름:
+앱 빌드(build) / 실행(bootRun) / Nx serve
+  → domain-core:classes
+    → generateContractEnumTs (소스 변경 시만 실행)
+      → libs/shared/types/src/api-contract-enums.ts 갱신
+```
+
+**결과:** 백엔드 계약 Enum을 수정하면 다음 빌드/실행 시 TS 파일이 자동으로 갱신된다. 수동 실행도 가능하다:
+
+```bash
+./gradlew :libs:backend:domain-core:generateContractEnumTs
+```
+
+> `api-contract-enums.ts`는 **직접 수정하지 않는다**. 항상 Gradle 태스크가 생성한다.
 
 ### 동기화 규칙 + 자동 테스트
 
@@ -336,9 +363,26 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 권장 작업 순서:
 
 1. 도메인 Enum 변경
-2. API 계약 영향이 있으면 `Api*` Enum + `libs/shared/types/src/api-contract-enums.ts`를 함께 변경
-3. 매핑(`toDomain()` / `fromDomain(...)`) 갱신
+2. API 계약 영향이 있으면 `Api*` Enum 변경 + 매핑(`toDomain()` / `fromDomain(...)`) 갱신
+3. 빌드 실행 (`./gradlew build` 또는 `pnpm nx build user-api`) → TS 자동 갱신
 4. `pnpm nx test domain-core`로 동기화 검증
+
+### 신규 계약 Enum 추가 절차
+
+1. 도메인 Enum을 `libs/backend/domain-core/.../enums/`에 생성
+2. API 계약 Enum을 `libs/backend/domain-core/.../contract/enums/Api{Name}.java`에 생성 (기존 패턴 복제)
+   - `NAME_MAP`, `@JsonCreator from(String)`, `fromDomain()`, `toDomain()` 포함
+3. `ApiEnumSyncTest`에 신규 Enum 쌍 추가
+4. 빌드 실행 → `api-contract-enums.ts` 자동 갱신
+5. `pnpm nx test domain-core`로 동기화 검증
+
+### Enum 확인 경로
+
+| 대상 | 확인 방법 |
+|------|-----------|
+| 백엔드 (Java) | `domain-core/.../contract/enums/Api*.java` 소스 코드 |
+| Swagger UI | 앱 실행 후 `http://localhost:{port}/swagger-ui.html` — DTO 스키마 내 허용값 표시 |
+| 프론트 (TypeScript) | `import { ApiAccountRole } from '@mono-repo/types'` |
 
 예외 정책:
 
