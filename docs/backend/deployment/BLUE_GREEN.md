@@ -88,6 +88,9 @@ sudo bash -c 'grep -q "/opt/deploy/nginx" /etc/nginx/nginx.conf || \
 sudo nginx -t && sudo nginx -s reload
 
 # 9. 로그 백업 cron 등록
+#    매일 새벽 2시: /app/logs의 롤링 로그(1일 이상 경과)를 gzip 압축 후 /app/backup으로 이동
+#    매일 새벽 3시: /app/backup에서 90일 넘은 백업 파일 자동 삭제
+#    → /app/logs에는 최근 로그만, /app/backup에는 최대 90일치 압축 백업이 유지된다
 (crontab -l 2>/dev/null; echo '0 2 * * * find /app/logs -name "app-*.log" -mtime +1 -exec gzip {} \; -exec mv {}.gz /app/backup/ \;') | crontab -
 (crontab -l 2>/dev/null; echo '0 3 * * * find /app/backup -name "*.gz" -mtime +90 -delete') | crontab -
 ```
