@@ -10,27 +10,24 @@
 서버를 세팅하기 전에 내 컴퓨터에서 먼저 준비해야 하는 항목들이다.
 
 ```bash
-# 1. SSH 키 생성 (서버 배포용)
-ssh-keygen -t ed25519 -C "deploy" -f ~/.ssh/deploy_key
-#    → 공개키(deploy_key.pub)는 서버의 ~/.ssh/authorized_keys에 추가
-#    → 개인키(deploy_key) 내용은 GitHub Secrets에 등록
-
-# 2. GitHub Secrets 등록
+# 1. GitHub Secrets 등록
 #    리포지토리 Settings → Secrets and variables → Actions
-#    ┌──────────────────┬──────────────────────────────────┐
-#    │ Secret           │ 값                                │
-#    ├──────────────────┼──────────────────────────────────┤
-#    │ SERVER_HOST      │ 서버 IP (예: 123.45.67.89)        │
-#    │ SERVER_USER      │ SSH 유저 (예: deploy)             │
-#    │ SSH_PRIVATE_KEY  │ ~/.ssh/deploy_key 파일 내용 전체   │
-#    └──────────────────┴──────────────────────────────────┘
+#    ┌──────────────────┬──────────────────────────────────────────┐
+#    │ Secret           │ 값                                       │
+#    ├──────────────────┼──────────────────────────────────────────┤
+#    │ SERVER_HOST      │ EC2 퍼블릭 IP (예: 123.45.67.89)         │
+#    │ SERVER_USER      │ EC2 기본 유저 (예: ubuntu)                │
+#    │ SSH_PRIVATE_KEY  │ EC2 키페어 .pem 파일 내용 전체             │
+#    └──────────────────┴──────────────────────────────────────────┘
+#    → SSH_PRIVATE_KEY에는 EC2 인스턴스 생성 시 발급받은 .pem 파일 내용을 그대로 붙여넣는다.
+#      cat ~/.ssh/my-key.pem  →  전체 복사 후 Secret value에 입력
 
-# 3. GHCR PAT 발급 (서버에서 이미지 pull 시 사용)
+# 2. GHCR PAT 발급 (서버에서 이미지 pull 시 사용)
 #    GitHub → Settings → Developer settings → Personal access tokens
 #    → Generate new token → 스코프: read:packages
 #    → 발급된 토큰을 메모 (서버 세팅 3단계에서 사용)
 
-# 4. 배포 브랜치 생성 (최초 1회)
+# 3. 배포 브랜치 생성 (최초 1회)
 git push origin main:deploy/user-api
 git push origin main:deploy/admin-api
 ```
