@@ -1,23 +1,23 @@
-# 실제 배치 위치: .github/workflows/deploy-admin-api.yml
+# 실제 배치 위치: .github/workflows/stage-user-api.yml
 #
-# deploy/admin-api 브랜치에 push하면 admin-api가 실서버에 배포된다.
+# stage/user-api 브랜치에 push하면 user-api가 테스트 서버에 배포된다.
 # 어떤 파일이 변경되었는지와 무관하게 항상 배포된다.
 
-name: Deploy admin-api
+name: Stage user-api
 
 on:
   push:
     branches:
-      - deploy/admin-api
+      - stage/user-api
   workflow_dispatch:
 
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-backend.yml
     with:
-      project: admin-api
-      gradle-module: ':apps:admin-api'
+      project: user-api
+      gradle-module: ':apps:user-api'
     secrets:
-      SERVER_HOST: ${{ secrets.ADMIN_API_SERVER_HOST }}
+      SERVER_HOST: ${{ secrets.STAGE_USER_API_SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

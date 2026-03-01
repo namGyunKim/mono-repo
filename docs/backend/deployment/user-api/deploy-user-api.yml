@@ -1,18 +1,14 @@
-# 실제 배치 위치: .github/workflows/deploy-user-api.yml  (실서버)
-#                 .github/workflows/stage-user-api.yml   (테스트 서버)
+# 실제 배치 위치: .github/workflows/deploy-user-api.yml
 #
-# 사용 방법:
-#   1. 이 파일을 복사하여 두 개의 워크플로우 파일을 만든다.
-#   2. 테스트 서버용(stage): deploy 주석의 줄을 제거한다.
-#   3. 실서버용(deploy):     stage 주석의 줄을 제거한다.
+# deploy/user-api 브랜치에 push하면 user-api가 실서버에 배포된다.
+# 어떤 파일이 변경되었는지와 무관하게 항상 배포된다.
 
 name: Deploy user-api
 
 on:
   push:
     branches:
-      - stage/user-api    # 테스트 서버
-      - deploy/user-api   # 실서버
+      - deploy/user-api
   workflow_dispatch:
 
 jobs:
@@ -22,7 +18,6 @@ jobs:
       project: user-api
       gradle-module: ':apps:user-api'
     secrets:
-      SERVER_HOST: ${{ secrets.STAGE_USER_API_SERVER_HOST }}  # 테스트 서버
-      SERVER_HOST: ${{ secrets.USER_API_SERVER_HOST }}         # 실서버
+      SERVER_HOST: ${{ secrets.USER_API_SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
