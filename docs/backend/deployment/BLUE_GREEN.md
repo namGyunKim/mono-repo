@@ -48,7 +48,7 @@ git push origin main:deploy/admin-api
 
 ## 서버 세팅 (user-api 기준)
 
-서버를 새로 만들면 아래 8단계를 순서대로 실행한다. 10분이면 끝난다.
+서버를 새로 만들면 아래 9단계를 순서대로 실행한다. 10분이면 끝난다.
 
 ```bash
 # 1. Docker 설치
@@ -86,6 +86,10 @@ sudo bash -c 'grep -q "/opt/deploy/nginx" /etc/nginx/nginx.conf || \
 
 # 8. Nginx 검증 & 적용
 sudo nginx -t && sudo nginx -s reload
+
+# 9. 로그 백업 cron 등록
+(crontab -l 2>/dev/null; echo '0 2 * * * find /app/logs -name "app-*.log" -mtime +1 -exec gzip {} \; -exec mv {}.gz /app/backup/ \;') | crontab -
+(crontab -l 2>/dev/null; echo '0 3 * * * find /app/backup -name "*.gz" -mtime +90 -delete') | crontab -
 ```
 
 끝. 이후 `deploy/user-api` 브랜치에 push하면 자동 배포된다.
