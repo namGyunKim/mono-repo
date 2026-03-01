@@ -108,28 +108,28 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 
 ### 파일
 
-| 서버 경로 | 원본 | 비고 |
-|-----------|------|------|
-| `/opt/deploy/deploy.sh` | [`deploy.sh`](deploy.sh) | 모든 서버 동일 |
-| `/opt/deploy/projects/user-api.env` | [`user-api/user-api.env`](user-api/user-api.env) | `IMAGE`, `SPRING_PROFILES`, 로깅 설정 |
-| `/opt/deploy/nginx/conf.d/user-api-upstream.conf` | [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | deploy.sh가 자동 관리 |
-| `/etc/nginx/conf.d/user-api.conf` | [`user-api/user-api.conf`](user-api/user-api.conf) | `server_name` 수정 |
+| 서버 경로                                         | 원본                                                                 | 비고                                  |
+|---------------------------------------------------|----------------------------------------------------------------------|---------------------------------------|
+| `/opt/deploy/deploy.sh`                           | [`deploy.sh`](deploy.sh)                                             | 모든 서버 동일                        |
+| `/opt/deploy/projects/user-api.env`               | [`user-api/user-api.env`](user-api/user-api.env)                     | `IMAGE`, `SPRING_PROFILES`, 로깅 설정 |
+| `/opt/deploy/nginx/conf.d/user-api-upstream.conf` | [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | deploy.sh가 자동 관리                 |
+| `/etc/nginx/conf.d/user-api.conf`                 | [`user-api/user-api.conf`](user-api/user-api.conf)                   | `server_name` 수정                    |
 
 ### 서버마다 달라지는 값
 
-| 항목 | 파일 | 설명 |
-|------|------|------|
-| `IMAGE` | `.env` | GHCR 이미지 경로의 OWNER 부분 |
-| `SPRING_PROFILES` | `.env` | `prod`, `staging` 등 |
-| `server_name` | Nginx conf | 실제 도메인 |
+| 항목              | 파일       | 설명                          |
+|-------------------|------------|-------------------------------|
+| `IMAGE`           | `.env`     | GHCR 이미지 경로의 OWNER 부분 |
+| `SPRING_PROFILES` | `.env`     | `prod`, `staging` 등          |
+| `server_name`     | Nginx conf | 실제 도메인                   |
 
 > `deploy.sh`, 포트(8081/8082), health check 경로, 디렉토리 구조는 모든 서버에서 동일하다.
 
 ### 프로젝트별 파일
 
-| 프로젝트 | 디렉토리 |
-|----------|----------|
-| user-api | [`docs/backend/deployment/user-api/`](user-api/) |
+| 프로젝트  | 디렉토리                                           |
+|-----------|----------------------------------------------------|
+| user-api  | [`docs/backend/deployment/user-api/`](user-api/)   |
 | admin-api | [`docs/backend/deployment/admin-api/`](admin-api/) |
 
 ---
@@ -182,27 +182,27 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
          Green ❌                        Green(8082) 기동 중             Blue 종료
 ```
 
-| 단계 | 동작 | 실패 시 |
-|------|------|---------|
-| 1 | 새 이미지 pull | 중단, 기존 컨테이너 유지 |
-| 2 | 그린(8082) 컨테이너 기동 | 중단, 기존 컨테이너 유지 |
-| 3 | 그린 health check (`/api/health`) | 그린 제거, 블루 그대로 유지 |
-| 4 | Nginx upstream을 그린(8082)으로 전환 + reload | 그린 제거, 블루 그대로 유지 |
-| 5 | 블루 컨테이너 graceful shutdown (30초 대기) | — |
-| 6 | 활성 컬러를 `green`으로 기록 | — |
+| 단계 | 동작                                          | 실패 시                     |
+|------|-----------------------------------------------|-----------------------------|
+| 1    | 새 이미지 pull                                | 중단, 기존 컨테이너 유지    |
+| 2    | 그린(8082) 컨테이너 기동                      | 중단, 기존 컨테이너 유지    |
+| 3    | 그린 health check (`/api/health`)             | 그린 제거, 블루 그대로 유지 |
+| 4    | Nginx upstream을 그린(8082)으로 전환 + reload | 그린 제거, 블루 그대로 유지 |
+| 5    | 블루 컨테이너 graceful shutdown (30초 대기)   | —                           |
+| 6    | 활성 컬러를 `green`으로 기록                  | —                           |
 
 > 다음 배포에서는 방향이 반대가 된다: 그린(8082) 유지 → 블루(8081) 기동 → 전환.
 > 어느 단계에서 실패하더라도 기존 컨테이너가 그대로 트래픽을 처리하므로 서비스 중단이 없다.
 
 ### 핵심 원칙
 
-| 원칙 | 설명 |
-|------|------|
-| **빌드/배포 분리** | CI에서 빌드, 서버에서는 pull + 기동만 |
-| **불변 아티팩트** | Docker 이미지 = 배포 단위, 서버에 소스코드 없음 |
-| **포트 컨벤션** | 모든 서버 동일: Blue=8081, Green=8082 |
-| **1서버 1프로젝트** | 서버마다 하나의 프로젝트만 운영한다 |
-| **재사용** | 프로젝트명만 바꾸면 동일 구조 적용 |
+| 원칙                | 설명                                            |
+|---------------------|-------------------------------------------------|
+| **빌드/배포 분리**  | CI에서 빌드, 서버에서는 pull + 기동만           |
+| **불변 아티팩트**   | Docker 이미지 = 배포 단위, 서버에 소스코드 없음 |
+| **포트 컨벤션**     | 모든 서버 동일: Blue=8081, Green=8082           |
+| **1서버 1프로젝트** | 서버마다 하나의 프로젝트만 운영한다             |
+| **재사용**          | 프로젝트명만 바꾸면 동일 구조 적용              |
 
 ---
 
@@ -220,12 +220,12 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 리포지토리 Settings → Secrets and variables → Actions에 등록.
 EC2가 프로젝트별로 분리되어 있으므로 서버별 Secret을 등록한다.
 
-| Secret | 설명 | 예시 |
-|--------|------|------|
-| `USER_API_SERVER_HOST` | user-api EC2 IP | `10.0.1.10` |
-| `ADMIN_API_SERVER_HOST` | admin-api EC2 IP | `10.0.1.20` |
-| `SERVER_USER` | SSH 접속 유저 (공통) | `ec2-user` |
-| `SSH_PRIVATE_KEY` | EC2 키페어 .pem (공통) | `-----BEGIN OPENSSH...` |
+| Secret                  | 설명                   | 예시                    |
+|-------------------------|------------------------|-------------------------|
+| `USER_API_SERVER_HOST`  | user-api EC2 IP        | `10.0.1.10`             |
+| `ADMIN_API_SERVER_HOST` | admin-api EC2 IP       | `10.0.1.20`             |
+| `SERVER_USER`           | SSH 접속 유저 (공통)   | `ec2-user`              |
+| `SSH_PRIVATE_KEY`       | EC2 키페어 .pem (공통) | `-----BEGIN OPENSSH...` |
 
 > GHCR(GitHub Container Registry)은 `GITHUB_TOKEN`으로 push하고,
 > 서버에서는 PAT(Personal Access Token)로 pull한다(3.2절 참조).
@@ -370,20 +370,20 @@ sudo nginx -t && sudo nginx -s reload
 
 ### 공용 파일
 
-| 파일 | 배치 위치 | 설명 |
-|------|-----------|------|
-| [`deploy.sh`](deploy.sh) | 서버 `/opt/deploy/deploy.sh` | 범용 배포 스크립트 |
-| [`backend.Dockerfile`](backend.Dockerfile) | `infra/docker/backend.Dockerfile` | 공용 Dockerfile |
-| [`deploy-backend.yml`](deploy-backend.yml) | `.github/workflows/deploy-backend.yml` | 재사용 워크플로우 |
+| 파일                                       | 배치 위치                              | 설명               |
+|--------------------------------------------|----------------------------------------|--------------------|
+| [`deploy.sh`](deploy.sh)                   | 서버 `/opt/deploy/deploy.sh`           | 범용 배포 스크립트 |
+| [`backend.Dockerfile`](backend.Dockerfile) | `infra/docker/backend.Dockerfile`      | 공용 Dockerfile    |
+| [`deploy-backend.yml`](deploy-backend.yml) | `.github/workflows/deploy-backend.yml` | 재사용 워크플로우  |
 
 ### 프로젝트별 파일
 
-| 파일 | 배치 위치 |
-|------|-----------|
-| [`user-api/deploy-user-api.yml`](user-api/deploy-user-api.yml) | `.github/workflows/deploy-user-api.yml` |
-| [`user-api/user-api.env`](user-api/user-api.env) | 서버 `/opt/deploy/projects/user-api.env` |
+| 파일                                                                 | 배치 위치                                              |
+|----------------------------------------------------------------------|--------------------------------------------------------|
+| [`user-api/deploy-user-api.yml`](user-api/deploy-user-api.yml)       | `.github/workflows/deploy-user-api.yml`                |
+| [`user-api/user-api.env`](user-api/user-api.env)                     | 서버 `/opt/deploy/projects/user-api.env`               |
 | [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | 서버 `/opt/deploy/nginx/conf.d/user-api-upstream.conf` |
-| [`user-api/user-api.conf`](user-api/user-api.conf) | 서버 `/etc/nginx/conf.d/user-api.conf` |
+| [`user-api/user-api.conf`](user-api/user-api.conf)                   | 서버 `/etc/nginx/conf.d/user-api.conf`                 |
 
 > admin-api도 동일한 구조. [`admin-api/`](admin-api/) 디렉토리 참조.
 
@@ -394,12 +394,12 @@ sudo nginx -t && sudo nginx -s reload
 1. **`docs/backend/deployment/`의 원본 파일을 먼저 수정**한다
 2. 수정한 내용을 실제 배치 위치에 동일하게 반영한다
 
-| 원본 (docs) | 배치 위치 |
-|-------------|-----------|
-| `deploy-backend.yml` | `.github/workflows/deploy-backend.yml` |
-| `user-api/deploy-user-api.yml` | `.github/workflows/deploy-user-api.yml` |
+| 원본 (docs)                      | 배치 위치                                |
+|----------------------------------|------------------------------------------|
+| `deploy-backend.yml`             | `.github/workflows/deploy-backend.yml`   |
+| `user-api/deploy-user-api.yml`   | `.github/workflows/deploy-user-api.yml`  |
 | `admin-api/deploy-admin-api.yml` | `.github/workflows/deploy-admin-api.yml` |
-| `backend.Dockerfile` | `infra/docker/backend.Dockerfile` |
+| `backend.Dockerfile`             | `infra/docker/backend.Dockerfile`        |
 
 > 원본과 배치 파일은 항상 동일한 내용을 유지해야 한다. 배치 위치만 직접 수정하면 원본과 불일치가 발생한다.
 
@@ -411,9 +411,9 @@ sudo nginx -t && sudo nginx -s reload
 
 프로젝트 전용 브랜치에 push하면 해당 프로젝트만 배포된다. 변경된 파일과 무관하게 항상 동작한다.
 
-| 브랜치 | 배포 대상 |
-|--------|----------|
-| `deploy/user-api` | user-api |
+| 브랜치             | 배포 대상 |
+|--------------------|-----------|
+| `deploy/user-api`  | user-api  |
 | `deploy/admin-api` | admin-api |
 
 ```
@@ -538,14 +538,14 @@ docker image prune -a --filter "until=168h" -f
 
 ## 8. 트러블슈팅
 
-| 증상 | 원인 | 해결 |
-|------|------|------|
-| Health check 실패 | 앱 기동 느림 | `.env`의 `HEALTH_TIMEOUT` 증가 |
-| Health check 실패 | DB 연결 불가 | `application-prod.yml`의 DB 접속 정보 확인, DB 서버 방화벽/보안그룹 점검 |
-| Nginx reload 실패 | 설정 문법 오류 | `sudo nginx -t`로 상세 에러 확인 |
-| 이미지 pull 실패 | GHCR 인증 만료 | `docker login ghcr.io` 재실행 |
-| 포트 충돌 | 이전 컨테이너 미종료 | `docker rm -f <컨테이너명>` 후 재배포 |
-| Container exited | 앱 크래시 | `docker logs <컨테이너명>` 확인 |
+| 증상              | 원인                 | 해결                                                                     |
+|-------------------|----------------------|--------------------------------------------------------------------------|
+| Health check 실패 | 앱 기동 느림         | `.env`의 `HEALTH_TIMEOUT` 증가                                           |
+| Health check 실패 | DB 연결 불가         | `application-prod.yml`의 DB 접속 정보 확인, DB 서버 방화벽/보안그룹 점검 |
+| Nginx reload 실패 | 설정 문법 오류       | `sudo nginx -t`로 상세 에러 확인                                         |
+| 이미지 pull 실패  | GHCR 인증 만료       | `docker login ghcr.io` 재실행                                            |
+| 포트 충돌         | 이전 컨테이너 미종료 | `docker rm -f <컨테이너명>` 후 재배포                                    |
+| Container exited  | 앱 크래시            | `docker logs <컨테이너명>` 확인                                          |
 
 ---
 
@@ -587,10 +587,10 @@ GitHub Actions는 기본적으로 워크플로우 실패 시 이메일을 발송
 
 GitHub → Settings → Notifications → Actions:
 
-| 설정 | 동작 |
-|------|------|
-| **Only failures** (기본값) | 실패 시에만 이메일 발송 |
-| **All workflows** | 성공 · 실패 모두 이메일 발송 |
+| 설정                       | 동작                         |
+|----------------------------|------------------------------|
+| **Only failures** (기본값) | 실패 시에만 이메일 발송      |
+| **All workflows**          | 성공 · 실패 모두 이메일 발송 |
 
 > 별도 워크플로우 수정 없이 GitHub 계정 설정만 바꾸면 된다.
 > 추후 Slack 알림이 필요하면 워크플로우에 알림 step을 추가한다.
