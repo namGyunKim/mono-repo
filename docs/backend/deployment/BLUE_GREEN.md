@@ -286,6 +286,22 @@ sudo nginx -t && sudo nginx -s reload
 
 > admin-api도 동일한 구조. [`admin-api/`](admin-api/) 디렉토리 참조.
 
+### 수정 규칙
+
+`docs/backend/deployment/`가 원본이다. 배포 설정을 변경할 때는 반드시 아래 순서를 따른다.
+
+1. **`docs/backend/deployment/`의 원본 파일을 먼저 수정**한다
+2. 수정한 내용을 실제 배치 위치에 동일하게 반영한다
+
+| 원본 (docs) | 배치 위치 |
+|-------------|-----------|
+| `deploy-backend.yml` | `.github/workflows/deploy-backend.yml` |
+| `user-api/deploy-user-api.yml` | `.github/workflows/deploy-user-api.yml` |
+| `admin-api/deploy-admin-api.yml` | `.github/workflows/deploy-admin-api.yml` |
+| `backend.Dockerfile` | `infra/docker/backend.Dockerfile` |
+
+> 원본과 배치 파일은 항상 동일한 내용을 유지해야 한다. 배치 위치만 직접 수정하면 원본과 불일치가 발생한다.
+
 ---
 
 ## 5. 배포 & 롤백
