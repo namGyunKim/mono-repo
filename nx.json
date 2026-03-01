@@ -13,6 +13,9 @@
     },
     "test": {
       "cache": true
+    },
+    "e2e": {
+      "cache": false
     }
   },
   "plugins": [
