@@ -227,12 +227,40 @@ EC2가 프로젝트별로 분리되어 있으므로 서버별 Secret을 등록�
 | `SERVER_USER` | SSH 접속 유저 (공통) | `ec2-user` |
 | `SSH_PRIVATE_KEY` | EC2 키페어 .pem (공통) | `-----BEGIN OPENSSH...` |
 
-> 같은 프로젝트를 EC2 2대 이상에 배포할 경우, HOST에 쉼표로 구분하여 등록한다.
-> 예: `USER_API_SERVER_HOST` = `10.0.1.10,10.0.1.11`
-> `appleboy/ssh-action`이 순차적으로 각 서버에 접속하여 배포를 실행한다.
->
 > GHCR(GitHub Container Registry)은 `GITHUB_TOKEN`으로 push하고,
 > 서버에서는 PAT(Personal Access Token)로 pull한다(3.2절 참조).
+
+#### 다중 서버 배포 (같은 프로젝트를 EC2 2대 이상에 배포)
+
+HOST Secret에 쉼표로 IP를 나열하면 된다. 워크플로우 코드 변경은 불필요.
+
+```
+USER_API_SERVER_HOST = 10.0.1.10,10.0.1.11
+```
+
+배포 흐름:
+
+```
+git push origin deploy/user-api
+        │
+        ▼
+deploy-user-api.yml
+  → SERVER_HOST에 "10.0.1.10,10.0.1.11" 전달
+        │
+        ▼
+deploy-backend.yml
+  → JAR 빌드 → Docker 이미지 → GHCR push (1회)
+        │
+        ▼
+appleboy/ssh-action (host: "10.0.1.10,10.0.1.11")
+        │
+        ├── 1) ssh ec2-user@10.0.1.10 → deploy.sh 실행 → 완료
+        │
+        └── 2) ssh ec2-user@10.0.1.11 → deploy.sh 실행 → 완료
+```
+
+> 빌드는 1번, 배포는 서버 수만큼 순차 실행된다.
+> 첫 번째 서버 배포가 완료된 후 두 번째 서버에 배포하므로, 한 대는 항상 정상 운영 중이다.
 
 ### 2.3 서버 요구사항
 
