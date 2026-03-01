@@ -250,11 +250,12 @@ pnpm nx test admin-api
 
 ```bash
 # 개별 모듈 테스트
+./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
 ./gradlew :libs:backend:domain-core:test
 
 # 특정 테스트 클래스
-./gradlew :libs:backend:global-core:test --tests "com.example.global.utils.PaginationUtilsTest"
+./gradlew :libs:backend:common:test --tests "com.example.global.utils.PaginationUtilsTest"
 
 # 전체 백엔드 테스트
 ./gradlew test
@@ -841,7 +842,7 @@ libs/backend/domain-core/src/main/java/com/example/domain/
 
 - [ ] 새로운 유틸리티/서비스/Validator 추가 시 대응하는 단위 테스트가 있는가?
 - [ ] 테스트가 Spring Context 없이 순수 단위 테스트로 작성되었는가?
-- [ ] `./gradlew :libs:backend:global-core:test :libs:backend:domain-core:test` 전체 통과하는가?
+- [ ] `./gradlew :libs:backend:common:test :libs:backend:global-core:test :libs:backend:domain-core:test` 전체 통과하는가?
 
 ### Enum 계약 동기화
 

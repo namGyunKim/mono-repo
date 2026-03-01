@@ -210,16 +210,18 @@ pnpm nx test domain-core
 ### 테스트 디렉토리 구조
 
 ```text
-libs/backend/global-core/src/test/java/com/example/global/
-├── utils/                    # 유틸리티 테스트 (11개)
-├── security/                 # 보안 테스트 (4개)
-│   ├── handler/support/      # 로그인 핸들러 테스트 (2개)
-│   └── blacklist/            # 블랙리스트 테스트 (2개)
-├── exception/support/        # 예외 처리 지원 테스트 (5개)
+libs/backend/common/src/test/java/com/example/global/
+├── utils/                    # 유틸리티 테스트 (12개)
 └── aop/support/              # AOP 지원 테스트 (2개)
 
+libs/backend/global-core/src/test/java/com/example/global/
+├── security/                 # 보안 테스트 (3개)
+│   ├── handler/support/      # 로그인 핸들러 테스트 (2개)
+│   └── blacklist/            # 블랙리스트 테스트 (2개)
+└── exception/support/        # 예외 처리 지원 테스트 (5개)
+
 libs/backend/domain-core/src/test/java/com/example/domain/
-├── contract/enums/           # Enum 동기화 테스트 (1개, 기존)
+├── contract/enums/           # Enum 동기화 테스트 (1개)
 ├── member/
 │   ├── validator/            # 회원 Validator 테스트 (3개)
 │   └── service/              # 회원 서비스 테스트 (3개)
@@ -236,11 +238,12 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 ```bash
 # 개별 모듈 테스트
+./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
 ./gradlew :libs:backend:domain-core:test
 
 # 특정 테스트 클래스
-./gradlew :libs:backend:global-core:test --tests "com.example.global.utils.PaginationUtilsTest"
+./gradlew :libs:backend:common:test --tests "com.example.global.utils.PaginationUtilsTest"
 
 # 전체 백엔드 테스트
 ./gradlew test
@@ -250,7 +253,8 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 
 | 모듈 | 테스트 파일 수 | 테스트 메서드 수 |
 |------|-------------|--------------|
-| global-core | 26 | ~185 |
+| common | 14 | ~95 |
+| global-core | 12 | ~90 |
 | domain-core | 14 | ~85 |
 | **합계** | **40** | **~270** |
 
