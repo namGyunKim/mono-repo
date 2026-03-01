@@ -3,6 +3,12 @@
 # 각 프로젝트 워크플로우(deploy-user-api.yml 등)가 workflow_call로 이 파일을 호출하며,
 # project와 gradle-module 파라미터만 바꿔서 빌드/배포 로직을 공유한다.
 #
+# 새 프로젝트 추가 시: 이 파일은 수정할 필요 없다.
+#   deploy-user-api.yml을 복사하여 project와 gradle-module, 브랜치명만 바꾼
+#   deploy-<프로젝트명>.yml을 만들면 된다.
+# 이 파일을 수정하는 경우: 빌드/배포 공통 로직 자체가 변경될 때만.
+#   (예: Java 버전 변경, Docker 빌드 옵션 추가 등)
+#
 # 원본: docs/backend/deployment/deploy-backend.yml
 # 배치: .github/workflows/deploy-backend.yml
 
