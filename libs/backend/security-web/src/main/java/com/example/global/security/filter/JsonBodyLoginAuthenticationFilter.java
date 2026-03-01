@@ -72,29 +72,30 @@ public class JsonBodyLoginAuthenticationFilter extends UsernamePasswordAuthentic
         }
 
         if (!requestParser.isJsonRequest(request)) {
-            errorWriter.writeBadRequest(
-                    request,
-                    response,
-                    ErrorCode.INVALID_PARAMETER,
-                    List.of(ApiErrorDetail.of("Content-Type", "application/json 요청만 허용됩니다."))
-            );
+            errorWriter.writeBadRequest(request, response, ErrorCode.INVALID_PARAMETER,
+                    List.of(ApiErrorDetail.of("Content-Type", "application/json 요청만 허용됩니다.")));
             return null;
         }
 
+        final LoginRequestValidationResult validationResult = parseAndValidate(request, response);
+        if (validationResult == null) {
+            return null;
+        }
+
+        return authenticateCredentials(request, validationResult);
+    }
+
+    private LoginRequestValidationResult parseAndValidate(HttpServletRequest request, HttpServletResponse response) {
         final LoginRequestParseResult parseResult = requestParser.parse(request);
         if (parseResult.hasErrors()) {
             errorWriter.writeBadRequest(request, response, ErrorCode.INVALID_PARAMETER, parseResult.errors());
             return null;
         }
 
-        final Object loginRequest = parseResult.loginRequest();
-        final LoginRequestValidationResult validationResult = requestValidator.validate(loginRequest);
-        final String loginId = validationResult.loginId();
-        final String password = validationResult.password();
+        final LoginRequestValidationResult validationResult = requestValidator.validate(parseResult.loginRequest());
 
-        // 로그인 실패 로그에서 loginId 식별이 가능하도록 attribute에 보관합니다.
-        if (loginId != null) {
-            request.setAttribute(REQUEST_ATTRIBUTE_LOGIN_ID, loginId);
+        if (validationResult.loginId() != null) {
+            request.setAttribute(REQUEST_ATTRIBUTE_LOGIN_ID, validationResult.loginId());
         }
 
         if (validationResult.hasErrors()) {
@@ -102,12 +103,14 @@ public class JsonBodyLoginAuthenticationFilter extends UsernamePasswordAuthentic
             return null;
         }
 
+        return validationResult;
+    }
+
+    private Authentication authenticateCredentials(HttpServletRequest request, LoginRequestValidationResult result) {
         final UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
-                loginId,
-                password
+                result.loginId(), result.password()
         );
         setDetails(request, authRequest);
-
         return this.getAuthenticationManager().authenticate(authRequest);
     }
 }

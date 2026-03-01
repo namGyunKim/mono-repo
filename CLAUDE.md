@@ -55,9 +55,9 @@
 - 파일 읽기/탐색/검색은 자율 진행
 ---
 
-# MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*)
+# MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*, Playwright -> mcp__playwright__*)
 
-이 워크스페이스에는 세 개의 MCP 서버가 연결되어 있다.
+이 워크스페이스에는 네 개의 MCP 서버가 연결되어 있다.
 
 ## Serena — 시맨틱 코드 분석/편집
 
@@ -163,3 +163,51 @@ GRANT pg_read_all_data TO claude_readonly;
 | `"이 JPA 엔티티가 DB 스키마와 맞는지 검증해줘"` | 엔티티 클래스의 필드와 실제 테이블 컬럼을 비교하여 불일치 항목 보고 |
 | `"이 쿼리 성능 분석해줘"` | `EXPLAIN ANALYZE`로 실행 계획을 조회하여 병목 지점 분석 |
 | `"Member 엔티티에 새 필드 추가하려는데 현재 테이블 구조 먼저 확인"` | 테이블 스키마를 조회한 뒤, 기존 구조에 맞게 엔티티 코드 수정 |
+
+## Playwright — 브라우저 자동화 / E2E 검증
+
+- 실제 브라우저를 제어하여 **페이지 탐색, 클릭, 폼 입력, 스크린샷** 등을 수행한다
+- 프론트엔드 개발 중 **UI 동작을 대화 내에서 직접 검증**할 수 있다
+- E2E 테스트 시나리오를 실행하거나, 디버깅 시 화면 상태를 확인하는 용도로 사용한다
+
+### 사용 규칙
+
+- dev 서버가 실행 중이어야 브라우저로 접근할 수 있다 (예: `pnpm nx dev @mono-repo/web`)
+- 스냅샷(`browser_snapshot`)은 접근성 트리 기반으로 요소를 파악하며, 인터랙션 시 `ref` 값을 사용한다
+- 스크린샷(`browser_take_screenshot`)은 시각적 확인용이며, 요소 조작에는 스냅샷을 사용한다
+- 작업 완료 후 `browser_close`로 브라우저를 닫는다
+
+### MCP 도구 목록
+
+| 도구명 | 설명 |
+|--------|------|
+| `mcp__playwright__browser_navigate` | URL로 페이지 이동 |
+| `mcp__playwright__browser_snapshot` | 현재 페이지의 접근성 스냅샷 조회 (요소 ref 포함) |
+| `mcp__playwright__browser_click` | 요소 클릭 (`ref` 지정) |
+| `mcp__playwright__browser_type` | 요소에 텍스트 입력 |
+| `mcp__playwright__browser_fill_form` | 여러 폼 필드를 한번에 입력 |
+| `mcp__playwright__browser_select_option` | 드롭다운 옵션 선택 |
+| `mcp__playwright__browser_hover` | 요소에 마우스 호버 |
+| `mcp__playwright__browser_drag` | 드래그 앤 드롭 |
+| `mcp__playwright__browser_press_key` | 키보드 키 입력 |
+| `mcp__playwright__browser_take_screenshot` | 페이지/요소 스크린샷 캡처 |
+| `mcp__playwright__browser_evaluate` | 페이지에서 JavaScript 실행 |
+| `mcp__playwright__browser_console_messages` | 브라우저 콘솔 메시지 조회 |
+| `mcp__playwright__browser_network_requests` | 네트워크 요청 목록 조회 |
+| `mcp__playwright__browser_wait_for` | 텍스트 출현/소멸 또는 시간 대기 |
+| `mcp__playwright__browser_handle_dialog` | alert/confirm/prompt 다이얼로그 처리 |
+| `mcp__playwright__browser_file_upload` | 파일 업로드 |
+| `mcp__playwright__browser_tabs` | 탭 목록 조회/생성/닫기/선택 |
+| `mcp__playwright__browser_resize` | 브라우저 창 크기 조절 |
+| `mcp__playwright__browser_close` | 브라우저 닫기 |
+| `mcp__playwright__browser_run_code` | Playwright 코드 스니펫 직접 실행 |
+
+### 사용 예시
+
+| 요청 | 에이전트 동작 |
+|------|--------------|
+| `"localhost:3000 열어봐"` | dev 서버 실행 확인 후 `browser_navigate`로 접속 |
+| `"로그인 폼 테스트해줘"` | 스냅샷으로 폼 요소 파악 → `browser_fill_form`으로 입력 → 제출 후 결과 확인 |
+| `"현재 화면 스크린샷 찍어줘"` | `browser_take_screenshot`으로 캡처 |
+| `"콘솔 에러 있는지 확인해줘"` | `browser_console_messages(level="error")`로 에러 로그 조회 |
+| `"버튼 클릭하면 API 호출되는지 확인"` | 버튼 클릭 후 `browser_network_requests`로 요청 확인 |

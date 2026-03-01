@@ -35,10 +35,8 @@ public class JsonBodyLoginRequestValidator {
     }
 
     public LoginRequestValidationResult validate(Object loginRequest) {
-        final List<ApiErrorDetail> errors = new ArrayList<>();
-
         if (loginRequest == null) {
-            errors.add(ApiErrorDetail.of("body", "요청 값이 비어있습니다."));
+            final List<ApiErrorDetail> errors = List.of(ApiErrorDetail.of("body", "요청 값이 비어있습니다."));
             return LoginRequestValidationResult.of(null, null, null, null, errors);
         }
 
@@ -46,42 +44,55 @@ public class JsonBodyLoginRequestValidator {
         final String loginId = extractLoginId(strategy, loginRequest);
         final String password = extractPassword(strategy, loginRequest);
 
-        // 1) Bean Validation
-        final Set<ConstraintViolation<Object>> violations = beanValidator.validate(loginRequest);
-        if (violations != null && !violations.isEmpty()) {
-            for (final ConstraintViolation<Object> violation : violations) {
-                final String field = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "";
-                final String message = violation.getMessage() != null ? violation.getMessage() : "";
-                errors.add(ApiErrorDetail.of(field, message));
-            }
-            // 필드 기본값이 누락된 상태에서는 DB 조회 기반 검증을 진행하지 않습니다.
-            return LoginRequestValidationResult.of(loginRequest, strategy, loginId, password, errors);
+        final List<ApiErrorDetail> beanErrors = executeBeanValidation(loginRequest);
+        if (!beanErrors.isEmpty()) {
+            return LoginRequestValidationResult.of(loginRequest, strategy, loginId, password, beanErrors);
         }
 
-        // 2) 커스텀 Validator (계정 존재/상태/권한 정책 검증)
+        final List<ApiErrorDetail> customErrors = executeCustomValidation(loginRequest, strategy);
+        return LoginRequestValidationResult.of(loginRequest, strategy, loginId, password, customErrors);
+    }
+
+    private List<ApiErrorDetail> executeBeanValidation(Object loginRequest) {
+        final Set<ConstraintViolation<Object>> violations = beanValidator.validate(loginRequest);
+        if (violations == null || violations.isEmpty()) {
+            return List.of();
+        }
+
+        final List<ApiErrorDetail> errors = new ArrayList<>();
+        for (final ConstraintViolation<Object> violation : violations) {
+            final String field = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "";
+            final String message = violation.getMessage() != null ? violation.getMessage() : "";
+            errors.add(ApiErrorDetail.of(field, message));
+        }
+        return errors;
+    }
+
+    private List<ApiErrorDetail> executeCustomValidation(Object loginRequest, LoginRequestRoleStrategy strategy) {
         final String objectName = resolveObjectName(loginRequest, strategy);
         final DataBinder dataBinder = new DataBinder(loginRequest, objectName);
         dataBinder.addValidators(loginAccountValidator);
         dataBinder.validate();
         final BindingResult bindingResult = dataBinder.getBindingResult();
 
-        if (bindingResult.hasErrors()) {
-            for (final FieldError fieldError : bindingResult.getFieldErrors()) {
-                errors.add(ApiErrorDetail.of(
-                        fieldError.getField(),
-                        fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : ""
-                ));
-            }
-
-            for (final ObjectError objectError : bindingResult.getGlobalErrors()) {
-                errors.add(ApiErrorDetail.of(
-                        objectError.getObjectName(),
-                        objectError.getDefaultMessage() != null ? objectError.getDefaultMessage() : ""
-                ));
-            }
+        if (!bindingResult.hasErrors()) {
+            return List.of();
         }
 
-        return LoginRequestValidationResult.of(loginRequest, strategy, loginId, password, errors);
+        final List<ApiErrorDetail> errors = new ArrayList<>();
+        for (final FieldError fieldError : bindingResult.getFieldErrors()) {
+            errors.add(ApiErrorDetail.of(
+                    fieldError.getField(),
+                    fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : ""
+            ));
+        }
+        for (final ObjectError objectError : bindingResult.getGlobalErrors()) {
+            errors.add(ApiErrorDetail.of(
+                    objectError.getObjectName(),
+                    objectError.getDefaultMessage() != null ? objectError.getDefaultMessage() : ""
+            ));
+        }
+        return errors;
     }
 
     private String resolveObjectName(Object target, LoginRequestRoleStrategy strategy) {

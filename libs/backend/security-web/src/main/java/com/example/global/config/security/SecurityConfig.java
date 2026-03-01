@@ -96,56 +96,50 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity http,
             DaoAuthenticationProvider daoAuthenticationProvider,
-            CustomAuthSuccessHandler customAuthSuccessHandler,
-            CustomAuthFailureHandler customAuthFailureHandler,
-            CustomAccessDeniedHandler customAccessDeniedHandler,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
-            JsonBodyLoginRequestParser jsonBodyLoginRequestParser,
-            JsonBodyLoginRequestValidator jsonBodyLoginRequestValidator,
-            JsonBodyLoginErrorWriter jsonBodyLoginErrorWriter,
-            AuthenticationConfiguration authenticationConfiguration,
-            JwtAuthenticationFilter jwtAuthenticationFilter
+            CustomAuthSuccessHandler successHandler, CustomAuthFailureHandler failureHandler,
+            CustomAccessDeniedHandler accessDeniedHandler, CustomAuthenticationEntryPoint entryPoint,
+            JsonBodyLoginRequestParser parser, JsonBodyLoginRequestValidator validator,
+            JsonBodyLoginErrorWriter errorWriter, AuthenticationConfiguration authConfig,
+            JwtAuthenticationFilter jwtFilter
     ) throws Exception {
+        configureBasePolicy(http);
 
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(SecurityPublicPaths.PUBLIC_URLS).permitAll()
-                .requestMatchers(SecurityPublicPaths.PUBLIC_API_URLS).permitAll()
-                // API는 기본적으로 인증을 요구하고, 인가(권한)는 메서드 보안(@PreAuthorize)으로 보호합니다.
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().authenticated()
-        );
+        final var loginFilter = createJsonBodyLoginFilter(parser, validator, errorWriter, authConfig, successHandler, failureHandler);
+        http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.csrf(csrf -> csrf.disable());
-
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        // JSON 바디 로그인(/api/sessions, /api/admin/sessions) 필터 등록
-        // - formLogin(/login)과 충돌하지 않도록, 요청 경로를 별도로 매칭합니다.
-        // - 성공/실패 응답 정책은 기존 핸들러를 그대로 재사용합니다.
-        final AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
-        final JsonBodyLoginAuthenticationFilter jsonBodyLoginAuthenticationFilter = new JsonBodyLoginAuthenticationFilter(
-                jsonBodyLoginRequestParser,
-                jsonBodyLoginRequestValidator,
-                jsonBodyLoginErrorWriter
-        );
-        jsonBodyLoginAuthenticationFilter.setAuthenticationManager(authenticationManager);
-        jsonBodyLoginAuthenticationFilter.setAuthenticationSuccessHandler(customAuthSuccessHandler);
-        jsonBodyLoginAuthenticationFilter.setAuthenticationFailureHandler(customAuthFailureHandler);
-        jsonBodyLoginAuthenticationFilter.setRequiresAuthenticationRequestMatcher(SecurityConfig::isJsonLoginApiAuthenticationRequest);
-
-        http.addFilterBefore(jsonBodyLoginAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.exceptionHandling(ex -> ex
-                .accessDeniedHandler(customAccessDeniedHandler)
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-        );
-
+        http.exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler).authenticationEntryPoint(entryPoint));
         http.authenticationProvider(daoAuthenticationProvider);
-
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
+    }
+
+    private void configureBasePolicy(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(SecurityPublicPaths.PUBLIC_URLS).permitAll()
+                .requestMatchers(SecurityPublicPaths.PUBLIC_API_URLS).permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
+        );
+        http.csrf(csrf -> csrf.disable());
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    }
+
+    private JsonBodyLoginAuthenticationFilter createJsonBodyLoginFilter(
+            JsonBodyLoginRequestParser parser,
+            JsonBodyLoginRequestValidator validator,
+            JsonBodyLoginErrorWriter errorWriter,
+            AuthenticationConfiguration authConfig,
+            CustomAuthSuccessHandler successHandler,
+            CustomAuthFailureHandler failureHandler
+    ) throws Exception {
+        final JsonBodyLoginAuthenticationFilter filter = new JsonBodyLoginAuthenticationFilter(parser, validator, errorWriter);
+        filter.setAuthenticationManager(authConfig.getAuthenticationManager());
+        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
+        filter.setRequiresAuthenticationRequestMatcher(SecurityConfig::isJsonLoginApiAuthenticationRequest);
+        return filter;
     }
 
     @Bean

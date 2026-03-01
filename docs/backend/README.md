@@ -102,6 +102,7 @@ pnpm nx test domain-core
 # 라이브러리 단위 테스트
 ./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:security-web:test
 ./gradlew :libs:backend:domain-core:test
 ```
 

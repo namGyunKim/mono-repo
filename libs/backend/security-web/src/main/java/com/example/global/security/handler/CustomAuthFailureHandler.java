@@ -51,24 +51,30 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
 
         final String loginIdForEvent = loginFailureRequestResolver.resolveLoginIdOrDefault(request, LoginLoggingUtils.DEFAULT_UNKNOWN_LOGIN_ID);
 
-        // 1) 폼 로그인 입력값 누락은 400으로 분리 (JSON 로그인은 Filter 단계에서 이미 400 처리됨)
         final List<ApiErrorDetail> missingCredentialErrors = loginFailureRequestResolver.resolveMissingCredentialErrors(request);
         if (!missingCredentialErrors.isEmpty()) {
-            loginFailureEventPublisher.publishLoginFailEvent(loginIdForEvent, null, "로그인 요청 값 누락");
-            markFilterLogged(request);
-            loginFailureLogWriter.logMissingCredentials(request, loginIdForEvent, missingCredentialErrors);
-            loginFailureResponseWriter.writeErrorResponse(
-                    response,
-                    HttpStatus.BAD_REQUEST,
-                    ErrorCode.INPUT_VALUE_INVALID,
-                    missingCredentialErrors
-            );
+            handleMissingCredentials(request, response, loginIdForEvent, missingCredentialErrors);
             return;
         }
 
-        // 2) 인증 실패(401)
-        final String loginId = loginFailureRequestResolver.resolveLoginId(request).orElse(null);
+        handleAuthFailure(request, response, exception, loginIdForEvent);
+    }
 
+    private void handleMissingCredentials(
+            HttpServletRequest request, HttpServletResponse response,
+            String loginIdForEvent, List<ApiErrorDetail> errors
+    ) throws IOException {
+        loginFailureEventPublisher.publishLoginFailEvent(loginIdForEvent, null, "로그인 요청 값 누락");
+        markFilterLogged(request);
+        loginFailureLogWriter.logMissingCredentials(request, loginIdForEvent, errors);
+        loginFailureResponseWriter.writeErrorResponse(response, HttpStatus.BAD_REQUEST, ErrorCode.INPUT_VALUE_INVALID, errors);
+    }
+
+    private void handleAuthFailure(
+            HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException exception, String loginIdForEvent
+    ) throws IOException {
+        final String loginId = loginFailureRequestResolver.resolveLoginId(request).orElse(null);
         final Long memberId = (loginId != null && !loginId.isBlank())
                 ? memberAuthQueryService.findMemberIdByLoginId(MemberLoginIdQuery.of(loginId)).orElse(null)
                 : null;
@@ -77,12 +83,7 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
         loginFailureEventPublisher.publishLoginFailEvent(loginIdForEvent, memberId, detailMessage);
         markFilterLogged(request);
         loginFailureLogWriter.logAuthFailure(request, loginId, detailMessage);
-        loginFailureResponseWriter.writeErrorResponse(
-                response,
-                HttpStatus.UNAUTHORIZED,
-                ErrorCode.AUTHENTICATION_FAILED,
-                List.of()
-        );
+        loginFailureResponseWriter.writeErrorResponse(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTHENTICATION_FAILED, List.of());
     }
 
     private void markFilterLogged(HttpServletRequest request) {

@@ -34,14 +34,20 @@ public class JsonBodyLoginErrorWriter {
             return;
         }
 
-        // 이 요청은 필터 레벨에서 이미 상세 원인(errors 포함)을 로깅했음을 표시합니다.
-        // -> FallbackRequestLoggingFilter가 같은 요청을 다시 요약 로그로 남기지 않도록 중복 방지
+        markFilterLogged(request);
+
+        final String traceId = TraceIdUtils.resolveTraceId();
+        logBadRequest(request, traceId, errorCode, errors);
+        writeJsonResponse(response, traceId, errorCode, errors);
+    }
+
+    private void markFilterLogged(HttpServletRequest request) {
         if (request != null) {
             request.setAttribute(RequestLoggingAttributes.FILTER_LOGGED, Boolean.TRUE);
         }
+    }
 
-        // 필터 단계에서 컨트롤러 로깅(AOP)을 타지 못하므로, 실패 응답은 반드시 서버 로그에 남깁니다.
-        final String traceId = TraceIdUtils.resolveTraceId();
+    private void logBadRequest(HttpServletRequest request, String traceId, ErrorCode errorCode, List<ApiErrorDetail> errors) {
         final String ip = ClientIpExtractor.extract(request);
         final String method = LoginLoggingUtils.safe(request != null ? request.getMethod() : null);
         final String uri = LoginLoggingUtils.safe(request != null ? request.getRequestURI() : null);
@@ -59,16 +65,14 @@ public class JsonBodyLoginErrorWriter {
 
         log.warn(
                 ExceptionLogTemplates.LOGIN_JSON_BAD_REQUEST_LOG_TEMPLATE.stripTrailing(),
-                traceId,
-                ip,
-                method,
-                uri,
-                loginId,
-                errorName,
-                code,
-                message,
-                formattedErrors
+                traceId, ip, method, uri, loginId,
+                errorName, code, message, formattedErrors
         );
+    }
+
+    private void writeJsonResponse(HttpServletResponse response, String traceId, ErrorCode errorCode, List<ApiErrorDetail> errors) {
+        final String code = errorCode != null ? errorCode.getCode() : "";
+        final String message = errorCode != null ? errorCode.getErrorMessage() : "";
 
         try {
             response.setStatus(HttpStatus.BAD_REQUEST.value());

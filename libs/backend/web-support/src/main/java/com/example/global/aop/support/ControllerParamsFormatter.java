@@ -44,36 +44,32 @@ public class ControllerParamsFormatter {
         }
 
         try {
-            // 순서를 보장하기 위해 LinkedHashMap 사용
-            final Map<String, Object> loggableArgs = new LinkedHashMap<>();
             final String[] parameterNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
-
-            for (int i = 0; i < args.length; i++) {
-                final Object arg = args[i];
-                final String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
-
-                // 로깅 가능한 타입만 맵에 담기
-                if (isLoggable(arg)) {
-                    loggableArgs.put(paramName, sanitize(paramName, arg));
-                }
-            }
+            final Map<String, Object> loggableArgs = collectLoggableArgs(args, parameterNames);
 
             if (loggableArgs.isEmpty()) {
                 return "없음(필터링됨)";
             }
 
-            // JSON Pretty Print 적용 (줄바꿈 및 들여쓰기)
             final String formatted = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loggableArgs);
             return truncateLog(formatted);
-
         } catch (Exception e) {
-            log.warn(
-                    "traceId={}, 요청 파라미터 로깅 실패: {}",
-                    TraceIdUtils.resolveTraceId(),
-                    e.getClass().getSimpleName()
-            );
+            log.warn("traceId={}, 요청 파라미터 로깅 실패: {}", TraceIdUtils.resolveTraceId(), e.getClass().getSimpleName());
             return "파라미터 파싱 실패";
         }
+    }
+
+    private Map<String, Object> collectLoggableArgs(Object[] args, String[] parameterNames) {
+        final Map<String, Object> loggableArgs = new LinkedHashMap<>();
+        for (int i = 0; i < args.length; i++) {
+            final Object arg = args[i];
+            final String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
+
+            if (isLoggable(arg)) {
+                loggableArgs.put(paramName, sanitize(paramName, arg));
+            }
+        }
+        return loggableArgs;
     }
 
     /**
@@ -151,28 +147,28 @@ public class ControllerParamsFormatter {
         }
 
         if (node.isObject()) {
-            final ObjectNode obj = (ObjectNode) node;
-
-            // Jackson 3: fieldNames() 제거 → propertyNames() 사용
-            // propertyNames()는 Collection<String>을 반환하므로 snapshot을 떠서 안전하게 순회합니다.
-            for (final String fieldName : List.copyOf(obj.propertyNames())) {
-                final JsonNode child = obj.get(fieldName);
-
-                if (isSensitiveField(fieldName)) {
-                    obj.put(fieldName, "***");
-                    continue;
-                }
-
-                maskSensitive(child);
-            }
+            maskObjectFields((ObjectNode) node);
             return;
         }
 
         if (node.isArray()) {
-            final ArrayNode arr = (ArrayNode) node;
-            for (final JsonNode child : arr) {
-                maskSensitive(child);
+            maskArrayElements((ArrayNode) node);
+        }
+    }
+
+    private void maskObjectFields(ObjectNode obj) {
+        for (final String fieldName : List.copyOf(obj.propertyNames())) {
+            if (isSensitiveField(fieldName)) {
+                obj.put(fieldName, "***");
+                continue;
             }
+            maskSensitive(obj.get(fieldName));
+        }
+    }
+
+    private void maskArrayElements(ArrayNode arr) {
+        for (final JsonNode child : arr) {
+            maskSensitive(child);
         }
     }
 
