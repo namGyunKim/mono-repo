@@ -288,7 +288,7 @@ GitHub Actions: deploy-user-api.yml 트리거
             │
             ▼
 GitHub Actions: stage-user-api.yml 트리거
-    └── deploy-backend.yml (재사용 워크플로우)
+    └── backend-cd.yml (재사용 워크플로우)
         ├── bootJar → Docker image → GHCR push
         └── ssh ec2-user@EC2-A → deploy.sh → Blue/Green 배포
 ```
@@ -303,7 +303,7 @@ GitHub Actions: stage-user-api.yml 트리거
             │
             ▼
 GitHub Actions: deploy-user-api.yml 트리거
-    └── deploy-backend.yml (재사용 워크플로우)
+    └── backend-cd.yml (재사용 워크플로우)
         ├── bootJar → Docker image → GHCR push
         └── ssh ec2-user@EC2-B → deploy.sh → Blue/Green 배포
 ```
@@ -318,12 +318,12 @@ GitHub Actions: deploy-user-api.yml 트리거
 | 대상 서버         | EC2-A (테스트)                  | EC2-B (실서버)            |
 | GitHub Secret | `STAGE_USER_API_SERVER_HOST` | `USER_API_SERVER_HOST` |
 
-> 두 워크플로우 모두 같은 `deploy-backend.yml`을 호출한다.
+> 두 워크플로우 모두 같은 `backend-cd.yml`을 호출한다.
 > `server-host` 파라미터(GitHub Secret)만 다르게 지정하면 된다.
 
 ### 배포 워크플로우의 동작 원리
 
-각 프로젝트 워크플로우는 재사용 워크플로우(`deploy-backend.yml`)를 호출하면서 **GitHub Secret으로 대상 서버를 결정**한다.
+각 프로젝트 워크플로우는 재사용 워크플로우(`backend-cd.yml`)를 호출하면서 **GitHub Secret으로 대상 서버를 결정**한다.
 
 ```yaml
 # stage-user-api.yml (테스트 서버)
@@ -335,10 +335,10 @@ secrets:
   SERVER_HOST: ${{ secrets.USER_API_SERVER_HOST }}         # → 실서버 IP
 ```
 
-`deploy-backend.yml`은 전달받은 `SERVER_HOST`로 SSH 접속하여 배포한다:
+`backend-cd.yml`은 전달받은 `SERVER_HOST`로 SSH 접속하여 배포한다:
 
 ```yaml
-# deploy-backend.yml (재사용 워크플로우)
+# backend-cd.yml (재사용 워크플로우)
 - uses: appleboy/ssh-action@v1
   with:
     host: ${{ secrets.SERVER_HOST }}    # ← 전달받은 IP로 SSH 접속
@@ -379,7 +379,7 @@ Name과 Secret을 입력하고 [Add secret]을 클릭한다. Secret은 1개씩 �
 |------------------------|--------------------------|-----------------|
 | `deploy-user-api.yml`  | `push: deploy/user-api`  | user-api 배포 호출  |
 | `deploy-admin-api.yml` | `push: deploy/admin-api` | admin-api 배포 호출 |
-| `deploy-backend.yml`   | `workflow_call` (재사용)    | 공통 빌드+배포 로직     |
+| `backend-cd.yml`       | `workflow_call` (재사용)    | 공통 빌드+배포 로직     |
 
 **main 도입 후 추가:**
 

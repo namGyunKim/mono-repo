@@ -248,7 +248,7 @@ deploy-user-api.yml
   → SERVER_HOST에 "10.0.1.10,10.0.1.11" 전달
         │
         ▼
-deploy-backend.yml
+backend-cd.yml
   → JAR 빌드 → Docker 이미지 → GHCR push (1회)
         │
         ▼
@@ -370,11 +370,11 @@ sudo nginx -t && sudo nginx -s reload
 
 ### 공용 파일
 
-| 파일                                         | 배치 위치                                  | 설명            |
-|--------------------------------------------|----------------------------------------|---------------|
-| [`deploy.sh`](deploy.sh)                   | 서버 `/opt/deploy/deploy.sh`             | 범용 배포 스크립트    |
-| [`backend.Dockerfile`](backend.Dockerfile) | `infra/docker/backend.Dockerfile`      | 공용 Dockerfile |
-| [`deploy-backend.yml`](deploy-backend.yml) | `.github/workflows/deploy-backend.yml` | 재사용 워크플로우     |
+| 파일                                         | 배치 위치                              | 설명            |
+|--------------------------------------------|------------------------------------|---------------|
+| [`deploy.sh`](deploy.sh)                   | 서버 `/opt/deploy/deploy.sh`         | 범용 배포 스크립트    |
+| [`backend.Dockerfile`](backend.Dockerfile) | `infra/docker/backend.Dockerfile`  | 공용 Dockerfile |
+| [`backend-cd.yml`](backend-cd.yml)         | `.github/workflows/backend-cd.yml` | 재사용 워크플로우     |
 
 ### 프로젝트별 파일
 
@@ -397,7 +397,7 @@ sudo nginx -t && sudo nginx -s reload
 
 | 원본 (docs)                        | 배치 위치                                    |
 |----------------------------------|------------------------------------------|
-| `deploy-backend.yml`             | `.github/workflows/deploy-backend.yml`   |
+| `backend-cd.yml`                 | `.github/workflows/backend-cd.yml`       |
 | `user-api/deploy-user-api.yml`   | `.github/workflows/deploy-user-api.yml`  |
 | `user-api/stage-user-api.yml`    | `.github/workflows/stage-user-api.yml`   |
 | `admin-api/deploy-admin-api.yml` | `.github/workflows/deploy-admin-api.yml` |
