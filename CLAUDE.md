@@ -53,6 +53,7 @@
 - 빌드(`pnpm nx build`, `./gradlew build`), 테스트(`pnpm nx test`), 린트 실행도 자율 진행
 - 리팩토링 중 발견된 위반 사항은 즉시 수정한다
 - 파일 읽기/탐색/검색은 자율 진행
+- **GitHub 설정 변경**(Branch Protection, Secrets, Actions 등) 시 관련 문서(`docs/CI_STRATEGY.md` 등)를 즉시 최신화한다
 
 ---
 
