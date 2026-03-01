@@ -54,6 +54,13 @@ public class WebConfig implements WebMvcConfigurer {
                 ? CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic()
                 : CacheControl.noStore();
 
+        addServiceWorkerHandler(registry, cacheResources);
+        addWebJarsHandler(registry, longCacheControl, cacheResources);
+        addStaticResourceHandler(registry, longCacheControl, cacheResources);
+    }
+
+
+    private void addServiceWorkerHandler(final ResourceHandlerRegistry registry, final boolean cacheResources) {
         // Service Worker는 브라우저 업데이트 정책상 "항상 최신 체크"가 중요할 수 있으므로,
         // 장기 캐시를 적용하지 않는다.
         registry.addResourceHandler("/sw.js")
@@ -61,7 +68,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .setCacheControl(CacheControl.noCache())
                 .resourceChain(cacheResources)
                 .addResolver(new PathResourceResolver());
+    }
 
+    private void addWebJarsHandler(final ResourceHandlerRegistry registry, final CacheControl longCacheControl, final boolean cacheResources) {
         final ResourceChainRegistration webJarsChain = registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/")
                 .setCacheControl(longCacheControl)
@@ -73,7 +82,9 @@ public class WebConfig implements WebMvcConfigurer {
         addWebJarsResourceResolverIfPresent(webJarsChain);
 
         webJarsChain.addResolver(new PathResourceResolver());
+    }
 
+    private void addStaticResourceHandler(final ResourceHandlerRegistry registry, final CacheControl longCacheControl, final boolean cacheResources) {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .setCacheControl(longCacheControl)

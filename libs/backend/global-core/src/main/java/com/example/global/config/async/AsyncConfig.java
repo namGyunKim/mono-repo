@@ -61,7 +61,7 @@ public class AsyncConfig implements AsyncConfigurer {
         };
     }
 
-    private void restoreContext(Map<String, String> contextMap, SecurityContext securityContext) {
+    private void restoreContext(final Map<String, String> contextMap, final SecurityContext securityContext) {
         if (contextMap != null) {
             MDC.setContextMap(contextMap);
         }

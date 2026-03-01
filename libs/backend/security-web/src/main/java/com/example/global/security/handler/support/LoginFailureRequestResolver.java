@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Component
@@ -60,6 +61,6 @@ public class LoginFailureRequestResolver {
         if (contentType == null) {
             return false;
         }
-        return contentType.toLowerCase().contains(MediaType.APPLICATION_JSON_VALUE);
+        return contentType.toLowerCase(Locale.ROOT).contains(MediaType.APPLICATION_JSON_VALUE);
     }
 }

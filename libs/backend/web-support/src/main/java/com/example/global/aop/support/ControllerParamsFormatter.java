@@ -2,7 +2,6 @@ package com.example.global.aop.support;
 
 import com.example.domain.security.guard.PrincipalDetails;
 import com.example.global.utils.LoggingSanitizerPolicy;
-import com.example.global.utils.TraceIdUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +53,7 @@ public class ControllerParamsFormatter {
             final String formatted = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loggableArgs);
             return truncateLog(formatted);
         } catch (Exception e) {
-            log.warn("traceId={}, 요청 파라미터 로깅 실패: {}", TraceIdUtils.resolveTraceId(), e.getClass().getSimpleName());
+            log.warn("요청 파라미터 로깅 실패: {}", e.getClass().getSimpleName());
             return "파라미터 파싱 실패";
         }
     }
