@@ -68,8 +68,14 @@ docker run -d \
     --name "${PROJECT}-${TARGET_COLOR}" \
     --network host \
     --restart unless-stopped \
+    -v /app/logs:/app/logs \
     -e SERVER_PORT="${TARGET_PORT}" \
     -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILES}" \
+    -e LOGGING_FILE_NAME="${LOG_FILE}" \
+    -e LOGGING_LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN="${LOG_ROLLING_PATTERN}" \
+    -e LOGGING_LOGBACK_ROLLINGPOLICY_MAX_HISTORY="${LOG_MAX_HISTORY}" \
+    -e LOGGING_LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE="${LOG_MAX_FILE_SIZE}" \
+    -e LOGGING_LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP="${LOG_TOTAL_SIZE_CAP}" \
     "$FULL_IMAGE"
 
 # ----- Health Check -----

@@ -10,6 +10,8 @@ WORKDIR /app
 
 COPY app.jar app.jar
 
+RUN mkdir -p /app/logs
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", \

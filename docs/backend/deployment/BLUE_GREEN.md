@@ -67,6 +67,8 @@ echo "<GHCR_PAT>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin
 # 4. 디렉토리 생성
 sudo mkdir -p /opt/deploy/{projects,nginx/conf.d}
 sudo chown -R $USER:$USER /opt/deploy
+sudo mkdir -p /app/{logs,backup}
+sudo chown -R $USER:$USER /app
 
 # 5. 파일 복사 (docs/backend/deployment/ 에서)
 cp deploy.sh /opt/deploy/deploy.sh && chmod +x /opt/deploy/deploy.sh
@@ -99,7 +101,7 @@ user-api 서버 세팅 기준. 다른 프로젝트는 해당 프로젝트 디렉
 | 서버 경로 | 원본 | 비고 |
 |-----------|------|------|
 | `/opt/deploy/deploy.sh` | [`deploy.sh`](deploy.sh) | 모든 서버 동일 |
-| `/opt/deploy/projects/user-api.env` | [`user-api/user-api.env`](user-api/user-api.env) | `IMAGE`, `SPRING_PROFILES` 수정 |
+| `/opt/deploy/projects/user-api.env` | [`user-api/user-api.env`](user-api/user-api.env) | `IMAGE`, `SPRING_PROFILES`, 로깅 설정 |
 | `/opt/deploy/nginx/conf.d/user-api-upstream.conf` | [`user-api/user-api-upstream.conf`](user-api/user-api-upstream.conf) | deploy.sh가 자동 관리 |
 | `/etc/nginx/conf.d/user-api.conf` | [`user-api/user-api.conf`](user-api/user-api.conf) | `server_name` 수정 |
 
@@ -248,6 +250,9 @@ echo "<GHCR_PAT>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin
 ```bash
 sudo mkdir -p /opt/deploy/{projects,nginx/conf.d}
 sudo chown -R $USER:$USER /opt/deploy
+
+sudo mkdir -p /app/{logs,backup}
+sudo chown -R $USER:$USER /app
 ```
 
 결과 구조:
@@ -260,6 +265,12 @@ sudo chown -R $USER:$USER /opt/deploy
 └── nginx/
     └── conf.d/
         └── user-api-upstream.conf     # deploy.sh가 자동 관리
+
+/app/
+├── logs/                              # 앱 로그 (컨테이너에서 볼륨 마운트)
+│   ├── app.log                        # 현재 로그
+│   └── app-2026-03-01.0.log           # 일별 롤링 파일
+└── backup/                            # 로그 백업 (cron이 관리)
 
 /etc/nginx/conf.d/
 └── user-api.conf                      # Nginx server 블록 (수동 1회 작성)
@@ -410,12 +421,36 @@ docker images ghcr.io/namgyunkim/mono-repo/user-api --format "{{.Tag}}\t{{.Creat
 ### 로그 확인
 
 ```bash
-# 실시간 로그
+# 파일 로그 실시간 확인
+tail -f /app/logs/app.log
+
+# Docker 컨테이너 로그 (stdout)
 docker logs -f user-api-blue
 
 # 최근 100줄
 docker logs user-api-green --tail 100
+
+# 일별 로그 파일 목록
+ls -lt /app/logs/
 ```
+
+### 로그 백업 (cron)
+
+일별 롤링 파일을 압축하여 `/app/backup`에 보관한다. 서버에서 최초 1회 설정.
+
+```bash
+# crontab 등록
+crontab -e
+
+# 매일 새벽 2시: 2일 이상 된 롤링 파일을 압축 후 /app/backup으로 이동
+0 2 * * * find /app/logs -name "app-*.log" -mtime +1 -exec gzip {} \; -exec mv {}.gz /app/backup/ \;
+
+# (선택) 90일 이상 된 백업 파일 자동 삭제
+0 3 * * * find /app/backup -name "*.gz" -mtime +90 -delete
+```
+
+> logback이 `/app/logs`에 최근 30일 롤링 파일을 유지하고,
+> cron이 오래된 파일을 압축하여 `/app/backup`에 장기 보관한다.
 
 ### 현재 상태 확인
 
@@ -482,6 +517,6 @@ docker image prune -a --filter "until=168h" -f
 
 ## TODO
 
-- [ ] `/app/logs`에 프로그램 실행 시 `app.log`로 로그 남기기 및 매일 백업 전략 수립
+- [x] `/app/logs`에 프로그램 실행 시 `app.log`로 로그 남기기 및 매일 백업 전략 수립
 - [ ] 배포 실패 시 알림/대응 전략 수립 (Slack 알림, 자동 롤백 등)
 - [ ] 배포 성공 시 후속 전략 수립 (배포 이력 기록, 알림 등)
