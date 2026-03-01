@@ -215,10 +215,12 @@ libs/backend/common/src/test/java/com/example/global/
 └── aop/support/              # AOP 지원 테스트 (2개)
 
 libs/backend/global-core/src/test/java/com/example/global/
-├── security/                 # 보안 테스트 (3개)
-│   ├── handler/support/      # 로그인 핸들러 테스트 (2개)
+├── security/                 # 보안 테스트 (5개)
 │   └── blacklist/            # 블랙리스트 테스트 (2개)
 └── exception/support/        # 예외 처리 지원 테스트 (5개)
+
+libs/backend/security-web/src/test/java/com/example/global/
+└── security/handler/support/ # 로그인 핸들러 테스트 (2개)
 
 libs/backend/domain-core/src/test/java/com/example/domain/
 ├── contract/enums/           # Enum 동기화 테스트 (1개)
@@ -240,6 +242,7 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 # 개별 모듈 테스트
 ./gradlew :libs:backend:common:test
 ./gradlew :libs:backend:global-core:test
+./gradlew :libs:backend:security-web:test
 ./gradlew :libs:backend:domain-core:test
 
 # 특정 테스트 클래스
@@ -254,7 +257,8 @@ libs/backend/domain-core/src/test/java/com/example/domain/
 | 모듈 | 테스트 파일 수 | 테스트 메서드 수 |
 |------|-------------|--------------|
 | common | 14 | ~95 |
-| global-core | 12 | ~90 |
+| global-core | 10 | ~80 |
+| security-web | 2 | ~10 |
 | domain-core | 14 | ~85 |
 | **합계** | **40** | **~270** |
 
