@@ -42,3 +42,180 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm nx run-many -t lint test build --projects='@mono-repo/*'
+
+  e2e:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: base_project
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Java (backend bootRun)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Node (Next.js + Playwright)
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      # application*.yml은 gitignore 대상이므로 CI에서 인라인 생성
+      - name: Generate backend config for CI
+        run: |
+          mkdir -p apps/user-api/src/main/resources
+
+          cat > apps/user-api/src/main/resources/application.yml << 'EOF'
+          server:
+            port: 8081
+            forward-headers-strategy: native
+            shutdown: graceful
+          spring:
+            web:
+              resources:
+                add-mappings: true
+            threads:
+              virtual:
+                enabled: true
+            jpa:
+              open-in-view: false
+              properties:
+                hibernate:
+                  default_batch_fetch_size: 100
+            profiles:
+              active: ci
+            servlet:
+              multipart:
+                max-file-size: 30MB
+                max-request-size: 1000MB
+            jackson:
+              time-zone: Asia/Seoul
+          s3:
+            bucket: dummy
+            bucket-local: dummy
+          aws:
+            access-key: dummy
+            secret-key: dummy
+            region: ap-northeast-2
+          logging:
+            level:
+              org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
+              org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: error
+            pattern:
+              console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%15.15t] %-40.40logger{39} : %m%n"
+          springdoc:
+            api-docs:
+              enabled: false
+            swagger-ui:
+              enabled: false
+          app:
+            type: user
+            cors:
+              allowed-origins: http://localhost:3000
+            logging:
+              exception:
+                structured-enabled: false
+            jwt:
+              issuer: sample-service
+              secret: ci_e2e_test_secret_key_minimum_256bit_length_ok
+              access-token-ttl: P30D
+              refresh-token-ttl: P30D
+              blacklist-cleanup-cron: "0 0 3 * * *"
+          EOF
+
+          cat > apps/user-api/src/main/resources/application-ci.yml << 'EOF'
+          spring:
+            datasource:
+              url: jdbc:postgresql://localhost:5432/base_project?options=-c%20TimeZone=Asia/Seoul
+              username: postgres
+              password: postgres
+              driver-class-name: org.postgresql.Driver
+            jpa:
+              hibernate:
+                ddl-auto: create-drop
+          decorator:
+            datasource:
+              p6spy:
+                enable-logging: false
+          social:
+            google:
+              baseUrl: https://accounts.google.com
+              apiBaseUrl: https://www.googleapis.com
+              clientId: dummy
+              redirectUri: http://localhost:8081/api/social/v1/google/redirect
+              secretKey: dummy
+              scope: email profile
+          EOF
+
+      - name: Start backend (user-api)
+        run: ./gradlew :apps:user-api:bootRun &
+
+      - name: Build and start frontend
+        run: |
+          pnpm nx build @mono-repo/web
+          pnpm nx start @mono-repo/web &
+
+      - name: Wait for servers
+        run: |
+          echo "Waiting for user-api..."
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:8081/api/health > /dev/null 2>&1 && echo "Backend ready!" && break
+            [ "$i" -eq 60 ] && echo "Backend timeout" && exit 1
+            sleep 2
+          done
+
+          echo "Waiting for Next.js..."
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000 > /dev/null 2>&1 && echo "Frontend ready!" && break
+            [ "$i" -eq 30 ] && echo "Frontend timeout" && exit 1
+            sleep 2
+          done
+
+      - name: Run E2E tests
+        run: pnpm nx e2e web-e2e
+        env:
+          CI: 'true'
+          WEB_URL: http://localhost:3000
+          USER_API_URL: http://localhost:8081
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/web-e2e/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: apps/web-e2e/test-results/
+          retention-days: 7
