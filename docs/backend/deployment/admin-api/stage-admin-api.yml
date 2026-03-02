@@ -2,6 +2,7 @@
 #
 # stage/admin-api 브랜치에 push하면 admin-api가 테스트 서버에 배포된다.
 # 어떤 파일이 변경되었는지와 무관하게 항상 배포된다.
+# push 트리거 시 develop에서 병합된 것인지 검증한 후 배포를 진행한다.
 
 name: Stage admin-api
 
@@ -12,7 +13,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  verify-source:
+    name: Verify merge source
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify merge from develop only
+        run: |
+          git fetch origin develop
+
+          # 1) develop의 최신 커밋이 이 브랜치에 포함되어 있는지 확인
+          if ! git merge-base --is-ancestor origin/develop HEAD; then
+            echo "::error::stage/* 브랜치는 develop의 최신 커밋을 포함해야 합니다. develop을 먼저 병합하세요."
+            exit 1
+          fi
+
+          # 2) develop에 없는 non-merge 커밋이 있는지 확인 (develop 외 소스 병합 방지)
+          NON_MERGE_COUNT=$(git rev-list origin/develop..HEAD --no-merges --count)
+          if [ "$NON_MERGE_COUNT" -gt 0 ]; then
+            echo "::error::stage/* 브랜치에 develop에 없는 커밋이 ${NON_MERGE_COUNT}개 발견되었습니다."
+            echo "::error::stage/* 브랜치에는 develop에서만 병합해야 합니다."
+            echo "--- develop에 없는 커밋 목록 ---"
+            git rev-list origin/develop..HEAD --no-merges --oneline
+            exit 1
+          fi
+
+          echo "✅ 검증 통과: develop에서 정상적으로 병합됨"
+
   deploy:
+    needs: verify-source
+    if: always() && (needs.verify-source.result == 'success' || needs.verify-source.result == 'skipped')
     uses: ./.github/workflows/backend-cd.yml
     with:
       project: admin-api
