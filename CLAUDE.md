@@ -47,6 +47,12 @@
 
 ---
 
+# 첨부 이미지 확인
+
+사용자가 "첨부한 이미지 확인해줘" 등 이미지 참조를 요청하면, 프로젝트 루트 경로의 `*.png` 파일을 확인한다.
+
+---
+
 # AI 자율 실행 규칙 (CRITICAL)
 
 - 코드 생성/수정/리팩토링/삭제는 **권한 확인 없이 자율 진행**한다
@@ -60,6 +66,14 @@
 # MCP 서버 (Serena -> mcp__serena__*, Context7 -> mcp__context7__*, Postgres -> mcp__postgres__*, Playwright -> mcp__playwright__*)
 
 이 워크스페이스에는 네 개의 MCP 서버가 연결되어 있다.
+
+> **대화 시작 시 MCP 활성화 확인 (CRITICAL)**
+>
+> 매 대화(세션) 시작 시 아래 순서를 **반드시** 실행한다:
+> 1. `mcp__serena__activate_project("mono-repo")` — Serena 프로젝트 활성화
+> 2. `mcp__serena__check_onboarding_performed()` — 온보딩 상태 확인 (미수행 시 `onboarding` 실행)
+>
+> 이 단계를 건너뛰면 시맨틱 코드 도구를 사용할 수 없다.
 
 ## Serena — 시맨틱 코드 분석/편집
 
