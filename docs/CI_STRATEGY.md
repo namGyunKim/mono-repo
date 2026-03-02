@@ -38,12 +38,17 @@ feat/* ──→ develop ──→ stage/user-api    (테스트 서버 배포)
                     (PR)      deploy/admin-api  (실서버 배포)
                       │
                     태깅 (v1.0.0)
+
+hotfix/* ──→ main (PR) ──→ deploy/*   (실서버 긴급 배포)
+                │
+                └──→ develop (역병합 PR)
 ```
 
 | 브랜치        | 환경         | 트리거            |
 |------------|------------|----------------|
 | `stage/*`  | 테스트 서버     | develop에서 push |
 | `deploy/*` | 실서버 (프로덕션) | main에서 push    |
+| `hotfix/*` | —          | main으로 PR 후 deploy/* 병합 |
 
 **GitHub 기본 브랜치:**
 
@@ -62,12 +67,39 @@ feat/* ──→ develop ──→ stage/user-api    (테스트 서버 배포)
 6. 배포 워크플로우 파일 추가: `stage-*.yml` (테스트), `deploy-*.yml` (실서버)
 7. 릴리스 시 `develop → main` PR 생성 후 머지 → `main`에서 릴리스 태그 부여 (예: `v1.0.0`)
 
-### feat 브랜치 네이밍 컨벤션
+### hotfix 브랜치
+
+실서버에서 긴급 수정이 필요할 때 사용한다. `main`에 직접 PR을 생성하여 빠르게 배포한다.
+
+**흐름:**
+
+```
+1. main에서 hotfix 브랜치 생성
+   git checkout -b hotfix/fix-xxx main
+
+2. 수정 후 main으로 PR 생성 & 머지
+
+3. main → deploy/* 병합 & push (실서버 배포)
+   git checkout deploy/user-api
+   git merge main
+   git push
+
+4. main → develop 역병합 PR 생성 & 머지 (핫픽스 내용 동기화)
+```
+
+**주의사항:**
+
+- hotfix는 `main`에만 PR을 생성한다 (develop이 아님)
+- 배포 후 반드시 `main → develop` 역병합 PR을 생성하여 develop에도 수정 내용을 반영한다
+- 역병합을 누락하면 다음 릴리스(`develop → main`)에서 hotfix가 덮어씌워질 수 있다
+
+### 브랜치 네이밍 컨벤션
 
 ```
 feat/be-xxx    # 백엔드 기능
 feat/fe-xxx    # 프론트엔드 기능
 feat/xxx       # 공통/인프라/문서
+hotfix/xxx     # 실서버 긴급 수정
 ```
 
 ### 커밋 / PR 메시지 컨벤션
@@ -303,6 +335,37 @@ develop ──→ stage/admin-api  ──→ admin-api 테스트 서버 배포
 
 main ──→ deploy/user-api   ──→ user-api 실서버 배포
 main ──→ deploy/admin-api  ──→ admin-api 실서버 배포
+```
+
+### 병합 소스 검증
+
+배포 워크플로우는 push 트리거 시 **병합 소스가 올바른 브랜치인지 자동 검증**한다.
+검증 실패 시 배포가 차단되며, `workflow_dispatch`(수동 실행) 시에는 검증을 건너뛴다.
+
+| 배포 브랜치    | 허용된 소스     | 차단 예시                         |
+|------------|-----------|-------------------------------|
+| `stage/*`  | `develop` | feat/x 직접 병합, main 병합         |
+| `deploy/*` | `main`    | develop 직접 병합, feat/x 직접 병합   |
+
+**검증 방식 (2단계):**
+
+1. **소스 포함 확인**: 허용된 소스 브랜치의 최신 커밋이 배포 브랜치에 포함되어 있는지 확인
+   (`git merge-base --is-ancestor origin/<source> HEAD`)
+2. **이물질 커밋 차단**: 허용된 소스에 없는 non-merge 커밋이 배포 브랜치에 존재하는지 확인
+   (`git rev-list origin/<source>..HEAD --no-merges --count`)
+
+**실패 시나리오:**
+
+```
+# ❌ feat/x를 stage에 직접 병합 → 검증 실패 (2단계에서 차단)
+git checkout stage/user-api
+git merge feat/x    # develop에 없는 커밋 포함
+git push            # → "develop에 없는 커밋이 N개 발견되었습니다" 에러
+
+# ✅ 올바른 방법: develop에 먼저 병합 후 stage에 반영
+git checkout stage/user-api
+git merge develop
+git push            # → 검증 통과, 배포 진행
 ```
 
 ### 배포 흐름 (현재 — 테스트 서버만)
